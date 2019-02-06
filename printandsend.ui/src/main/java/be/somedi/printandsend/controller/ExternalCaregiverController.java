@@ -1,5 +1,8 @@
 package be.somedi.printandsend.controller;
 
+import be.somedi.printandsend.entity.ExternalCaregiverEntity;
+import be.somedi.printandsend.mapper.ExternalCaregiverMapper;
+import be.somedi.printandsend.model.ExternalCaregiver;
 import be.somedi.printandsend.service.ExternalCaregiverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,6 +20,9 @@ public class ExternalCaregiverController {
     private final ExternalCaregiverService externalCaregiverService;
 
     @Autowired
+    private ExternalCaregiverMapper externalCaregiverMapper;
+
+    @Autowired
     public ExternalCaregiverController(ExternalCaregiverService externalCaregiverService) {
         this.externalCaregiverService = externalCaregiverService;
     }
@@ -24,7 +30,11 @@ public class ExternalCaregiverController {
     @GetMapping("{externalId}")
     public ModelAndView showExternalCaregiver(@PathVariable String externalId) {
         ModelAndView modelAndView = new ModelAndView(EXTERNALCAREGIVER_VIEW);
-        modelAndView.addObject("externalCaregiver", externalCaregiverService.findFirstByExternalID(externalId));
+
+        ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findFirstByExternalID(externalId);
+        ExternalCaregiver externalCaregiver = externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity);
+
+        modelAndView.addObject("externalCaregiver", externalCaregiver);
         return modelAndView;
     }
 

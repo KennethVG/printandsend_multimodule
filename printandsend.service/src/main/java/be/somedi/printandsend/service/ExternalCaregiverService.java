@@ -1,12 +1,12 @@
 package be.somedi.printandsend.service;
 
 
-import be.somedi.printandsend.entity.ExternalCaregiver;
+import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 
 public interface ExternalCaregiverService {
 
-    ExternalCaregiver findFirstByExternalID(String externalId);
+    ExternalCaregiverEntity findFirstByExternalID(String externalId);
 
-    ExternalCaregiver updateExternalCaregiver(ExternalCaregiver externalCaregiver);
+    ExternalCaregiverEntity updateExternalCaregiver(ExternalCaregiverEntity externalCaregiverEntity);
 
 }

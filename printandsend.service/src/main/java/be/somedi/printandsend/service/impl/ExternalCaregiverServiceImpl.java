@@ -1,7 +1,8 @@
-package be.somedi.printandsend.service;
+package be.somedi.printandsend.service.impl;
 
-import be.somedi.printandsend.entity.ExternalCaregiver;
+import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 import be.somedi.printandsend.repository.ExternalCaregiverRepository;
+import be.somedi.printandsend.service.ExternalCaregiverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -19,7 +20,7 @@ public class ExternalCaregiverServiceImpl implements ExternalCaregiverService {
 
     @Override
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
-    public ExternalCaregiver findFirstByExternalID(String externalId) {
+    public ExternalCaregiverEntity findFirstByExternalID(String externalId) {
         if (externalId.length() == 5) {
             return externalCaregiverRepository.findFirstByExternalID(externalId);
         }
@@ -27,7 +28,7 @@ public class ExternalCaregiverServiceImpl implements ExternalCaregiverService {
     }
 
     @Override
-    public ExternalCaregiver updateExternalCaregiver(ExternalCaregiver externalCaregiver) {
-        return externalCaregiverRepository.saveAndFlush(externalCaregiver);
+    public ExternalCaregiverEntity updateExternalCaregiver(ExternalCaregiverEntity externalCaregiverEntity) {
+        return externalCaregiverRepository.saveAndFlush(externalCaregiverEntity);
     }
 }
