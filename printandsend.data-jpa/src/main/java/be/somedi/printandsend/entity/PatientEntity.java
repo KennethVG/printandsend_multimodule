@@ -10,10 +10,12 @@ public class PatientEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String externalId;
 
-    @Column(name = "person_id")
-    private Long personId;
+    @OneToOne
+    @JoinColumn(name = "person_id")
+    private PersonEntity person;
 
     public Long getId() {
         return id;
@@ -23,7 +25,15 @@ public class PatientEntity {
         return externalId;
     }
 
-    public Long getPersonId() {
-        return personId;
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
+    }
+
+    public PersonEntity getPerson() {
+        return person;
+    }
+
+    public void setPerson(PersonEntity person) {
+        this.person = person;
     }
 }

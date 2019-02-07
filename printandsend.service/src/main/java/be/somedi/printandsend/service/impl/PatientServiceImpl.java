@@ -17,7 +17,7 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public PatientEntity findFirstByExternalId(String externalId) {
-        return patientRepository.findFirstByExternalId(externalId);
+    public PatientEntity findByExternalId(String externalId) {
+        return patientRepository.findByExternalId(externalId);
     }
 }

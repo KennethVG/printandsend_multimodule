@@ -2,7 +2,6 @@ package be.somedi.printandsend.model;
 
 public class ExternalCaregiver {
 
-    private Long id;
     private String externalID;
     private String firstName;
     private String lastName;
@@ -30,10 +29,6 @@ public class ExternalCaregiver {
         this.nihiiAddress = nihiiAddress;
         this.eProtocols = eProtocols;
         this.secondCopy = secondCopy;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public String getExternalID() {

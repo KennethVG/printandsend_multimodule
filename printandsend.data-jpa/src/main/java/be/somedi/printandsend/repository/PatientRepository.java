@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PatientRepository extends JpaRepository<PatientEntity, Long> {
 
-    PatientEntity findFirstByExternalId(String externalId);
+    PatientEntity findByExternalId(String externalId);
 }

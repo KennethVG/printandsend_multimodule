@@ -10,6 +10,7 @@ public interface ExternalCaregiverMapper {
 
     ExternalCaregiverMapper INSTANCE = Mappers.getMapper(ExternalCaregiverMapper.class);
 
-    ExternalCaregiverEntity externalCaregiverToEntity (ExternalCaregiver externalCaregiver);
+    ExternalCaregiverEntity externalCaregiverToEntity(ExternalCaregiver externalCaregiver);
+
     ExternalCaregiver entityToExternalCaregiver(ExternalCaregiverEntity externalCaregiverEntity);
 }
