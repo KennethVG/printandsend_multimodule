@@ -36,7 +36,7 @@ public class ExternalCaregiverController {
     public ModelAndView showExternalCaregiver(@PathVariable String externalId) {
         ModelAndView modelAndView = new ModelAndView(EXTERNALCAREGIVER_VIEW);
 
-        ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findFirstByExternalID(externalId);
+        ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findByExternalID(externalId);
         ExternalCaregiver externalCaregiver = externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity);
 
         modelAndView.addObject("externalCaregiver", externalCaregiver);

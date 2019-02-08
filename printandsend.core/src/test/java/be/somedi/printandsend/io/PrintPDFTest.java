@@ -24,14 +24,5 @@ public class PrintPDFTest {
 
         Path pathOfPDF = printPDF.getPathOfPDFToPrint();
         assertEquals(path.getParent(), pathOfPDF.getParent());
-
-        try {
-            printPDF.printPDF(pathOfPDF);
-        } catch (PrinterException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
 }

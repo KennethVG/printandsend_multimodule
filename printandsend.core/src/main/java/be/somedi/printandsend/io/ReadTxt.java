@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 public class ReadTxt {
@@ -45,6 +46,28 @@ public class ReadTxt {
         return String.valueOf(getPath().getFileName());
     }
 
+    public void deleteTxtFile() throws IOException {
+        Files.delete(getPath());
+    }
+
+    public void moveTxtFile(Path moveToFolder) throws IOException {
+        Files.copy(getPath(), moveToFolder, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    public boolean containsVulAan() throws IOException {
+        List<String> fullDocument  = Files.readAllLines(getPath(), charset);
+        for (String line : fullDocument){
+            if(line.contains("vul_aan")){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsSentenceToDelete(){
+        //TODO: to implement
+        return false;
+    }
 
     public String getTextAfterKey(String key) {
         try {

@@ -9,8 +9,10 @@ import javax.print.attribute.standard.PrinterState;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 public class PrintPDF {
 
@@ -26,13 +28,25 @@ public class PrintPDF {
         return toPrint.getFileName().toString();
     }
 
-    public Path getPathOfPDFToPrint(){
+    public Path getPathOfPDFToPrint() {
         Path read = readTxt.getPath();
         return Paths.get(read.getParent() + "\\" + getFileNameOfPDFToPrint());
     }
 
-    public void printPDF(Path pathToPDF) throws PrinterException, IOException {
-        PDDocument doc = PDDocument.load(pathToPDF.toFile());
+    public void copyAndDeleteTxtAndPDF(Path pathToMove) throws IOException {
+        Files.copy(getPathOfPDFToPrint(), Paths.get(pathToMove + "\\" + getFileNameOfPDFToPrint()), StandardCopyOption.REPLACE_EXISTING);
+        Files.delete(getPathOfPDFToPrint());
+        readTxt.moveTxtFile(Paths.get(pathToMove + "\\" + readTxt.getFileName()));
+        readTxt.deleteTxtFile();
+    }
+
+    public void deleteTxtAndPDF() throws IOException {
+        Files.delete(getPathOfPDFToPrint());
+        readTxt.deleteTxtFile();
+    }
+
+    public void printPDF() throws PrinterException, IOException {
+        PDDocument doc = PDDocument.load(getPathOfPDFToPrint().toFile());
         PrinterJob printerJob = PrinterJob.getPrinterJob();
         printerJob.setPageable(new PDFPageable(doc));
         PrintService defaultPrintService = PrintServiceLookup.lookupDefaultPrintService();
@@ -40,10 +54,10 @@ public class PrintPDF {
         PrintServiceAttributeSet printServiceAttributeSet = defaultPrintService.getAttributes();
         PrinterState printerState = (PrinterState) printServiceAttributeSet.get(PrinterState.class);
 
-        if(printerState != null){
+        if (printerState != null) {
             printerJob.setPrintService(defaultPrintService);
             printerJob.print();
-        } else{
+        } else {
             System.out.println("Default printer niet online");
         }
         doc.close();

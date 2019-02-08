@@ -1,10 +1,15 @@
 package be.somedi.printandsend.controller;
 
+import be.somedi.printandsend.jobs.WatchServiceOfDirectory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.awt.print.PrinterException;
+import java.io.IOException;
+import java.nio.file.WatchService;
 import java.time.LocalDateTime;
 
 @Controller
@@ -12,6 +17,13 @@ import java.time.LocalDateTime;
 public class IndexController {
 
     private static final String VIEW = "index";
+
+    private final WatchServiceOfDirectory watchServiceOfDirectory;
+
+    @Autowired
+    public IndexController(WatchServiceOfDirectory watchServiceOfDirectory) {
+        this.watchServiceOfDirectory = watchServiceOfDirectory;
+    }
 
     private String begroeting() {
         int uur = LocalDateTime.now().getHour();
@@ -26,6 +38,16 @@ public class IndexController {
 
     @GetMapping
     public ModelAndView index() {
+        try {
+            watchServiceOfDirectory.processEventsBeforeWatching();
+            watchServiceOfDirectory.processEvents();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (PrinterException e) {
+            e.printStackTrace();
+        }
         return new ModelAndView(VIEW, "begroeting", begroeting());
     }
     

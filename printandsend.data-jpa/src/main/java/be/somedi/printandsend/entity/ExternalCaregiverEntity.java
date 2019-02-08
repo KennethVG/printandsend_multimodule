@@ -12,6 +12,7 @@ public class ExternalCaregiverEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String externalID;
     private String firstName;
     private String lastName;
