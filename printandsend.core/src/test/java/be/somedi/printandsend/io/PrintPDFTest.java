@@ -15,7 +15,10 @@ public class PrintPDFTest {
     @Test
     public void getFileNameOfPDFToPrint() {
         URL url = getClass().getClassLoader().getResource("MSE_183030005_2976737_A9671.txt");
-        Path path = new File(url.getFile()).toPath();
+        Path path = null;
+        if (url != null) {
+            path = new File(url.getFile()).toPath();
+        }
         ReadTxt readTxt = new ReadTxt(path);
 
         PrintPDF printPDF = new PrintPDF(readTxt);

@@ -1,11 +1,14 @@
 package be.somedi.printandsend.model;
 
+import static org.apache.commons.lang3.StringUtils.*;
+
 public class ExternalCaregiver {
 
     private String externalID;
     private String firstName;
     private String lastName;
     private String nihii;
+    private String phone;
     private String streetWithNumber;
     private String zip;
     private Boolean printProtocols;
@@ -13,6 +16,7 @@ public class ExternalCaregiver {
     private String nihiiAddress;
     private Boolean eProtocols;
     private Boolean secondCopy;
+    private String fullName;
 
     public ExternalCaregiver() {
     }
@@ -40,7 +44,7 @@ public class ExternalCaregiver {
     }
 
     public String getFirstName() {
-        return firstName;
+        return substring(firstName, 0, 16);
     }
 
     public void setFirstName(String firstName) {
@@ -48,6 +52,9 @@ public class ExternalCaregiver {
     }
 
     public String getLastName() {
+        for (int i = lastName.length(); i < 24; i++) {
+            lastName = lastName.concat(" ");
+        }
         return lastName;
     }
 
@@ -55,12 +62,28 @@ public class ExternalCaregiver {
         this.lastName = lastName;
     }
 
+    public String getFullName() {
+        return this.firstName + " " + this.lastName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
     public String getNihii() {
-        return nihii;
+        return left(nihii, 1) + "/" + substring(nihii, 1, 6) + "/" + substring(nihii, 6, 8) + "/" + right(nihii, 3);
     }
 
     public void setNihii(String nihii) {
         this.nihii = nihii;
+    }
+
+    public String getPhone() {
+        return substring(phone, 0, 50);
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getStreetWithNumber() {
@@ -127,33 +150,13 @@ public class ExternalCaregiver {
         ExternalCaregiver that = (ExternalCaregiver) o;
 
         if (externalID != null ? !externalID.equals(that.externalID) : that.externalID != null) return false;
-        if (firstName != null ? !firstName.equals(that.firstName) : that.firstName != null) return false;
-        if (lastName != null ? !lastName.equals(that.lastName) : that.lastName != null) return false;
-        if (nihii != null ? !nihii.equals(that.nihii) : that.nihii != null) return false;
-        if (streetWithNumber != null ? !streetWithNumber.equals(that.streetWithNumber) : that.streetWithNumber != null)
-            return false;
-        if (zip != null ? !zip.equals(that.zip) : that.zip != null) return false;
-        if (printProtocols != null ? !printProtocols.equals(that.printProtocols) : that.printProtocols != null)
-            return false;
-        if (format != that.format) return false;
-        if (nihiiAddress != null ? !nihiiAddress.equals(that.nihiiAddress) : that.nihiiAddress != null) return false;
-        if (eProtocols != null ? !eProtocols.equals(that.eProtocols) : that.eProtocols != null) return false;
-        return secondCopy != null ? secondCopy.equals(that.secondCopy) : that.secondCopy == null;
+        return nihii != null ? nihii.equals(that.nihii) : that.nihii == null;
     }
 
     @Override
     public int hashCode() {
         int result = externalID != null ? externalID.hashCode() : 0;
-        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
-        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
         result = 31 * result + (nihii != null ? nihii.hashCode() : 0);
-        result = 31 * result + (streetWithNumber != null ? streetWithNumber.hashCode() : 0);
-        result = 31 * result + (zip != null ? zip.hashCode() : 0);
-        result = 31 * result + (printProtocols != null ? printProtocols.hashCode() : 0);
-        result = 31 * result + (format != null ? format.hashCode() : 0);
-        result = 31 * result + (nihiiAddress != null ? nihiiAddress.hashCode() : 0);
-        result = 31 * result + (eProtocols != null ? eProtocols.hashCode() : 0);
-        result = 31 * result + (secondCopy != null ? secondCopy.hashCode() : 0);
         return result;
     }
 }

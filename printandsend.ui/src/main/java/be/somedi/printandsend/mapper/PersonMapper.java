@@ -4,7 +4,7 @@ import be.somedi.printandsend.entity.PersonEntity;
 import be.somedi.printandsend.model.Person;
 import org.mapstruct.Mapper;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface PersonMapper {
 
     PersonEntity personToPersonEntity(Person person);

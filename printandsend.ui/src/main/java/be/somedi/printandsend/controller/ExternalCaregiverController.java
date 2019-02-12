@@ -1,9 +1,12 @@
 package be.somedi.printandsend.controller;
 
 import be.somedi.printandsend.entity.ExternalCaregiverEntity;
+import be.somedi.printandsend.entity.LinkedExternalCaregiverEntity;
+import be.somedi.printandsend.jobs.CreateUMFormat;
 import be.somedi.printandsend.mapper.ExternalCaregiverMapper;
 import be.somedi.printandsend.model.ExternalCaregiver;
 import be.somedi.printandsend.service.ExternalCaregiverService;
+import be.somedi.printandsend.service.LinkedExternalCaregiverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,15 +24,18 @@ public class ExternalCaregiverController {
     private static final String EXTERNALCAREGIVER_VIEW = "externalcaregiver/externalId";
 
     private final ExternalCaregiverService externalCaregiverService;
+    private final LinkedExternalCaregiverService linkedExternalCaregiverService;
     private final ExternalCaregiverMapper externalCaregiverMapper;
+    private final TemplateEngine textTemplateEngine;
+    private final CreateUMFormat createUMFormat;
 
     @Autowired
-    private TemplateEngine textTemplateEngine;
-
-    @Autowired
-    public ExternalCaregiverController(ExternalCaregiverService externalCaregiverService, ExternalCaregiverMapper externalCaregiverMapper) {
+    public ExternalCaregiverController(ExternalCaregiverService externalCaregiverService, ExternalCaregiverMapper externalCaregiverMapper, LinkedExternalCaregiverService linkedExternalCaregiverService, TemplateEngine textTemplateEngine, CreateUMFormat createUMFormat) {
         this.externalCaregiverService = externalCaregiverService;
         this.externalCaregiverMapper = externalCaregiverMapper;
+        this.linkedExternalCaregiverService = linkedExternalCaregiverService;
+        this.textTemplateEngine = textTemplateEngine;
+        this.createUMFormat = createUMFormat;
     }
 
     @GetMapping("{externalId}")
@@ -37,20 +43,13 @@ public class ExternalCaregiverController {
         ModelAndView modelAndView = new ModelAndView(EXTERNALCAREGIVER_VIEW);
 
         ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findByExternalID(externalId);
-        ExternalCaregiver externalCaregiver = externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity);
+        ExternalCaregiver caregiverFrom = externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity);
 
-        modelAndView.addObject("externalCaregiver", externalCaregiver);
+        LinkedExternalCaregiverEntity linkedExternalCaregiverEntity = linkedExternalCaregiverService.findLinkedIdByExternalId(externalId);
+        ExternalCaregiverEntity caregiverToEntity = externalCaregiverService.findByExternalID(linkedExternalCaregiverEntity.getLinkedId());
+        ExternalCaregiver caregiverTo = externalCaregiverMapper.entityToExternalCaregiver(caregiverToEntity);
 
-        Context context = new Context();
-        context.setVariable("nihii", externalCaregiver.getNihii());
-        context.setVariable("naam", externalCaregiver.getLastName());
-        context.setVariable("voornaam", externalCaregiver.getFirstName());
-        context.setVariable("c", externalCaregiver);
-        String output = textTemplateEngine.process("medidoc.txt", context);
-        System.out.println(output);
-
+//        createUMFormat.createMedidocFile();
         return modelAndView;
     }
-
-
 }

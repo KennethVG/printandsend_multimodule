@@ -1,6 +1,7 @@
 package be.somedi.printandsend.entity;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "dbo.PersonalInfo_Person")
@@ -13,6 +14,7 @@ public class PersonEntity {
     private String firstName;
     private String lastName;
     private String inss;
+    private LocalDate birthDate;
 
     public Long getId() {
         return id;
@@ -40,5 +42,13 @@ public class PersonEntity {
 
     public void setInss(String inss) {
         this.inss = inss;
+    }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
     }
 }

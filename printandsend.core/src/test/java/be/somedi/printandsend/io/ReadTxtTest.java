@@ -1,8 +1,10 @@
 package be.somedi.printandsend.io;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 
@@ -10,29 +12,30 @@ import static org.junit.Assert.assertEquals;
 
 public class ReadTxtTest {
 
-    @Test
-    public void getToExternalCaregiver() {
-    }
+    private ReadTxt readTxt;
 
-    @Test
-    public void getFromExternalCaregiver() {
-    }
-
-    @Test
-    public void getPatient() {
+    @Before
+    public void setup() {
+        URL url = getClass().getClassLoader().getResource("MSE_183030005_2976737_A9671.txt");
+        Path path = null;
+        if (url != null) {
+            path = new File(url.getFile()).toPath();
+        }
+        readTxt = new ReadTxt(path);
     }
 
     @Test
     public void getTextAfterKey() {
-        URL url = getClass().getClassLoader().getResource("letter.txt");
-        Path path = new File(url.getFile()).toPath();
-
-        ReadTxt readTxt = new ReadTxt(path);
-
         String result = readTxt.getTextAfterKey("DR");
-        assertEquals("A8393", result);
+        assertEquals("A9671", result);
 
         result = readTxt.getTextAfterKey("PS");
-        assertEquals("Tremelosesteenweg 134", result);
+        assertEquals("BOSSESTRAAT 5", result);
+    }
+
+    @Test
+    public void getBody() throws IOException {
+        String result = readTxt.getBodyOfTxt();
+        System.out.println(result);
     }
 }

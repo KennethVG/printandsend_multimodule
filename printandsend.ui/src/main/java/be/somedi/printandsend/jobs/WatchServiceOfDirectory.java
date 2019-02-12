@@ -3,6 +3,7 @@ package be.somedi.printandsend.jobs;
 import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 import be.somedi.printandsend.io.PrintPDF;
 import be.somedi.printandsend.io.ReadTxt;
+import be.somedi.printandsend.mapper.ExternalCaregiverMapper;
 import be.somedi.printandsend.model.ExternalCaregiver;
 import be.somedi.printandsend.service.ExternalCaregiverService;
 import com.sun.org.apache.xpath.internal.operations.Bool;
@@ -27,10 +28,14 @@ public class WatchServiceOfDirectory {
     private Path pathError;
 
     private final ExternalCaregiverService externalCaregiverService;
+    private final ExternalCaregiverMapper externalCaregiverMapper;
+    private final CreateUMFormat createUMFormat;
 
     @Autowired
-    public WatchServiceOfDirectory(ExternalCaregiverService externalCaregiverService) {
+    public WatchServiceOfDirectory(ExternalCaregiverService externalCaregiverService, CreateUMFormat createUMFormat, ExternalCaregiverMapper externalCaregiverMapper) {
         this.externalCaregiverService = externalCaregiverService;
+        this.createUMFormat = createUMFormat;
+        this.externalCaregiverMapper = externalCaregiverMapper;
     }
 
     public void processEvents() throws IOException, PrinterException, InterruptedException {
@@ -69,27 +74,39 @@ public class WatchServiceOfDirectory {
         if (readTxt.containsVulAan()) {
             printPDF.copyAndDeleteTxtAndPDF(pathError);
         } else if (readTxt.containsSentenceToDelete()) {
-            System.out.println("Bevat P.N. ... --> Direct verwijderen");
             printPDF.deleteTxtAndPDF();
         } else {
-            String externalIdOfCaregiver = readTxt.getTextAfterKey("DR");
-            ExternalCaregiverEntity externalCaregiverEntity = externalCaregiverService.findByExternalID(externalIdOfCaregiver);
-            if (externalCaregiverEntity != null) {
-                Boolean needPrint = externalCaregiverEntity.getPrintProtocols();
-                Boolean needSecondCopy = externalCaregiverEntity.getSecondCopy();
-                if (needPrint == null || needPrint.toString().equals("")) {
-                    //TODO: Errorhandling!
-                    printPDF.copyAndDeleteTxtAndPDF(pathError);
-                } else if (needPrint) {
-                    printPDF.printPDF();
-                    if (needSecondCopy != null && !needSecondCopy.toString().equals("") && needSecondCopy) {
-                        printPDF.printPDF();
+            String externalIdOfCaregiver = readTxt.getExternalId();
+            if (externalIdOfCaregiver != null) {
+                ExternalCaregiverEntity externalCaregiverEntity = externalCaregiverService.findByExternalID(externalIdOfCaregiver);
+                if (externalCaregiverEntity != null) {
+                    Boolean needEPrint = externalCaregiverEntity.geteProtocols();
+                    if(needEPrint){
+                        sendToUM(readTxt);
                     }
-                    printPDF.copyAndDeleteTxtAndPDF(pathResult);
-                } else {
-                    printPDF.copyAndDeleteTxtAndPDF(pathResult);
+
+                    Boolean needPrint = externalCaregiverEntity.getPrintProtocols();
+                    Boolean needSecondCopy = externalCaregiverEntity.getSecondCopy();
+                    if (needPrint == null || needPrint.toString().equals("")) {
+                        //TODO: Errorhandling!
+                        printPDF.copyAndDeleteTxtAndPDF(pathError);
+                    } else if (needPrint) {
+                        printPDF.printPDF();
+                        if (needSecondCopy != null && !needSecondCopy.toString().equals("") && needSecondCopy) {
+                            printPDF.printPDF();
+                        }
+                        printPDF.copyAndDeleteTxtAndPDF(pathResult);
+                    } else {
+                        printPDF.copyAndDeleteTxtAndPDF(pathResult);
+                    }
                 }
+            } else {
+                //TODO:errorhandling --> Geen geldig externalId
             }
         }
+    }
+
+    private void sendToUM(ReadTxt readTxt) {
+        createUMFormat.createMedidocFile(readTxt);
     }
 }

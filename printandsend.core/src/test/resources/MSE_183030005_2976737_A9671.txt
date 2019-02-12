@@ -14,12 +14,6 @@
  Somedi, 23/08/2018  
 
 
-
-
-
-
-
-
 Aan Dr. Rose Sofie
 Boudewijnlaan 45
 2220 Heist-op-den-Berg
@@ -33,7 +27,18 @@ BOSSESTRAAT 5 te 2220 Heist-op-den-Berg. 
 
  Consultatie : 09/02/2018 met referentienr : 183030005 
 
-,jinhuibnyubuyh
+Dit is een test van Kenneth Van Gijsel.
+Dit is een hele lange zin, langer dan 75 karakters en dat mag niet in Medidoc formaat. Dit moet gesplits worden.
+
+Besluit:
+Mijn besluit regel 1.
+Mijn besluit regel 2.
+Mijn besluit regel 3.
+Mijn besluit regel 4.
+Mijn besluit regel 5.
+Mijn besluit regel 6.
+Mijn besluit regel 7.
+Mijn besluit regel 8.
 
 Met vriendelijke groeten,
  Dr. Nele Roggen  

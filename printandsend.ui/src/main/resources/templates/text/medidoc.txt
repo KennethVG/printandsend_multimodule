@@ -1,5 +1,27 @@
-[(${nihii})]
-[(${voornaam})] [(${naam})]
+[(${cFrom.nihii})]
+[(${cFrom.lastName})] [(${cFrom.firstName})]
+P.A. Liersesteenweg                267
+2220              Heist-op-den-Berg
+[(${cFrom.phone})]
 
-[(${c.externalID})]
-[(${c.lastName})]
+[(${date})]
+[(${cTo.nihii})]
+[(${cTo.lastName})] [(${cTo.firstName})]
+#A[(${person.inss})]
+[(${person.lastName})] [(${person.firstName})]
+[(${person.stringBirthDate})]
+[(${geslacht})]
+[(${researchDate})]
+[(${ref})]
+
+[(${address.street})] [(${address.number})]
+[(${address.zip})]
+[(${address.city})]
+#Rb
+!Onderzoek
+Geachte collega,
+
+[(${body})]
+
+Met vriendelijke groeten,
+[(${cFrom.fullName})]

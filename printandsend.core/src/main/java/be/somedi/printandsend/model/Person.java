@@ -1,22 +1,30 @@
 package be.somedi.printandsend.model;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+import static org.apache.commons.lang3.StringUtils.substring;
+
 public class Person {
 
     private String firstName;
     private String lastName;
     private String inss;
+    private LocalDate birthDate;
+    private String stringBirthDate;
 
     public Person() {
     }
 
-    public Person(String firstName, String lastName, String inss) {
+    public Person(String firstName, String lastName, String inss, LocalDate birthDate) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.inss = inss;
+        this.birthDate = birthDate;
     }
 
     public String getFirstName() {
-        return firstName;
+        return substring(firstName, 0, 16);
     }
 
     public void setFirstName(String firstName) {
@@ -24,6 +32,9 @@ public class Person {
     }
 
     public String getLastName() {
+        for (int i = lastName.length(); i < 24; i++) {
+            lastName = lastName.concat(" ");
+        }
         return lastName;
     }
 
@@ -39,6 +50,23 @@ public class Person {
         this.inss = inss;
     }
 
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public String getStringBirthDate() {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        return dateTimeFormatter.format(birthDate);
+    }
+
+    public void setStringBirthDate(String stringBirthDate) {
+        this.stringBirthDate = stringBirthDate;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -46,16 +74,11 @@ public class Person {
 
         Person person = (Person) o;
 
-        if (firstName != null ? !firstName.equals(person.firstName) : person.firstName != null) return false;
-        if (lastName != null ? !lastName.equals(person.lastName) : person.lastName != null) return false;
         return inss != null ? inss.equals(person.inss) : person.inss == null;
     }
 
     @Override
     public int hashCode() {
-        int result = firstName != null ? firstName.hashCode() : 0;
-        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
-        result = 31 * result + (inss != null ? inss.hashCode() : 0);
-        return result;
+        return inss != null ? inss.hashCode() : 0;
     }
 }
