@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 
@@ -34,7 +33,7 @@ public class ReadTxtTest {
     }
 
     @Test
-    public void getBody() throws IOException {
+    public void getBody() {
         String result = readTxt.getBodyOfTxt();
         System.out.println(result);
     }

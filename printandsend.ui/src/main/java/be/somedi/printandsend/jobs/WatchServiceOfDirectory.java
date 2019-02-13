@@ -5,6 +5,7 @@ import be.somedi.printandsend.io.PrintPDF;
 import be.somedi.printandsend.io.ReadTxt;
 import be.somedi.printandsend.mapper.ExternalCaregiverMapper;
 import be.somedi.printandsend.model.ExternalCaregiver;
+import be.somedi.printandsend.model.UMFormat;
 import be.somedi.printandsend.service.ExternalCaregiverService;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +29,12 @@ public class WatchServiceOfDirectory {
     private Path pathError;
 
     private final ExternalCaregiverService externalCaregiverService;
-    private final ExternalCaregiverMapper externalCaregiverMapper;
     private final CreateUMFormat createUMFormat;
 
     @Autowired
-    public WatchServiceOfDirectory(ExternalCaregiverService externalCaregiverService, CreateUMFormat createUMFormat, ExternalCaregiverMapper externalCaregiverMapper) {
+    public WatchServiceOfDirectory(ExternalCaregiverService externalCaregiverService, CreateUMFormat createUMFormat) {
         this.externalCaregiverService = externalCaregiverService;
         this.createUMFormat = createUMFormat;
-        this.externalCaregiverMapper = externalCaregiverMapper;
     }
 
     public void processEvents() throws IOException, PrinterException, InterruptedException {
@@ -81,8 +80,8 @@ public class WatchServiceOfDirectory {
                 ExternalCaregiverEntity externalCaregiverEntity = externalCaregiverService.findByExternalID(externalIdOfCaregiver);
                 if (externalCaregiverEntity != null) {
                     Boolean needEPrint = externalCaregiverEntity.geteProtocols();
-                    if(needEPrint){
-                        sendToUM(readTxt);
+                    if (needEPrint) {
+                        sendToUM(readTxt, externalCaregiverEntity.getFormat());
                     }
 
                     Boolean needPrint = externalCaregiverEntity.getPrintProtocols();
@@ -106,7 +105,17 @@ public class WatchServiceOfDirectory {
         }
     }
 
-    private void sendToUM(ReadTxt readTxt) {
-        createUMFormat.createMedidocFile(readTxt);
+    private void sendToUM(ReadTxt readTxt, UMFormat umFormat) {
+        switch (umFormat) {
+            case MEDIDOC:
+                createUMFormat.createMedidocFile(readTxt);
+                break;
+            case MEDAR:
+                createUMFormat.createMedarFile(readTxt);
+                break;
+            case MEDICARD:
+                createUMFormat.createMedicardFile(readTxt);
+                break;
+        }
     }
 }

@@ -29,6 +29,9 @@ BOSSESTRAAT 5 te 2220 Heist-op-den-Berg. 
 
 Dit is een test van Kenneth Van Gijsel.
 Dit is een hele lange zin, langer dan 75 karakters en dat mag niet in Medidoc formaat. Dit moet gesplits worden.
+En dan liefst dat dit mee op de vorige zin komt. En nu gaan we het nog een beetje moeilijker maken. Door nog een zin
+toe te voegen die veel te lang is. Is zien hoe het programma hier mee omgaat!
+Werkt niet ...
 
 Besluit:
 Mijn besluit regel 1.

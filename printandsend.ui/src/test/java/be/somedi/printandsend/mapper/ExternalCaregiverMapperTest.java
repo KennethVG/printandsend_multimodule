@@ -13,9 +13,9 @@ public class ExternalCaregiverMapperTest {
     @Test
     public void entityToExternalCaregiver() {
         ExternalCaregiver externalCaregiver = new ExternalCaregiver("A2617", "Jos", "Test", "123456789", "TestStraat 10",
-                "2590", true, UMFormat.MEDIDOC, "12345875421", true, false);
+                "2590", "DR.", true, UMFormat.MEDIDOC, "12345875421", true, false);
         ExternalCaregiverEntity externalCaregiverEntity = new ExternalCaregiverEntity("A2617", "Jos", "Test", "123456789", "TestStraat 10",
-                "2590", true, UMFormat.MEDIDOC, "12345875421", true, false);
+                "2590", "DR.", true, UMFormat.MEDIDOC, "12345875421", true, false);
         ExternalCaregiver copyOfEntity = ExternalCaregiverMapper.INSTANCE.entityToExternalCaregiver(externalCaregiverEntity);
         assertEquals(externalCaregiver, copyOfEntity);
     }

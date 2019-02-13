@@ -11,6 +11,7 @@ public class ExternalCaregiver {
     private String phone;
     private String streetWithNumber;
     private String zip;
+    private String title;
     private Boolean printProtocols;
     private UMFormat format;
     private String nihiiAddress;
@@ -21,13 +22,14 @@ public class ExternalCaregiver {
     public ExternalCaregiver() {
     }
 
-    public ExternalCaregiver(String externalID, String firstName, String lastName, String nihii, String streetWithNumber, String zip, Boolean printProtocols, UMFormat format, String nihiiAddress, Boolean eProtocols, Boolean secondCopy) {
+    public ExternalCaregiver(String externalID, String firstName, String lastName, String nihii, String streetWithNumber, String zip, String title, Boolean printProtocols, UMFormat format, String nihiiAddress, Boolean eProtocols, Boolean secondCopy) {
         this.externalID = externalID;
         this.firstName = firstName;
         this.lastName = lastName;
         this.nihii = nihii;
         this.streetWithNumber = streetWithNumber;
         this.zip = zip;
+        this.title = title;
         this.printProtocols = printProtocols;
         this.format = format;
         this.nihiiAddress = nihiiAddress;
@@ -100,6 +102,14 @@ public class ExternalCaregiver {
 
     public void setZip(String zip) {
         this.zip = zip;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Boolean getPrintProtocols() {

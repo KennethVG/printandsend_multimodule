@@ -10,11 +10,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import static org.apache.commons.lang3.StringUtils.left;
-import static org.apache.commons.lang3.StringUtils.startsWith;
-import static org.apache.commons.lang3.StringUtils.substring;
+import static org.apache.commons.lang3.StringUtils.*;
 
 public class ReadTxt {
 
@@ -28,7 +27,7 @@ public class ReadTxt {
     private static final int MAX_LINE_LENGTH = 75;
 
     private Path path;
-    private Charset charset;
+    private List<String> allLines = new ArrayList<>();
 
     public ReadTxt() {
         this(null, Charset.forName("windows-1252"));
@@ -40,7 +39,11 @@ public class ReadTxt {
 
     public ReadTxt(Path path, Charset charset) {
         this.path = path;
-        this.charset = charset;
+        try {
+            allLines = Files.readAllLines(path, charset);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public Path getPath() {
@@ -50,12 +53,17 @@ public class ReadTxt {
         return path;
     }
 
-    public void setPath(Path path) {
-        this.path = path;
+    public List<String> getAllLines() {
+        try {
+            return Files.readAllLines(path, Charset.forName("windows-1252"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
     }
 
-    public Charset getCharset() {
-        return charset;
+    public void setAllLines(List<String> allLines) {
+        this.allLines = allLines;
     }
 
     public String getFileName() {
@@ -70,9 +78,8 @@ public class ReadTxt {
         Files.copy(getPath(), moveToFolder, StandardCopyOption.REPLACE_EXISTING);
     }
 
-    public boolean containsVulAan() throws IOException {
-        List<String> fullDocument = Files.readAllLines(getPath(), charset);
-        for (String line : fullDocument) {
+    public boolean containsVulAan() {
+        for (String line : allLines) {
             if (line.contains(VUL_AAN)) {
                 return true;
             }
@@ -86,8 +93,7 @@ public class ReadTxt {
             Path path = new File(url.getFile()).toPath();
             List<String> allItems = Files.readAllLines(path);
 
-            List<String> fullDocument = Files.readAllLines(getPath(), charset);
-            for (String line : fullDocument) {
+            for (String line : allLines) {
                 for (String item : allItems) {
                     if (line.toLowerCase().contains(item.toLowerCase())) {
                         return true;
@@ -107,15 +113,10 @@ public class ReadTxt {
     }
 
     public String getTextAfterKey(String key) {
-        try {
-            List<String> fullDocument = Files.readAllLines(getPath(), charset);
-            for (String s : fullDocument) {
-                if (s.trim().startsWith("#" + key.toUpperCase())) {
-                    return s.trim().substring(4);
-                }
+        for (String s : getAllLines()) {
+            if (s.trim().startsWith("#" + key.toUpperCase())) {
+                return s.trim().substring(4);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return "";
     }
@@ -126,12 +127,6 @@ public class ReadTxt {
         int endIndex = 0;
         int summaryIndex = 0;
 
-        List<String> allLines = null;
-        try {
-            allLines = Files.readAllLines(getPath(), charset);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         for (int i = 0; i < allLines.size(); i++) {
             String oneLine = allLines.get(i).trim();
             if (startsWith(oneLine, BETREFT)) {
@@ -145,18 +140,32 @@ public class ReadTxt {
 
         if (summaryIndex != 0) {
             if (endIndex - summaryIndex <= 7) {
-                putBracketBeforeLineOfSummary(summaryIndex, endIndex, allLines);
+                putBracketBeforeLineOfSummary(summaryIndex, endIndex);
             } else {
-                putBracketBeforeLineOfSummary(summaryIndex, summaryIndex + 8, allLines);
+                putBracketBeforeLineOfSummary(summaryIndex, summaryIndex + 8);
             }
         }
 
-        removeFromList(startIndex, endIndex, allLines);
+        removeFromList(startIndex, endIndex);
 
-        for (String oneLine : allLines) {
+        for (int i = 0; i < allLines.size(); i++) {
+            String oneLine = allLines.get(i);
+
             if (oneLine.length() > MAX_LINE_LENGTH) {
-                result.append(left(oneLine, MAX_LINE_LENGTH)).append("\r\n");
-                result.append(substring(oneLine, MAX_LINE_LENGTH)).append("\r\n");
+                String firstPart = left(oneLine, MAX_LINE_LENGTH);
+                String secondPart = substring(oneLine, MAX_LINE_LENGTH) + " ";
+                result.append(firstPart).append("\r\n");
+
+                String newLine = secondPart + allLines.get(++i);
+                while (newLine.length() > MAX_LINE_LENGTH) {
+                    firstPart = left(newLine, MAX_LINE_LENGTH);
+                    result.append(firstPart).append("\r\n");
+                    secondPart = substring(newLine, MAX_LINE_LENGTH) + " ";
+                    newLine = secondPart + allLines.get(++i);
+                }
+
+                result.append(newLine).append("\r\n\r\n");
+
             } else {
                 result.append(oneLine).append("\r\n");
             }
@@ -164,7 +173,7 @@ public class ReadTxt {
         return result.toString();
     }
 
-    private void putBracketBeforeLineOfSummary(int summaryIndex, int endIndex, List<String> allLines) {
+    private void putBracketBeforeLineOfSummary(int summaryIndex, int endIndex) {
         for (int i = summaryIndex + 1; i < endIndex; i++) {
             String newLine = "] " + allLines.get(i);
             if (!newLine.equals("] ")) {
@@ -174,18 +183,19 @@ public class ReadTxt {
         }
     }
 
-    private void removeFromList(int startIndex, int endIndex, List<String> originalList) {
+    private void removeFromList(int startIndex, int endIndex) {
         List<String> removeList = new ArrayList<>();
         if (startIndex != 0) {
             for (int i = 0; i < startIndex; i++) {
-                removeList.add(originalList.get(i));
+                removeList.add(allLines.get(i));
             }
         }
         if (endIndex != 0) {
-            for (int i = endIndex; i < originalList.size(); i++) {
-                removeList.add(originalList.get(i));
+            for (int i = endIndex; i < allLines.size(); i++) {
+                removeList.add(allLines.get(i));
             }
         }
-        originalList.removeAll(removeList);
+        removeList.removeIf(s -> s.equals(""));
+        allLines.removeAll(removeList);
     }
 }

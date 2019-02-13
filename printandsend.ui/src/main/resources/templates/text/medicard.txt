@@ -1,0 +1,28 @@
+PROTO BEGIN
+
+SOMEDI C.V.B.A.
+Liersesteenweg 267
+2220 Heist-op-den-Berg
+Tel: 015/25.89.11
+
+[(${date})] R[(${ref})]
+          [(${cFrom.fullName})]
+
+          [(${person.lastName})] [(${person.firstName})]
+          [(${address.street})] [(${address.number})]
+          [(${address.zip})]
+          [(${address.city})]
+          [(${geslacht})]               [(${person.stringBirthDate})]
+
+
+--------------------------------------------------------------------------------
+[(${cFrom.title})][(${cFrom.fullName})]
+--------------------------------------------------------------------------------
+
+[(${body})]
+
+
+Met vriendelijke groeten,
+[(${cFrom.title})] [(${cFrom.fullName})]
+
+VOLLEDIG PROTOCOL

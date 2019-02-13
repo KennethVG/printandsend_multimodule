@@ -24,4 +24,7 @@ Geachte collega,
 [(${body})]
 
 Met vriendelijke groeten,
-[(${cFrom.fullName})]
+[(${cFrom.title})] [(${cFrom.fullName})]
+#R/
+#A/
+#/[(${length})]

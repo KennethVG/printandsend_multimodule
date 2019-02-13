@@ -58,6 +58,7 @@ public class PrintPDF {
             printerJob.setPrintService(defaultPrintService);
             printerJob.print();
         } else {
+            //TODO: error handling
             System.out.println("Default printer niet online");
         }
         doc.close();
