@@ -142,6 +142,17 @@ public class CreateUMFormat {
     }
 
     public void createMedarFile(ReadTxt readTxt) {
+
+        Context context = getDefaultContext(readTxt);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+        context.setVariable("date", formatter.format(LocalDateTime.now()));
+        context.setVariable("geslacht", getMedidocGender(getPatient(readTxt).getExternalId()));
+        String ref = readTxt.getTextAfterKey("PR");
+        context.setVariable("ref", ref);
+
+        String output = textTemplateEngine.process("medar.txt", context);
+        writer.write(pathMedicard, output, getExternalCaregiverTo(readTxt), ref);
     }
 
     public void createMedicardFile(ReadTxt readTxt) {
