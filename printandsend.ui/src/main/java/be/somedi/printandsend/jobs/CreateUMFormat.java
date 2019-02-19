@@ -152,7 +152,7 @@ public class CreateUMFormat {
         context.setVariable("ref", ref);
 
         String output = textTemplateEngine.process("medar.txt", context);
-        writer.write(pathMedicard, output, getExternalCaregiverTo(readTxt), ref);
+        writer.write(pathMedar, output, getExternalCaregiverTo(readTxt), ref);
     }
 
     public void createMedicardFile(ReadTxt readTxt) {

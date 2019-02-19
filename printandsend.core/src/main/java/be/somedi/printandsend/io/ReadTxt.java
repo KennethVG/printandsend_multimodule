@@ -149,26 +149,28 @@ public class ReadTxt {
         removeFromList(startIndex, endIndex);
 
         for (int i = 0; i < allLines.size(); i++) {
-            String oneLine = allLines.get(i);
+            String oneLine = allLines.get(i).trim();
+            String secondLine = allLines.get(i + 1 < allLines.size() ? i + 1 : i).trim();
 
-            if (oneLine.length() > MAX_LINE_LENGTH) {
-                String firstPart = left(oneLine, MAX_LINE_LENGTH);
-                String secondPart = substring(oneLine, MAX_LINE_LENGTH) + " ";
-                result.append(firstPart).append("\r\n");
-
-                String newLine = secondPart + allLines.get(++i);
-                while (newLine.length() > MAX_LINE_LENGTH) {
-                    firstPart = left(newLine, MAX_LINE_LENGTH);
+            if (oneLine.length() > 0 || secondLine.length() > 0) {
+                if (oneLine.length() > MAX_LINE_LENGTH) {
+                    String firstPart = left(oneLine, MAX_LINE_LENGTH);
+                    String secondPart = substring(oneLine, MAX_LINE_LENGTH) + " ";
                     result.append(firstPart).append("\r\n");
-                    secondPart = substring(newLine, MAX_LINE_LENGTH) + " ";
-                    newLine = secondPart + allLines.get(++i);
+
+                    String newLine = secondPart + allLines.get(++i);
+                    while (newLine.length() > MAX_LINE_LENGTH) {
+                        firstPart = left(newLine, MAX_LINE_LENGTH);
+                        result.append(firstPart).append("\r\n");
+                        secondPart = substring(newLine, MAX_LINE_LENGTH) + " ";
+                        newLine = secondPart + allLines.get(++i);
+                    }
+                    result.append(newLine).append("\r\n\r\n");
+                } else {
+                    result.append(oneLine).append("\r\n");
                 }
-
-                result.append(newLine).append("\r\n\r\n");
-
-            } else {
-                result.append(oneLine).append("\r\n");
             }
+
         }
         return result.toString();
     }

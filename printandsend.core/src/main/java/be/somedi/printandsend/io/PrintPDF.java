@@ -1,9 +1,11 @@
 package be.somedi.printandsend.io;
 
+import be.somedi.printandsend.exceptions.PrinterNotFoundException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPageable;
 
-import javax.print.*;
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
 import javax.print.attribute.PrintServiceAttributeSet;
 import javax.print.attribute.standard.PrinterState;
 import java.awt.print.PrinterException;
@@ -58,8 +60,7 @@ public class PrintPDF {
             printerJob.setPrintService(defaultPrintService);
             printerJob.print();
         } else {
-            //TODO: error handling
-            System.out.println("Default printer niet online");
+            throw new PrinterNotFoundException("Default printer not available");
         }
         doc.close();
     }
