@@ -44,12 +44,12 @@ public class ExternalCaregiverController {
 
         ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findByExternalID(externalId);
         ExternalCaregiver caregiverFrom = externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity);
+        modelAndView.addObject("externalCaregiver", caregiverFrom);
 
-        LinkedExternalCaregiverEntity linkedExternalCaregiverEntity = linkedExternalCaregiverService.findLinkedIdByExternalId(externalId);
-        ExternalCaregiverEntity caregiverToEntity = externalCaregiverService.findByExternalID(linkedExternalCaregiverEntity.getLinkedId());
-        ExternalCaregiver caregiverTo = externalCaregiverMapper.entityToExternalCaregiver(caregiverToEntity);
+//        LinkedExternalCaregiverEntity linkedExternalCaregiverEntity = linkedExternalCaregiverService.findLinkedIdByExternalId(externalId);
+//        ExternalCaregiverEntity caregiverToEntity = externalCaregiverService.findByExternalID(linkedExternalCaregiverEntity.getLinkedId());
+//        ExternalCaregiver caregiverTo = externalCaregiverMapper.entityToExternalCaregiver(caregiverToEntity);
 
-//        createUMFormat.createMedidocFile();
         return modelAndView;
     }
 }

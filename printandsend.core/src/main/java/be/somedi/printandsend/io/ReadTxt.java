@@ -95,7 +95,7 @@ public class ReadTxt {
 
             for (String line : allLines) {
                 for (String item : allItems) {
-                    if (line.toLowerCase().contains(item.toLowerCase())) {
+                    if (line.trim().toLowerCase().contains(item.trim().toLowerCase())) {
                         return true;
                     }
                 }
@@ -163,7 +163,10 @@ public class ReadTxt {
                         firstPart = left(newLine, MAX_LINE_LENGTH);
                         result.append(firstPart).append("\r\n");
                         secondPart = substring(newLine, MAX_LINE_LENGTH) + " ";
-                        newLine = secondPart + allLines.get(++i);
+                        if ((i + 1) < allLines.size())
+                            newLine = secondPart + allLines.get(++i);
+                        else
+                            newLine = secondPart;
                     }
                     result.append(newLine).append("\r\n\r\n");
                 } else {

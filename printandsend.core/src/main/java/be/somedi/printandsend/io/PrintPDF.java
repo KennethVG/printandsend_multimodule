@@ -60,7 +60,8 @@ public class PrintPDF {
             printerJob.setPrintService(defaultPrintService);
             printerJob.print();
         } else {
-            throw new PrinterNotFoundException("Default printer not available");
+            //TODO: error handling
+//            throw new PrinterNotFoundException("Default printer not available");
         }
         doc.close();
     }
