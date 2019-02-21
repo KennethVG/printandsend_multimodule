@@ -48,7 +48,7 @@ public class ExternalCaregiver {
     }
 
     public String getFirstName() {
-        return substring(firstName, 0, 16);
+        return firstName;
     }
 
     public void setFirstName(String firstName) {
@@ -56,9 +56,6 @@ public class ExternalCaregiver {
     }
 
     public String getLastName() {
-        for (int i = lastName.length(); i < 24; i++) {
-            lastName = lastName.concat(" ");
-        }
         return lastName;
     }
 
@@ -83,7 +80,7 @@ public class ExternalCaregiver {
     }
 
     public String getPhone() {
-        return substring(phone, 0, 50);
+        return phone;
     }
 
     public void setPhone(String phone) {

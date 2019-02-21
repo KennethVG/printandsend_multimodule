@@ -3,7 +3,6 @@ package be.somedi.printandsend.mapper;
 import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 import be.somedi.printandsend.model.ExternalCaregiver;
 import be.somedi.printandsend.model.UMFormat;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

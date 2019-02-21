@@ -1,0 +1,45 @@
+#DR A9671
+#PR 183030005
+#PC V537105
+#PN Van Acker
+#PV Sylvie
+#PS BOSSESTRAAT 5
+#PP 2220
+#PA Heist-op-den-Berg
+#PD 14091982
+#PG F
+#UA A0178
+#UD 09022018
+
+ Somedi, 23/08/2018  
+
+
+Aan Dr. Rose Sofie
+Boudewijnlaan 45
+2220 Heist-op-den-Berg
+
+
+Geachte collega,
+
+
+Betreft : uw patiënt(e) Van Acker Sylvie geboren op 14/09/1982   en wonende
+BOSSESTRAAT 5 te 2220 Heist-op-den-Berg. 
+
+ Consultatie : 09/02/2018 met referentienr : 183030005
+
+Dit is een test van Kenneth Van Gijsel.
+Dit is een hele lange zin, langer dan 75 karakters en dat mag niet in Medidoc formaat. Dit moet gesplits worden.
+En dan liefst dat dit mee op de vorige zin komt. En nu gaan we het nog een beetje moeilijker maken. Door nog een zin
+toe te voegen die veel te lang is. Is zien hoe het programma hier mee omgaat!
+Werkt niet ...
+
+vul_aan
+
+Hey!
+
+Met vriendelijke groeten,
+ Dr. Nele Roggen 
+ Kopies verzonden naar
+ t.a.v. Dr. DOBBELAERE SABINE
+
+Verslag gemaakt door:KVG

@@ -7,10 +7,7 @@ import be.somedi.printandsend.io.ReadTxt;
 import be.somedi.printandsend.io.UMWriter;
 import be.somedi.printandsend.mapper.ExternalCaregiverMapper;
 import be.somedi.printandsend.mapper.PatientMapper;
-import be.somedi.printandsend.model.Address;
-import be.somedi.printandsend.model.ExternalCaregiver;
-import be.somedi.printandsend.model.Patient;
-import be.somedi.printandsend.model.Person;
+import be.somedi.printandsend.model.*;
 import be.somedi.printandsend.service.ExternalCaregiverService;
 import be.somedi.printandsend.service.LinkedExternalCaregiverService;
 import be.somedi.printandsend.service.PatientService;
@@ -27,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.apache.commons.lang3.StringUtils.left;
 import static org.apache.commons.lang3.StringUtils.substring;
 
 @Component
@@ -68,13 +66,13 @@ public class CreateUMFormat {
         }
 
         ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findByExternalID(externalIdCaregiverFrom);
-        return externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity);
+        return caregiverEntity.getFormat() == UMFormat.MEDIDOC ? externalCaregiverMapper.entityToExternalCaregiverMedidoc(caregiverEntity) : externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity);
     }
 
     private ExternalCaregiver getExternalCaregiverTo(ReadTxt readTxt) {
         String externalIdCargiverTo = readTxt.getTextAfterKey("DR");
-        ExternalCaregiverEntity caregiverEntity1 = externalCaregiverService.findByExternalID(externalIdCargiverTo);
-        return externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity1);
+        ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findByExternalID(externalIdCargiverTo);
+        return caregiverEntity.getFormat() == UMFormat.MEDIDOC ? externalCaregiverMapper.entityToExternalCaregiverMedidoc(caregiverEntity) : externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity);
     }
 
     private ExternalCaregiver getLinkedCaregiver(String externalId) {
@@ -82,7 +80,7 @@ public class CreateUMFormat {
         ExternalCaregiver caregiverLinked = null;
         if (linkedExternalCaregiverEntity != null) {
             ExternalCaregiverEntity caregiverEntityLinked = externalCaregiverService.findByExternalID(linkedExternalCaregiverEntity.getLinkedId());
-            caregiverLinked = externalCaregiverMapper.entityToExternalCaregiver(caregiverEntityLinked);
+            caregiverLinked = caregiverEntityLinked.getFormat() == UMFormat.MEDIDOC ? externalCaregiverMapper.entityToExternalCaregiverMedidoc(caregiverEntityLinked) : externalCaregiverMapper.entityToExternalCaregiver(caregiverEntityLinked);
         }
         return caregiverLinked;
     }
@@ -160,20 +158,38 @@ public class CreateUMFormat {
         Context context = getDefaultContext(readTxt);
         String ref = readTxt.getTextAfterKey("PR");
         context.setVariable("ref", ref);
+        context.setVariable("geslacht", left(getPatient(readTxt).getExternalId(), 1));
 
         String output = textTemplateEngine.process("medicard.txt", context);
         writer.write(pathMedicard, output, getExternalCaregiverTo(readTxt), ref);
     }
 
     public void createMedidocFile(ReadTxt readTxt) {
-        Context context = getDefaultContext(readTxt);
+        ExternalCaregiverMedidoc caregiverFrom = (ExternalCaregiverMedidoc) getExternalCaregiverFrom(readTxt);
+        ExternalCaregiverMedidoc caregiverTo = (ExternalCaregiverMedidoc) getExternalCaregiverTo(readTxt);
+        ExternalCaregiverMedidoc caregiverLinked = (ExternalCaregiverMedidoc) getLinkedCaregiver(caregiverFrom.getExternalID());
 
+        Patient patient = getPatient(readTxt);
+        Person person = patient.getPerson();
+
+        String body = readTxt.getBodyOfTxt();
+
+        Context context = new Context();
+        context.setVariable("cFrom", caregiverFrom);
+        context.setVariable("cTo", caregiverLinked != null ? caregiverLinked : caregiverTo);
+        context.setVariable("patient", patient);
+        context.setVariable("person", person);
+        context.setVariable("researchDate", getResearchDate(readTxt.getTextAfterKey("UD")));
+        context.setVariable("address", getAddressOfPatient(readTxt));
+        context.setVariable("body", body);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
         context.setVariable("date", formatter.format(LocalDateTime.now()));
-        context.setVariable("geslacht", getMedidocGender(getPatient(readTxt).getExternalId()));
+        context.setVariable("geslacht", getMedidocGender(patient.getExternalId()));
         String ref = substring(readTxt.getTextAfterKey("PR"), 0, 15);
         context.setVariable("ref", ref);
-        context.setVariable("length", readTxt.getAllLines().size());
+
+        int length = body.split("\n").length;
+        context.setVariable("length", (length + 30));
 
         String output = textTemplateEngine.process("medidoc.txt", context);
         writer.write(pathMedidoc, output, getExternalCaregiverTo(readTxt), ref);

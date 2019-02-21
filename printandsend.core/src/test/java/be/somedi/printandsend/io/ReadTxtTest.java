@@ -4,11 +4,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.net.URL;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ReadTxtTest {
 
@@ -16,11 +19,7 @@ public class ReadTxtTest {
 
     @Before
     public void setup() {
-        URL url = getClass().getClassLoader().getResource("MSE_183030005_2976737_A9671.txt");
-        Path path = null;
-        if (url != null) {
-            path = new File(url.getFile()).toPath();
-        }
+        Path path = Paths.get("src/test/resources/MSE_183030005_2976737_A9671.txt");
         readTxt = new ReadTxt(path);
     }
 
@@ -32,6 +31,7 @@ public class ReadTxtTest {
         result = readTxt.getTextAfterKey("PS");
         assertEquals("BOSSESTRAAT 5", result);
     }
+
 
     @Test
     public void getBody() {
@@ -60,5 +60,35 @@ public class ReadTxtTest {
                 "Mijn besluit regel 8.\r\n";
 
         assertEquals(StringUtils.deleteWhitespace(expected), StringUtils.deleteWhitespace(result));
+    }
+
+    @Test
+    public void getFileName() {
+        String actual = readTxt.getFileName();
+        String expected = "MSE_183030005_2976737_A9671.txt";
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void containsVulAan() {
+        Path path = Paths.get("src/test/resources/vul_aan.txt");
+        readTxt = new ReadTxt(path);
+        assertTrue(readTxt.containsVulAan());
+    }
+
+    @Test
+    public void containsSentenceToDelete() throws IOException {
+        Path path = Paths.get("src/test/resources/geenverslag.txt");
+        readTxt = new ReadTxt(path);
+        assertTrue(readTxt.containsSentenceToDelete());
+    }
+
+    @Test
+    public void testCopyAndDelete() throws IOException {
+        Path newPath = Paths.get("src/test/resources/copy.txt");
+        readTxt.moveTxtFile(newPath);
+        assertTrue(Files.exists(newPath));
+        Files.delete(newPath);
+        assertFalse(Files.exists(newPath));
     }
 }
