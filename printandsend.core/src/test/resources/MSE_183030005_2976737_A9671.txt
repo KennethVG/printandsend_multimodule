@@ -33,7 +33,7 @@ En dan liefst dat dit mee op de vorige zin komt. En nu gaan we het nog een beetj
 toe te voegen die veel te lang is. Is zien hoe het programma hier mee omgaat!
 Werkt niet ...
 
-Besluit:
+BESLUIT:
 Mijn besluit regel 1.
 Mijn besluit regel 2.
 Mijn besluit regel 3.

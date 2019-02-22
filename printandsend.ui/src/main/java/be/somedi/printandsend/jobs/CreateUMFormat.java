@@ -153,19 +153,19 @@ public class CreateUMFormat {
         context.setVariable("person", person);
         context.setVariable("researchDate", getResearchDate(readTxt.getTextAfterKey("UD")));
         context.setVariable("address", getAddressOfPatient(readTxt));
-        context.setVariable("body", readTxt.getBodyOfTxt());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+        context.setVariable("date", formatter.format(LocalDateTime.now()));
+        context.setVariable("body", readTxt.getBodyOfTxt(caregiverEntityTo.getFormat()));
         return context;
     }
 
     public void createMedarFile(ReadTxt readTxt) {
 
         Context context = getDefaultContext(readTxt);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
-        context.setVariable("date", formatter.format(LocalDateTime.now()));
-        context.setVariable("geslacht", getMedidocGender(getPatient(false, readTxt).getExternalId()));
+
         String ref = readTxt.getTextAfterKey("PR");
         context.setVariable("ref", ref);
-
+        context.setVariable("geslacht", getMedidocGender(getPatient(false, readTxt).getExternalId()));
         String output = textTemplateEngine.process("medar.txt", context);
         writer.write(pathMedar, output, externalCaregiverMapper.entityToExternalCaregiver(getExternalCaregiverTo(readTxt)), ref);
     }
@@ -182,17 +182,15 @@ public class CreateUMFormat {
     }
 
     public void createMedidocFile(ReadTxt readTxt) {
-        String body = readTxt.getBodyOfTxt();
+        String body = readTxt.getBodyOfTxt(UMFormat.MEDIDOC);
 
         Context context = getDefaultContext(readTxt);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
-        context.setVariable("date", formatter.format(LocalDateTime.now()));
         context.setVariable("geslacht", getMedidocGender(getPatient(false, readTxt).getExternalId()));
         String ref = substring(readTxt.getTextAfterKey("PR"), 0, 15);
         context.setVariable("ref", ref);
 
         int length = body.split("\n").length;
-        context.setVariable("length", (length + 30));
+        context.setVariable("length", (length + 29));
 
         String output = textTemplateEngine.process("medidoc.txt", context);
         writer.write(pathMedidoc, output, externalCaregiverMapper.entityToExternalCaregiver(getExternalCaregiverTo(readTxt)), ref);

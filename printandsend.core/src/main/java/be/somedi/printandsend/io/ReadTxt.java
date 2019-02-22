@@ -1,6 +1,7 @@
 package be.somedi.printandsend.io;
 
 import be.somedi.printandsend.exceptions.PathNotFoundException;
+import be.somedi.printandsend.model.UMFormat;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +25,10 @@ public class ReadTxt {
     private static final String MCH = "Met collegiale hoogachting";
     private static final String BESLUIT = "BESLUIT";
     private static final String VUL_AAN = "vul_aan";
-    private static final int MAX_LINE_LENGTH = 75;
+
+    private static final int LINE_LENGTH = 75;
+    private static final int LINE_LENGTH_SUMMARY = 74;
+    private static final int SUMMARY_MAX_LENGTH = 7;
 
     private Path path;
     private List<String> allLines = new ArrayList<>();
@@ -121,88 +125,69 @@ public class ReadTxt {
         return "";
     }
 
-    //TODO: Body for medar and medicard?
-    //TODO: Copy-paste from old code!
-    public String getBodyOfTxt() {
+    public String getBodyOfTxt(UMFormat format) {
+
         StringBuilder result = new StringBuilder();
         int startIndex = 0;
+        int startSummaryIndex = 0;
         int endIndex = 0;
-        int summaryIndex = 0;
 
+        String oneLine;
         for (int i = 0; i < allLines.size(); i++) {
-            String oneLine = allLines.get(i).trim();
-            if (startsWith(oneLine, BETREFT)) {
+            oneLine = allLines.get(i).trim();
+            if (oneLine.startsWith(BETREFT)) {
                 startIndex = i;
-            } else if (startsWith(oneLine.toUpperCase(), BESLUIT)) {
-                summaryIndex = i;
-            } else if (startsWith(oneLine, MVG) || startsWith(oneLine, MCH) || startsWith(oneLine, MCG)) {
+            } else if (oneLine.contains(BESLUIT)) {
+                startSummaryIndex = i;
+            } else if (oneLine.startsWith(MVG) || oneLine.startsWith(MCG) || oneLine.startsWith(MCH)) {
                 endIndex = i;
             }
         }
 
-        if (summaryIndex != 0) {
-            if (endIndex - summaryIndex <= 7) {
-                putBracketBeforeLineOfSummary(summaryIndex, endIndex);
+        if (startIndex != 0 && endIndex != 0) {
+            // Er is een besluit. Max. 7 lijnen starten met ]
+            if (startSummaryIndex != 0 && format == UMFormat.MEDIDOC) {
+                result.append(buildBody(startIndex, startSummaryIndex + 1));
+                for (int j = startSummaryIndex + 1; j < endIndex && j < startSummaryIndex + SUMMARY_MAX_LENGTH;
+                     j++) {
+                    oneLine = allLines.get(j).trim();
+                    if (oneLine.length() > LINE_LENGTH) {
+                        String summary = left(oneLine, LINE_LENGTH_SUMMARY);
+                        int summaryIndex = lastIndexOf(summary, " ");
+                        result.append("]").append(summary, 0, summaryIndex).append("\r\n").append("]").append
+                                (substring(oneLine, summaryIndex)).append("\r\n");
+                    } else if (oneLine.equals("")) {
+                        result.append(oneLine).append("\r\n");
+                    } else {
+                        result.append("]").append(oneLine).append("\r\n");
+                    }
+                }
+                if (endIndex > startSummaryIndex + SUMMARY_MAX_LENGTH) {
+                    result.append(buildBody(startSummaryIndex + SUMMARY_MAX_LENGTH, endIndex));
+                }
+            } else if (startSummaryIndex != 0 && format == UMFormat.MEDAR) {
+                result.append(buildBody(startIndex, startSummaryIndex));
+                result.append("/CONCL\r\n").append(buildBody(startSummaryIndex, endIndex));
             } else {
-                putBracketBeforeLineOfSummary(summaryIndex, summaryIndex + 8);
+                result.append(buildBody(startIndex, endIndex));
             }
         }
+        return result.toString().trim();
+    }
 
-        removeFromList(startIndex, endIndex);
-
-        for (int i = 0; i < allLines.size(); i++) {
-            String oneLine = allLines.get(i).trim();
-            String secondLine = allLines.get(i + 1 < allLines.size() ? i + 1 : i).trim();
-
-            if (oneLine.length() > 0 || secondLine.length() > 0) {
-                if (oneLine.length() > MAX_LINE_LENGTH) {
-                    String firstPart = left(oneLine, MAX_LINE_LENGTH);
-                    String secondPart = substring(oneLine, MAX_LINE_LENGTH) + " ";
-                    result.append(firstPart).append("\r\n");
-
-                    String newLine = secondPart + allLines.get(++i);
-                    while (newLine.length() > MAX_LINE_LENGTH) {
-                        firstPart = left(newLine, MAX_LINE_LENGTH);
-                        result.append(firstPart).append("\r\n");
-                        secondPart = substring(newLine, MAX_LINE_LENGTH) + " ";
-                        if ((i + 1) < allLines.size())
-                            newLine = secondPart + allLines.get(++i);
-                        else
-                            newLine = secondPart;
-                    }
-                    result.append(newLine).append("\r\n\r\n");
-                } else {
-                    result.append(oneLine).append("\r\n");
-                }
+    private String buildBody(int startIndex, int endIndex) {
+        StringBuilder result = new StringBuilder();
+        for (int i = startIndex; i < endIndex; i++) {
+            String oneLine = allLines.get(i);
+            if (oneLine.length() > LINE_LENGTH) {
+                String first75 = left(oneLine, LINE_LENGTH);
+                int index = lastIndexOf(first75, " ");
+                result.append(substring(first75, 0, index)).append("\r\n").append(substring
+                        (oneLine, index)).append("\r\n");
+            } else {
+                result.append(oneLine).append("\r\n");
             }
-
         }
         return result.toString();
-    }
-
-    private void putBracketBeforeLineOfSummary(int summaryIndex, int endIndex) {
-        for (int i = summaryIndex + 1; i < endIndex; i++) {
-            String newLine = "] " + allLines.get(i);
-            if (!newLine.equals("] ")) {
-                allLines.remove(i);
-                allLines.add(i, newLine);
-            }
-        }
-    }
-
-    private void removeFromList(int startIndex, int endIndex) {
-        List<String> removeList = new ArrayList<>();
-        if (startIndex != 0) {
-            for (int i = 0; i < startIndex; i++) {
-                removeList.add(allLines.get(i));
-            }
-        }
-        if (endIndex != 0) {
-            for (int i = endIndex; i < allLines.size(); i++) {
-                removeList.add(allLines.get(i));
-            }
-        }
-        removeList.removeIf(s -> s.equals(""));
-        allLines.removeAll(removeList);
     }
 }
