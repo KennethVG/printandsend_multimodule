@@ -10,7 +10,6 @@ import be.somedi.printandsend.mapper.ExternalCaregiverMapper;
 import be.somedi.printandsend.mapper.PatientMapper;
 import be.somedi.printandsend.mapper.PersonMapper;
 import be.somedi.printandsend.model.*;
-import be.somedi.printandsend.model.medidoc.PersonMedidoc;
 import be.somedi.printandsend.service.ExternalCaregiverService;
 import be.somedi.printandsend.service.LinkedExternalCaregiverService;
 import be.somedi.printandsend.service.PatientService;

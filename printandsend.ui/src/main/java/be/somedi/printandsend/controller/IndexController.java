@@ -9,7 +9,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.awt.print.PrinterException;
 import java.io.IOException;
-import java.nio.file.WatchService;
 import java.time.LocalDateTime;
 
 @Controller
@@ -41,9 +40,7 @@ public class IndexController {
         try {
             watchServiceOfDirectory.processEventsBeforeWatching();
             watchServiceOfDirectory.processEvents();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } catch (PrinterException e) {
             e.printStackTrace();

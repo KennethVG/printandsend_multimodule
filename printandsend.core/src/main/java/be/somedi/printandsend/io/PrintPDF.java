@@ -1,6 +1,5 @@
 package be.somedi.printandsend.io;
 
-import be.somedi.printandsend.exceptions.PrinterNotFoundException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPageable;
 

@@ -3,11 +3,8 @@ package be.somedi.printandsend.jobs;
 import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 import be.somedi.printandsend.io.PrintPDF;
 import be.somedi.printandsend.io.ReadTxt;
-import be.somedi.printandsend.mapper.ExternalCaregiverMapper;
-import be.somedi.printandsend.model.ExternalCaregiver;
 import be.somedi.printandsend.model.UMFormat;
 import be.somedi.printandsend.service.ExternalCaregiverService;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -15,8 +12,6 @@ import org.springframework.stereotype.Component;
 import java.awt.print.PrinterException;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 public class WatchServiceOfDirectory {
