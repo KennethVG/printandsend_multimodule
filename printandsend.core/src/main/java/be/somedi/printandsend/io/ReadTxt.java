@@ -122,6 +122,7 @@ public class ReadTxt {
     }
 
     //TODO: Body for medar and medicard?
+    //TODO: Copy-paste from old code!
     public String getBodyOfTxt() {
         StringBuilder result = new StringBuilder();
         int startIndex = 0;

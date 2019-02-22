@@ -3,8 +3,6 @@ package be.somedi.printandsend.model;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import static org.apache.commons.lang3.StringUtils.substring;
-
 public class Person {
 
     private String firstName;
@@ -24,7 +22,7 @@ public class Person {
     }
 
     public String getFirstName() {
-        return substring(firstName, 0, 16);
+        return firstName;
     }
 
     public void setFirstName(String firstName) {
@@ -32,9 +30,6 @@ public class Person {
     }
 
     public String getLastName() {
-        for (int i = lastName.length(); i < 24; i++) {
-            lastName = lastName.concat(" ");
-        }
         return lastName;
     }
 

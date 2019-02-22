@@ -13,6 +13,7 @@ import static org.apache.commons.lang3.StringUtils.left;
 @Component
 public class UMWriter {
 
+    // TODO: WRITE TO ANSI --> Now UTF-8
     public void write(Path pathToUM, String output, ExternalCaregiver caregiverTo, String refNr) {
         try {
             // Make REP file

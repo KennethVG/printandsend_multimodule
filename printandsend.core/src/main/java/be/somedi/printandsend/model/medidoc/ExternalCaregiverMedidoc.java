@@ -1,4 +1,6 @@
-package be.somedi.printandsend.model;
+package be.somedi.printandsend.model.medidoc;
+
+import be.somedi.printandsend.model.ExternalCaregiver;
 
 import static org.apache.commons.lang3.StringUtils.substring;
 
