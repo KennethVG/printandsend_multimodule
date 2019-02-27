@@ -152,6 +152,12 @@ public class CreateUMFormat {
         context.setVariable("patient", patient);
         context.setVariable("person", person);
         context.setVariable("researchDate", getResearchDate(readTxt.getTextAfterKey("UD")));
+        Address address = getAddressOfPatient(readTxt);
+        if(medidoc){
+            for (int i = address.getStreet().length(); i < 24; i++) {
+                address.setStreet(address.getStreet().concat(" "));
+            }
+        }
         context.setVariable("address", getAddressOfPatient(readTxt));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
         context.setVariable("date", formatter.format(LocalDateTime.now()));

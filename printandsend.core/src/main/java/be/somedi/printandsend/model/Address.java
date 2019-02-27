@@ -10,9 +10,6 @@ public class Address {
     private String city;
 
     public String getStreet() {
-        for (int i = street.length(); i < 24; i++) {
-            street = street.concat(" ");
-        }
         return street;
     }
 
