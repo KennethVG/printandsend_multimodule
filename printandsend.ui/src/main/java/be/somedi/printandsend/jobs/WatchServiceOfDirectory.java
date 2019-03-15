@@ -7,6 +7,7 @@ import be.somedi.printandsend.model.UMFormat;
 import be.somedi.printandsend.service.ExternalCaregiverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.awt.print.PrinterException;
@@ -32,7 +33,8 @@ public class WatchServiceOfDirectory {
         this.createUMFormat = createUMFormat;
     }
 
-    public void processEvents() throws IOException, PrinterException, InterruptedException {
+    @Async("threadPoolTaskExecutor")
+    public void processEvents() throws IOException, InterruptedException {
         WatchService watchService = FileSystems.getDefault().newWatchService();
         pathNew.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
         while (true) {
@@ -49,19 +51,20 @@ public class WatchServiceOfDirectory {
         }
     }
 
+    @Async("threadPoolTaskExecutor")
     public void processEventsBeforeWatching() throws IOException {
         Files.list(pathNew).forEach(txtFile -> {
             try {
                 if (txtFile.getFileName().toString().startsWith("MSE") && txtFile.toString().endsWith(".txt")) {
                     printForExternalCaregiver(txtFile);
                 }
-            } catch (PrinterException | IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         });
     }
 
-    private void printForExternalCaregiver(Path txtFile) throws PrinterException, IOException {
+    private void printForExternalCaregiver(Path txtFile) throws IOException {
         ReadTxt readTxt = new ReadTxt(txtFile);
         PrintPDF printPDF = new PrintPDF(readTxt);
 

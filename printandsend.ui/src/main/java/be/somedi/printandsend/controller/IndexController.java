@@ -37,12 +37,11 @@ public class IndexController {
 
     @GetMapping
     public ModelAndView index() {
+
         try {
             watchServiceOfDirectory.processEventsBeforeWatching();
             watchServiceOfDirectory.processEvents();
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        } catch (PrinterException e) {
             e.printStackTrace();
         }
         return new ModelAndView(VIEW, "begroeting", begroeting());

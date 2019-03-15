@@ -1,12 +1,12 @@
 package be.somedi.printandsend.io;
 
+import be.somedi.printandsend.exceptions.PathNotFoundException;
+import be.somedi.printandsend.exceptions.PrinterNotFoundException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPageable;
 
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
-import javax.print.attribute.PrintServiceAttributeSet;
-import javax.print.attribute.standard.PrinterState;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.IOException;
@@ -46,22 +46,24 @@ public class PrintPDF {
         readTxt.deleteTxtFile();
     }
 
-    public void printPDF() throws PrinterException, IOException {
-        PDDocument doc = PDDocument.load(getPathOfPDFToPrint().toFile());
-        PrinterJob printerJob = PrinterJob.getPrinterJob();
-        printerJob.setPageable(new PDFPageable(doc));
-        PrintService defaultPrintService = PrintServiceLookup.lookupDefaultPrintService();
+    public void printPDF() {
+        System.out.println("In method printPDF ...");
 
-        PrintServiceAttributeSet printServiceAttributeSet = defaultPrintService.getAttributes();
-        PrinterState printerState = (PrinterState) printServiceAttributeSet.get(PrinterState.class);
-
-        if (printerState != null) {
+        try {
+            PDDocument doc = PDDocument.load(getPathOfPDFToPrint().toFile());
+            PrinterJob printerJob = PrinterJob.getPrinterJob();
+            printerJob.setPageable(new PDFPageable(doc));
+            PrintService defaultPrintService = PrintServiceLookup.lookupDefaultPrintService();
             printerJob.setPrintService(defaultPrintService);
             printerJob.print();
-        } else {
+            System.out.println("Printing ...");
+            doc.close();
+
             //TODO: error handling
-//            throw new PrinterNotFoundException("Default printer not available");
+        } catch (PrinterException e) {
+            throw new PrinterNotFoundException("Default printer not available");
+        } catch (IOException e) {
+            throw new PathNotFoundException("Path niet gevonden");
         }
-        doc.close();
     }
 }

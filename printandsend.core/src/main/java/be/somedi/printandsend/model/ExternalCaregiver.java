@@ -72,7 +72,7 @@ public class ExternalCaregiver {
     }
 
     public String getNihii() {
-        return left(nihii, 1) + "/" + substring(nihii, 1, 6) + "/" + substring(nihii, 6, 8) + "/" + right(nihii, 3);
+        return nihii;
     }
 
     public void setNihii(String nihii) {

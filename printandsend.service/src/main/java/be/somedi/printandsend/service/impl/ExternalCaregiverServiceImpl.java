@@ -29,6 +29,6 @@ public class ExternalCaregiverServiceImpl implements ExternalCaregiverService {
 
     @Override
     public ExternalCaregiverEntity updateExternalCaregiver(ExternalCaregiverEntity externalCaregiverEntity) {
-        return externalCaregiverRepository.saveAndFlush(externalCaregiverEntity);
+        return externalCaregiverRepository.save(externalCaregiverEntity);
     }
 }

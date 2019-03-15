@@ -1,5 +1,6 @@
 package be.somedi.printandsend.mapper;
 
+import be.somedi.printandsend.CareGiverDTO;
 import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 import be.somedi.printandsend.model.ExternalCaregiver;
 import be.somedi.printandsend.model.medidoc.ExternalCaregiverMedidoc;
@@ -16,4 +17,6 @@ public interface ExternalCaregiverMapper {
     ExternalCaregiver entityToExternalCaregiver(ExternalCaregiverEntity externalCaregiverEntity);
 
     ExternalCaregiverMedidoc entityToExternalCaregiverMedidoc(ExternalCaregiverEntity externalCaregiverEntity);
+
+    ExternalCaregiverEntity dtoToEntity (CareGiverDTO careGiverDTO);
 }

@@ -26,8 +26,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.apache.commons.lang3.StringUtils.left;
-import static org.apache.commons.lang3.StringUtils.substring;
+import static org.apache.commons.lang3.StringUtils.*;
 
 @Component
 public class CreateUMFormat {
@@ -128,10 +127,17 @@ public class CreateUMFormat {
         } else return "Z";
     }
 
+    private String getFormattedNihii(String nihii) {
+        return left(nihii, 1) + "/" + substring(nihii, 1, 6) + "/" + substring(nihii, 6, 8) + "/" + right(nihii, 3);
+    }
+
     private Context getDefaultContext(ReadTxt readTxt) {
         ExternalCaregiverEntity caregiverEntityTo = getExternalCaregiverTo(readTxt);
+        caregiverEntityTo.setNihii(getFormattedNihii(caregiverEntityTo.getNihii()));
         ExternalCaregiverEntity caregiverEntityFrom = getExternalCaregiverFrom(readTxt);
+        caregiverEntityFrom.setNihii(getFormattedNihii(caregiverEntityFrom.getNihii()));
         ExternalCaregiverEntity caregiverEntityLinked = getLinkedCaregiver(caregiverEntityTo.getExternalID());
+        caregiverEntityLinked.setNihii(getFormattedNihii(caregiverEntityLinked.getNihii()));
         boolean medidoc = caregiverEntityTo.getFormat() == UMFormat.MEDIDOC;
 
         ExternalCaregiver caregiverTo = medidoc ? externalCaregiverMapper.entityToExternalCaregiverMedidoc(caregiverEntityTo) :
@@ -153,7 +159,7 @@ public class CreateUMFormat {
         context.setVariable("person", person);
         context.setVariable("researchDate", getResearchDate(readTxt.getTextAfterKey("UD")));
         Address address = getAddressOfPatient(readTxt);
-        if(medidoc){
+        if (medidoc) {
             for (int i = address.getStreet().length(); i < 24; i++) {
                 address.setStreet(address.getStreet().concat(" "));
             }
