@@ -7,16 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.awt.print.PrinterException;
-import java.io.IOException;
-import java.time.LocalDateTime;
-
 @Controller
 @RequestMapping("/")
 public class IndexController {
 
     private static final String VIEW = "index";
-
     private final WatchServiceOfDirectory watchServiceOfDirectory;
 
     @Autowired
@@ -24,28 +19,10 @@ public class IndexController {
         this.watchServiceOfDirectory = watchServiceOfDirectory;
     }
 
-    private String begroeting() {
-        int uur = LocalDateTime.now().getHour();
-        if (uur >= 6 && uur < 12) {
-            return "goedeMorgen";
-        }
-        if (uur >= 12 && uur < 18) {
-            return "goedeMiddag";
-        }
-        return "goedeAvond";
-    }
-
     @GetMapping
     public ModelAndView index() {
-
-        try {
-            watchServiceOfDirectory.processEventsBeforeWatching();
-            watchServiceOfDirectory.processEvents();
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        return new ModelAndView(VIEW, "begroeting", begroeting());
+        watchServiceOfDirectory.processEventsBeforeWatching();
+        watchServiceOfDirectory.processEvents();
+        return new ModelAndView(VIEW, "begroeting", "Hello World!");
     }
-    
-
 }

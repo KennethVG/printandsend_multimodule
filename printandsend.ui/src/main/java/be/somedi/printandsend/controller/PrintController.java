@@ -1,0 +1,35 @@
+package be.somedi.printandsend.controller;
+
+import be.somedi.printandsend.jobs.WatchServiceOfDirectory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/printjob")
+@CrossOrigin("*")
+public class PrintController {
+
+    private final WatchServiceOfDirectory watchServiceOfDirectory;
+
+    @Autowired
+    public PrintController(WatchServiceOfDirectory watchServiceOfDirectory) {
+        this.watchServiceOfDirectory = watchServiceOfDirectory;
+    }
+
+    @GetMapping("/start")
+    public ResponseEntity<Void> startPrintjob() {
+        watchServiceOfDirectory.processEventsBeforeWatching();
+        watchServiceOfDirectory.processEvents();
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/stop")
+    public ResponseEntity<Void> stopPrintjob(){
+        watchServiceOfDirectory.stopPrintJob();
+        return ResponseEntity.noContent().build();
+    }
+}

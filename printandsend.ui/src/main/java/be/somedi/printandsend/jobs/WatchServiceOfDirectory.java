@@ -8,11 +8,14 @@ import be.somedi.printandsend.service.ExternalCaregiverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 
 import java.awt.print.PrinterException;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 
 @Component
 public class WatchServiceOfDirectory {
@@ -26,42 +29,65 @@ public class WatchServiceOfDirectory {
 
     private final ExternalCaregiverService externalCaregiverService;
     private final CreateUMFormat createUMFormat;
+    private WatchService watchService;
+    private final Future<WatchService> future;
+
 
     @Autowired
-    public WatchServiceOfDirectory(ExternalCaregiverService externalCaregiverService, CreateUMFormat createUMFormat) {
+    public WatchServiceOfDirectory(ExternalCaregiverService externalCaregiverService, CreateUMFormat createUMFormat, WatchService watchService, Future<WatchService> future) {
         this.externalCaregiverService = externalCaregiverService;
         this.createUMFormat = createUMFormat;
+        this.watchService = watchService;
+        this.future = future;
     }
 
     @Async("threadPoolTaskExecutor")
-    public void processEvents() throws IOException, InterruptedException {
-        WatchService watchService = FileSystems.getDefault().newWatchService();
-        pathNew.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
-        while (true) {
-            final WatchKey key = watchService.take();
-            for (WatchEvent<?> event : key.pollEvents()) {
-                final Path txtFile = (Path) event.context();
-                if (txtFile.toString().startsWith("MSE") && txtFile.toString().endsWith(".txt")) {
-                    printForExternalCaregiver(Paths.get(pathNew + "\\" + txtFile));
+    public void processEvents() {
+        try {
+            watchService = FileSystems.getDefault().newWatchService();
+            pathNew.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
+            while (true) {
+                final WatchKey key = watchService.take();
+                for (WatchEvent<?> event : key.pollEvents()) {
+                    final Path txtFile = (Path) event.context();
+                    if (txtFile.toString().startsWith("MSE") && txtFile.toString().endsWith(".txt")) {
+                        printForExternalCaregiver(Paths.get(pathNew + "\\" + txtFile));
+                    }
+                }
+                if (!key.reset()) {
+                    System.out.println("Key had been unregistered");
                 }
             }
-            if (!key.reset()) {
-                System.out.println("Key had been unregistered");
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
-    @Async("threadPoolTaskExecutor")
-    public void processEventsBeforeWatching() throws IOException {
-        Files.list(pathNew).forEach(txtFile -> {
-            try {
+    public void stopPrintJob() {
+        try {
+            watchService.close();
+            future.cancel(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void processEventsBeforeWatching() {
+        try {
+            Files.list(pathNew).forEach(txtFile -> {
                 if (txtFile.getFileName().toString().startsWith("MSE") && txtFile.toString().endsWith(".txt")) {
-                    printForExternalCaregiver(txtFile);
+                    try {
+                        printForExternalCaregiver(txtFile);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void printForExternalCaregiver(Path txtFile) throws IOException {

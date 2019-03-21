@@ -16,6 +16,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-search-orm</artifactId>
+            <version>5.11.1.Final</version>
+        </dependency>
+        <dependency>
             <groupId>be.somedi.printandsend</groupId>
             <artifactId>printandsend.data-jpa</artifactId>
         </dependency>

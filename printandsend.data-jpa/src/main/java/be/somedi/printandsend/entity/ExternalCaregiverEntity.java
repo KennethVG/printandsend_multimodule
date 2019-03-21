@@ -1,10 +1,14 @@
 package be.somedi.printandsend.entity;
 
 import be.somedi.printandsend.model.UMFormat;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.TermVector;
 
 import javax.persistence.*;
 
 @Entity
+@Indexed
 @Table(name = "dbo.Communication_ExternalCaregiver")
 public class ExternalCaregiverEntity {
 
@@ -12,15 +16,21 @@ public class ExternalCaregiverEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String externalID;
+    @Column(nullable = false)
+    @Field(termVector = TermVector.YES)
     private String firstName;
+    @Column(nullable = false)
+    @Field(termVector = TermVector.YES)
     private String lastName;
+//    @Column(unique = true, nullable = false)
     private String nihii;
     private String streetWithNumber;
     private String zip;
     private String city;
     private String title;
+    private String phone;
     private Boolean printProtocols;
     @Enumerated(EnumType.STRING)
     private UMFormat format;
@@ -31,7 +41,7 @@ public class ExternalCaregiverEntity {
     public ExternalCaregiverEntity() {
     }
 
-    public ExternalCaregiverEntity(String externalID, String firstName, String lastName, String nihii, String streetWithNumber, String zip, String city, String title, Boolean printProtocols, UMFormat format, String nihiiAddress, Boolean eProtocols, Boolean secondCopy) {
+    public ExternalCaregiverEntity(String externalID, String firstName, String lastName, String nihii, String streetWithNumber, String zip, String city, String title, String phone, Boolean printProtocols, UMFormat format, String nihiiAddress, Boolean eProtocols, Boolean secondCopy) {
         this.externalID = externalID;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -40,6 +50,7 @@ public class ExternalCaregiverEntity {
         this.zip = zip;
         this.city = city;
         this.title = title;
+        this.phone = phone;
         this.printProtocols = printProtocols;
         this.format = format;
         this.nihiiAddress = nihiiAddress;
@@ -157,5 +168,13 @@ public class ExternalCaregiverEntity {
 
     public void setSecondCopy(Boolean secondCopy) {
         this.secondCopy = secondCopy;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }

@@ -1,7 +1,5 @@
 package be.somedi.printandsend.model;
 
-import static org.apache.commons.lang3.StringUtils.*;
-
 public class ExternalCaregiver {
 
     private String externalID;
@@ -23,7 +21,7 @@ public class ExternalCaregiver {
     public ExternalCaregiver() {
     }
 
-    public ExternalCaregiver(String externalID, String firstName, String lastName, String nihii, String streetWithNumber, String zip, String city, String title, Boolean printProtocols, UMFormat format, String nihiiAddress, Boolean eProtocols, Boolean secondCopy) {
+    public ExternalCaregiver(String externalID, String firstName, String lastName, String nihii, String streetWithNumber, String zip, String city, String title, String phone, Boolean printProtocols, UMFormat format, String nihiiAddress, Boolean eProtocols, Boolean secondCopy) {
         this.externalID = externalID;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -32,6 +30,7 @@ public class ExternalCaregiver {
         this.zip = zip;
         this.city=city;
         this.title = title;
+        this.phone = phone;
         this.printProtocols = printProtocols;
         this.format = format;
         this.nihiiAddress = nihiiAddress;

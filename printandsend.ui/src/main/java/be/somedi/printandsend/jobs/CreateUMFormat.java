@@ -137,7 +137,8 @@ public class CreateUMFormat {
         ExternalCaregiverEntity caregiverEntityFrom = getExternalCaregiverFrom(readTxt);
         caregiverEntityFrom.setNihii(getFormattedNihii(caregiverEntityFrom.getNihii()));
         ExternalCaregiverEntity caregiverEntityLinked = getLinkedCaregiver(caregiverEntityTo.getExternalID());
-        caregiverEntityLinked.setNihii(getFormattedNihii(caregiverEntityLinked.getNihii()));
+        if (caregiverEntityLinked != null)
+            caregiverEntityLinked.setNihii(getFormattedNihii(caregiverEntityLinked.getNihii()));
         boolean medidoc = caregiverEntityTo.getFormat() == UMFormat.MEDIDOC;
 
         ExternalCaregiver caregiverTo = medidoc ? externalCaregiverMapper.entityToExternalCaregiverMedidoc(caregiverEntityTo) :
