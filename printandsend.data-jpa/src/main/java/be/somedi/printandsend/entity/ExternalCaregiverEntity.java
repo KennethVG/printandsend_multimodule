@@ -1,9 +1,8 @@
 package be.somedi.printandsend.entity;
 
 import be.somedi.printandsend.model.UMFormat;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.TermVector;
+import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Index;
 
 import javax.persistence.*;
 
@@ -19,18 +18,18 @@ public class ExternalCaregiverEntity {
     @Column(unique = true, nullable = false)
     private String externalID;
     @Column(nullable = false)
-    @Field(termVector = TermVector.YES)
+    @Field(index= org.hibernate.search.annotations.Index.YES, analyze=Analyze.YES, store= Store.NO)
     private String firstName;
     @Column(nullable = false)
-    @Field(termVector = TermVector.YES)
+    @Field(index= Index.YES, analyze= Analyze.YES, store=Store.NO)
     private String lastName;
-//    @Column(unique = true, nullable = false)
     private String nihii;
     private String streetWithNumber;
     private String zip;
     private String city;
     private String title;
     private String phone;
+    private Boolean active = Boolean.TRUE;
     private Boolean printProtocols;
     @Enumerated(EnumType.STRING)
     private UMFormat format;
@@ -38,10 +37,11 @@ public class ExternalCaregiverEntity {
     private Boolean eProtocols;
     private Boolean secondCopy;
 
+
     public ExternalCaregiverEntity() {
     }
 
-    public ExternalCaregiverEntity(String externalID, String firstName, String lastName, String nihii, String streetWithNumber, String zip, String city, String title, String phone, Boolean printProtocols, UMFormat format, String nihiiAddress, Boolean eProtocols, Boolean secondCopy) {
+    public ExternalCaregiverEntity(String externalID, String firstName, String lastName, String nihii, String streetWithNumber, String zip, String city, String title, String phone, Boolean active, Boolean printProtocols, UMFormat format, String nihiiAddress, Boolean eProtocols, Boolean secondCopy) {
         this.externalID = externalID;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -51,6 +51,7 @@ public class ExternalCaregiverEntity {
         this.city = city;
         this.title = title;
         this.phone = phone;
+        this.active = active;
         this.printProtocols = printProtocols;
         this.format = format;
         this.nihiiAddress = nihiiAddress;
@@ -176,5 +177,13 @@ public class ExternalCaregiverEntity {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 }

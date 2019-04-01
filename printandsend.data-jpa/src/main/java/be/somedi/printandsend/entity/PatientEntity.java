@@ -1,8 +1,12 @@
 package be.somedi.printandsend.entity;
 
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
+
 import javax.persistence.*;
 
 @Entity
+@Indexed
 @Table(name = "dbo.Global_Patient")
 public class PatientEntity {
 
@@ -15,7 +19,13 @@ public class PatientEntity {
 
     @OneToOne
     @JoinColumn(name = "person_id")
+    @IndexedEmbedded
     private PersonEntity person;
+
+    @OneToOne
+    @JoinColumn(name = "general_practitioner_id")
+    @IndexedEmbedded
+    private ExternalCaregiverEntity externalCaregiver;
 
     public Long getId() {
         return id;
@@ -35,5 +45,13 @@ public class PatientEntity {
 
     public void setPerson(PersonEntity person) {
         this.person = person;
+    }
+
+    public ExternalCaregiverEntity getExternalCaregiver() {
+        return externalCaregiver;
+    }
+
+    public void setExternalCaregiver(ExternalCaregiverEntity externalCaregiver) {
+        this.externalCaregiver = externalCaregiver;
     }
 }

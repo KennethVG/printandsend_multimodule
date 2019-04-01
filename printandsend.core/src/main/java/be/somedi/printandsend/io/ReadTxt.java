@@ -33,10 +33,6 @@ public class ReadTxt {
     private Path path;
     private List<String> allLines = new ArrayList<>();
 
-    public ReadTxt() {
-        this(null, Charset.forName("windows-1252"));
-    }
-
     public ReadTxt(Path path) {
         this(path, Charset.forName("windows-1252"));
     }
@@ -45,6 +41,7 @@ public class ReadTxt {
         this.path = path;
         try {
             allLines = Files.readAllLines(path, charset);
+            // TODO: error handling
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -60,14 +57,11 @@ public class ReadTxt {
     public List<String> getAllLines() {
         try {
             return Files.readAllLines(path, Charset.forName("windows-1252"));
+            // TODO: error handling
         } catch (IOException e) {
             e.printStackTrace();
         }
         return Collections.emptyList();
-    }
-
-    public void setAllLines(List<String> allLines) {
-        this.allLines = allLines;
     }
 
     public String getFileName() {

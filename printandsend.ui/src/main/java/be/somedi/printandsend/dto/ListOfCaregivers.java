@@ -1,4 +1,4 @@
-package be.somedi.printandsend;
+package be.somedi.printandsend.dto;
 
 import be.somedi.printandsend.model.ExternalCaregiver;
 

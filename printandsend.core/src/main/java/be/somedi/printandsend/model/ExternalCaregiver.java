@@ -1,7 +1,10 @@
 package be.somedi.printandsend.model;
 
+import java.util.Objects;
+
 public class ExternalCaregiver {
 
+    private String id;
     private String externalID;
     private String firstName;
     private String lastName;
@@ -11,6 +14,7 @@ public class ExternalCaregiver {
     private String zip;
     private String city;
     private String title;
+    private Boolean active = Boolean.TRUE;
     private Boolean printProtocols;
     private UMFormat format;
     private String nihiiAddress;
@@ -21,21 +25,30 @@ public class ExternalCaregiver {
     public ExternalCaregiver() {
     }
 
-    public ExternalCaregiver(String externalID, String firstName, String lastName, String nihii, String streetWithNumber, String zip, String city, String title, String phone, Boolean printProtocols, UMFormat format, String nihiiAddress, Boolean eProtocols, Boolean secondCopy) {
+    public ExternalCaregiver(String externalID, String firstName, String lastName, String nihii, String streetWithNumber, String zip, String city, String title, Boolean active, String phone, Boolean printProtocols, UMFormat format, String nihiiAddress, Boolean eProtocols, Boolean secondCopy) {
         this.externalID = externalID;
         this.firstName = firstName;
         this.lastName = lastName;
         this.nihii = nihii;
         this.streetWithNumber = streetWithNumber;
         this.zip = zip;
-        this.city=city;
+        this.city = city;
         this.title = title;
+        this.active = active;
         this.phone = phone;
         this.printProtocols = printProtocols;
         this.format = format;
         this.nihiiAddress = nihiiAddress;
         this.eProtocols = eProtocols;
         this.secondCopy = secondCopy;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getExternalID() {
@@ -118,6 +131,14 @@ public class ExternalCaregiver {
         this.title = title;
     }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
     public Boolean getPrintProtocols() {
         return printProtocols;
     }
@@ -165,8 +186,8 @@ public class ExternalCaregiver {
 
         ExternalCaregiver that = (ExternalCaregiver) o;
 
-        if (externalID != null ? !externalID.equals(that.externalID) : that.externalID != null) return false;
-        return nihii != null ? nihii.equals(that.nihii) : that.nihii == null;
+        if (!Objects.equals(externalID, that.externalID)) return false;
+        return Objects.equals(nihii, that.nihii);
     }
 
     @Override

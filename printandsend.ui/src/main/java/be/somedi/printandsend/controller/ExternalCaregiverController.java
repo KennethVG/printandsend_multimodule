@@ -1,17 +1,16 @@
 package be.somedi.printandsend.controller;
 
-import be.somedi.printandsend.ListOfCaregivers;
+import be.somedi.printandsend.dto.ListOfCaregivers;
 import be.somedi.printandsend.entity.ExternalCaregiverEntity;
+import be.somedi.printandsend.exceptions.CaregiverNotFoundException;
 import be.somedi.printandsend.mapper.ExternalCaregiverMapper;
 import be.somedi.printandsend.model.ExternalCaregiver;
 import be.somedi.printandsend.service.ExternalCaregiverService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("caregiver")
@@ -29,12 +28,16 @@ public class ExternalCaregiverController {
     @GetMapping("{externalId}")
     public ResponseEntity<ExternalCaregiver> getExternalCaregiver(@PathVariable String externalId) {
         ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findByExternalID(externalId);
+        if (caregiverEntity == null) {
+            throw new CaregiverNotFoundException("Dokter met externalId " + externalId + " niet gevonden");
+        }
+
         ExternalCaregiver caregiverFrom = externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity);
         return ResponseEntity.ok(caregiverFrom);
     }
 
     @GetMapping("/search/{name}")
-    public ResponseEntity<ListOfCaregivers> getExternalCaregivers(@PathVariable String name){
+    public ResponseEntity<ListOfCaregivers> getExternalCaregivers(@PathVariable String name) {
 
         List<ExternalCaregiverEntity> externalCaregiverEntityList = externalCaregiverService.findByName(name);
 

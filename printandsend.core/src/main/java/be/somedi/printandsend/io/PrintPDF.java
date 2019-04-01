@@ -47,8 +47,6 @@ public class PrintPDF {
     }
 
     public void printPDF() {
-        System.out.println("In method printPDF ...");
-
         try {
             PDDocument doc = PDDocument.load(getPathOfPDFToPrint().toFile());
             PrinterJob printerJob = PrinterJob.getPrinterJob();

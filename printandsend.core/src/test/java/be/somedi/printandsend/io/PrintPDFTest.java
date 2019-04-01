@@ -28,4 +28,10 @@ public class PrintPDFTest {
         Path pathOfPDF = printPDF.getPathOfPDFToPrint();
         assertEquals(path.getParent(), pathOfPDF.getParent());
     }
+
+    @Test
+    public void getPathOfPDFToPrint() {
+        Path pathOfPDF = Paths.get("src/test/resources/PDF_183030005_2976737_A9671.pdf");
+        assertEquals(printPDF.getPathOfPDFToPrint(), pathOfPDF);
+    }
 }

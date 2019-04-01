@@ -1,6 +1,7 @@
 package be.somedi.printandsend.jobs;
 
 import be.somedi.printandsend.entity.ExternalCaregiverEntity;
+import be.somedi.printandsend.exceptions.CaregiverNotFoundException;
 import be.somedi.printandsend.io.PrintPDF;
 import be.somedi.printandsend.io.ReadTxt;
 import be.somedi.printandsend.model.UMFormat;
@@ -8,13 +9,10 @@ import be.somedi.printandsend.service.ExternalCaregiverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 
-import java.awt.print.PrinterException;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
 @Component
@@ -58,6 +56,7 @@ public class WatchServiceOfDirectory {
                     System.out.println("Key had been unregistered");
                 }
             }
+            // TODO: error handling
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -111,7 +110,6 @@ public class WatchServiceOfDirectory {
                     Boolean needPrint = externalCaregiverEntity.getPrintProtocols();
                     Boolean needSecondCopy = externalCaregiverEntity.getSecondCopy();
                     if (needPrint == null || needPrint.toString().equals("")) {
-                        //TODO: Errorhandling!
                         printPDF.copyAndDeleteTxtAndPDF(pathError);
                     } else if (needPrint) {
                         printPDF.printPDF();
@@ -124,7 +122,7 @@ public class WatchServiceOfDirectory {
                     }
                 }
             } else {
-                //TODO:errorhandling --> Geen geldig externalId
+                throw new CaregiverNotFoundException("ExternalId niet gevonden");
             }
         }
     }

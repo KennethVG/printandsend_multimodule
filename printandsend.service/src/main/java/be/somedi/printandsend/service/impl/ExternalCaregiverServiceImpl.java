@@ -57,6 +57,7 @@ public class ExternalCaregiverServiceImpl implements ExternalCaregiverService {
         Query query = queryBuilder.keyword().onFields("lastName", "firstName").matching(name).createQuery();
 
         FullTextQuery fullTextQuery = fullTextEntityManager.createFullTextQuery(query, ExternalCaregiverEntity.class);
+        fullTextQuery.setMaxResults(10);
         return fullTextQuery.getResultList();
 
     }

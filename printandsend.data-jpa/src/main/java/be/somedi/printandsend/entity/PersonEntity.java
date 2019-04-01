@@ -1,5 +1,8 @@
 package be.somedi.printandsend.entity;
 
+import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Index;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 
@@ -11,7 +14,9 @@ public class PersonEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Field(index=Index.YES, analyze=Analyze.YES, store=Store.NO)
     private String firstName;
+    @Field(index=Index.YES, analyze=Analyze.YES, store=Store.NO)
     private String lastName;
     private String inss;
     private LocalDate birthDate;

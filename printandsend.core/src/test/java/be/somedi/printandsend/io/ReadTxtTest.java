@@ -1,7 +1,6 @@
 package be.somedi.printandsend.io;
 
 import be.somedi.printandsend.model.UMFormat;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -63,7 +62,6 @@ public class ReadTxtTest {
                 "Mijn besluit regel 8.";
 
         assertEquals(expected, result);
-//        assertEquals(StringUtils.deleteWhitespace(expected), StringUtils.deleteWhitespace(result));
     }
 
     @Test

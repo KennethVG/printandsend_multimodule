@@ -12,7 +12,6 @@
         <module>printandsend.data-jpa</module>
         <module>printandsend.core</module>
         <module>printandsend.service</module>
-        <module>printandsend.test</module>
         <module>printandsend.ui</module>
     </modules>
 
@@ -51,12 +50,6 @@
             <dependency>
                 <groupId>be.somedi.printandsend</groupId>
                 <artifactId>printandsend.service</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>be.somedi.printandsend</groupId>
-                <artifactId>printandsend.test</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
