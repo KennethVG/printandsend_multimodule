@@ -1,11 +1,12 @@
 /FROM     : [(${cFrom.lastName})]|P.A. Liersesteenweg 267|2220|Heist-op-den-Berg||[(${cFrom.nihii})]
 /TO       : [(${cTo.lastName})]|[(${cTo.streetWithNumber})]|[(${cTo.zip})]|[(${cTo.city})]||[(${cTo.nihii})]
 /SUBJECT  : [(${person.firstName})]|[(${person.lastName})]|[(${address.street})][(${address.number})]|[(${address.zip})]|[(${address.city})]|[(${person.stringBirthDate})]|[(${geslacht})]
-/INFO     : CREATED ON [(${date})]|MDR[(${ref})]
+/INFO     : Created On [(${datum})]|MDR[(${ref})]
 
 /TITLE Raadpleging [(${cFrom.title})][(${cFrom.fullName})]
-/DATE [(${date})]
+/DATE [(${datum})]
 Geachte collega,
+
 /DESCR
 [(${body})]
 /END

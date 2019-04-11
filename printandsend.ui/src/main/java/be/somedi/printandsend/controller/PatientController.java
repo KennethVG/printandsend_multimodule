@@ -52,6 +52,7 @@ public class PatientController {
 
         ListOfPatients listOfPatients = new ListOfPatients();
         List<Patient> patients = new ArrayList<>();
+
         for (PatientEntity entity : patientEntityList) {
             Patient patient = patientMapper.patientEntityToPatient(entity);
             patients.add(patient);

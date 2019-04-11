@@ -186,4 +186,25 @@ public class ExternalCaregiverEntity {
     public void setActive(Boolean active) {
         this.active = active;
     }
+
+    @Override
+    public String toString() {
+        return "ExternalCaregiverEntity{" +
+                "externalID='" + externalID + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", nihii='" + nihii + '\'' +
+                ", streetWithNumber='" + streetWithNumber + '\'' +
+                ", zip='" + zip + '\'' +
+                ", city='" + city + '\'' +
+                ", title='" + title + '\'' +
+                ", phone='" + phone + '\'' +
+                ", active=" + active +
+                ", printProtocols=" + printProtocols +
+                ", format=" + format +
+                ", nihiiAddress='" + nihiiAddress + '\'' +
+                ", eProtocols=" + eProtocols +
+                ", secondCopy=" + secondCopy +
+                '}';
+    }
 }

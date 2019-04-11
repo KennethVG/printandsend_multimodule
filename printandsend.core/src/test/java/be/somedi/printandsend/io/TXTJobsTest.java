@@ -13,29 +13,29 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class ReadTxtTest {
+public class TXTJobsTest {
 
-    private ReadTxt readTxt;
+    private TXTJobs TXTJobs;
 
     @Before
     public void setup() {
         Path path = Paths.get("src/test/resources/MSE_183030005_2976737_A9671.txt");
-        readTxt = new ReadTxt(path);
+        TXTJobs = new TXTJobs(path);
     }
 
     @Test
     public void getTextAfterKey() {
-        String result = readTxt.getTextAfterKey("DR");
+        String result = TXTJobs.getTextAfterKey("DR");
         assertEquals("A9671", result);
 
-        result = readTxt.getTextAfterKey("PS");
+        result = TXTJobs.getTextAfterKey("PS");
         assertEquals("BOSSESTRAAT 5", result);
     }
 
 
     @Test
     public void getBody() {
-        String result = readTxt.getBodyOfTxt(UMFormat.MEDIDOC);
+        String result = TXTJobs.getBodyOfTxt(UMFormat.MEDIDOC);
         String expected = "Betreft : uw patiënt(e) Van Acker Sylvie geboren op 14/09/1982   en\r\n" +
                 " wonende \r\n" +
                 "BOSSESTRAAT 5 te 2220 Heist-op-den-Berg. \r\n" +
@@ -66,7 +66,7 @@ public class ReadTxtTest {
 
     @Test
     public void getFileName() {
-        String actual = readTxt.getFileName();
+        String actual = TXTJobs.getFileName();
         String expected = "MSE_183030005_2976737_A9671.txt";
         assertEquals(expected, actual);
     }
@@ -74,21 +74,21 @@ public class ReadTxtTest {
     @Test
     public void containsVulAan() {
         Path path = Paths.get("src/test/resources/vul_aan.txt");
-        readTxt = new ReadTxt(path);
-        assertTrue(readTxt.containsVulAan());
+        TXTJobs = new TXTJobs(path);
+        assertTrue(TXTJobs.containsVulAan());
     }
 
     @Test
     public void containsSentenceToDelete() throws IOException {
         Path path = Paths.get("src/test/resources/geenverslag.txt");
-        readTxt = new ReadTxt(path);
-        assertTrue(readTxt.containsSentenceToDelete());
+        TXTJobs = new TXTJobs(path);
+        assertTrue(TXTJobs.containsSentenceToDelete());
     }
 
     @Test
     public void testCopyAndDelete() throws IOException {
         Path newPath = Paths.get("src/test/resources/copy.txt");
-        readTxt.moveTxtFile(newPath);
+        TXTJobs.moveTxtFile(newPath);
         assertTrue(Files.exists(newPath));
         Files.delete(newPath);
         assertFalse(Files.exists(newPath));

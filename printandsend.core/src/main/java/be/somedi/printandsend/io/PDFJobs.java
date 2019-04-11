@@ -2,6 +2,9 @@ package be.somedi.printandsend.io;
 
 import be.somedi.printandsend.exceptions.PathNotFoundException;
 import be.somedi.printandsend.exceptions.PrinterNotFoundException;
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPageable;
 
@@ -15,35 +18,45 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-public class PrintPDF {
+public class PDFJobs {
 
-    private ReadTxt readTxt;
+    private static final Logger LOGGER = LogManager.getLogger(PDFJobs.class);
 
-    public PrintPDF(ReadTxt readTxt) {
-        this.readTxt = readTxt;
+    private TXTJobs TXTJobs;
+
+    public PDFJobs(TXTJobs TXTJobs) {
+        this.TXTJobs = TXTJobs;
     }
 
     public String getFileNameOfPDFToPrint() {
-        String txtToPDF = readTxt.getFileName().replace("MSE", "PDF").replace("txt", "pdf");
+        String txtToPDF = TXTJobs.getFileName().replace("MSE", "PDF").replace("txt", "pdf");
         Path toPrint = Paths.get(txtToPDF);
         return toPrint.getFileName().toString();
     }
 
     public Path getPathOfPDFToPrint() {
-        Path read = readTxt.getPath();
+        Path read = TXTJobs.getPath();
         return Paths.get(read.getParent() + "\\" + getFileNameOfPDFToPrint());
     }
 
-    public void copyAndDeleteTxtAndPDF(Path pathToMove) throws IOException {
-        Files.copy(getPathOfPDFToPrint(), Paths.get(pathToMove + "\\" + getFileNameOfPDFToPrint()), StandardCopyOption.REPLACE_EXISTING);
-        Files.delete(getPathOfPDFToPrint());
-        readTxt.moveTxtFile(Paths.get(pathToMove + "\\" + readTxt.getFileName()));
-        readTxt.deleteTxtFile();
+    public void copyAndDeleteTxtAndPDF(Path pathToMove) {
+        try {
+            Files.copy(getPathOfPDFToPrint(), Paths.get(pathToMove + "\\" + getFileNameOfPDFToPrint()), StandardCopyOption.REPLACE_EXISTING);
+            TXTJobs.moveTxtFile(Paths.get(pathToMove + "\\" + TXTJobs.getFileName()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            deleteTxtAndPDF();
+        }
     }
 
-    public void deleteTxtAndPDF() throws IOException {
-        Files.delete(getPathOfPDFToPrint());
-        readTxt.deleteTxtFile();
+    public void deleteTxtAndPDF() {
+        if (FileUtils.deleteQuietly(getPathOfPDFToPrint().toFile())) {
+            LOGGER.info("PDF verwijderd");
+        }
+        if (TXTJobs.deleteTxtFile()) {
+            LOGGER.info("TXT verwijderd");
+        }
     }
 
     public void printPDF() {
@@ -53,11 +66,9 @@ public class PrintPDF {
             printerJob.setPageable(new PDFPageable(doc));
             PrintService defaultPrintService = PrintServiceLookup.lookupDefaultPrintService();
             printerJob.setPrintService(defaultPrintService);
-            printerJob.print();
-            System.out.println("Printing ...");
+//            printerJob.print();
             doc.close();
-
-            //TODO: error handling
+            LOGGER.info("PDF is uitgeprint");
         } catch (PrinterException e) {
             throw new PrinterNotFoundException("Default printer not available");
         } catch (IOException e) {

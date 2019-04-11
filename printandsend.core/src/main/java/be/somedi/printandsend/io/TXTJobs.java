@@ -2,6 +2,7 @@ package be.somedi.printandsend.io;
 
 import be.somedi.printandsend.exceptions.PathNotFoundException;
 import be.somedi.printandsend.model.UMFormat;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +17,7 @@ import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.*;
 
-public class ReadTxt {
+public class TXTJobs {
 
     //CONSTANTEN:
     private static final String BETREFT = "Betreft";
@@ -33,11 +34,11 @@ public class ReadTxt {
     private Path path;
     private List<String> allLines = new ArrayList<>();
 
-    public ReadTxt(Path path) {
+    public TXTJobs(Path path) {
         this(path, Charset.forName("windows-1252"));
     }
 
-    public ReadTxt(Path path, Charset charset) {
+    public TXTJobs(Path path, Charset charset) {
         this.path = path;
         try {
             allLines = Files.readAllLines(path, charset);
@@ -68,8 +69,8 @@ public class ReadTxt {
         return String.valueOf(getPath().getFileName());
     }
 
-    public void deleteTxtFile() throws IOException {
-        Files.delete(getPath());
+    public boolean deleteTxtFile() {
+        return FileUtils.deleteQuietly(getPath().toFile());
     }
 
     public void moveTxtFile(Path moveToFolder) throws IOException {
@@ -85,18 +86,22 @@ public class ReadTxt {
         return false;
     }
 
-    public boolean containsSentenceToDelete() throws IOException {
+    public boolean containsSentenceToDelete() {
         URL url = getClass().getClassLoader().getResource("deleteFileList.txt");
         if (url != null) {
             Path path = new File(url.getFile()).toPath();
-            List<String> allItems = Files.readAllLines(path);
-
-            for (String line : allLines) {
-                for (String item : allItems) {
-                    if (line.trim().toLowerCase().contains(item.trim().toLowerCase())) {
-                        return true;
+            List<String> allItems;
+            try {
+                allItems = Files.readAllLines(path);
+                for (String line : allLines) {
+                    for (String item : allItems) {
+                        if (line.trim().toLowerCase().contains(item.trim().toLowerCase())) {
+                            return true;
+                        }
                     }
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         return false;

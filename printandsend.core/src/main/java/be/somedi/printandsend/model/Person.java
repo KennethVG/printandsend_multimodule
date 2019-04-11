@@ -5,9 +5,9 @@ import java.time.format.DateTimeFormatter;
 
 public class Person {
 
-    private String firstName;
-    private String lastName;
-    private String inss;
+    private String firstName = "";
+    private String lastName = "";
+    private String inss = "";
     private LocalDate birthDate;
     private String stringBirthDate;
 

@@ -8,30 +8,30 @@ import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
 
-public class PrintPDFTest {
+public class PDFJobsTest {
 
     private Path path;
-    private PrintPDF printPDF;
+    private PDFJobs PDFJobs;
 
     @Before
     public void init() {
         path = Paths.get("src/test/resources/MSE_183030005_2976737_A9671.txt");
-        ReadTxt readTxt = new ReadTxt(path);
-        printPDF = new PrintPDF(readTxt);
+        TXTJobs TXTJobs = new TXTJobs(path);
+        PDFJobs = new PDFJobs(TXTJobs);
     }
 
     @Test
     public void getFileNameOfPDFToPrint() {
-        String fileNameOfPDFToPrint = printPDF.getFileNameOfPDFToPrint();
+        String fileNameOfPDFToPrint = PDFJobs.getFileNameOfPDFToPrint();
         assertEquals("PDF_183030005_2976737_A9671.pdf", fileNameOfPDFToPrint);
 
-        Path pathOfPDF = printPDF.getPathOfPDFToPrint();
+        Path pathOfPDF = PDFJobs.getPathOfPDFToPrint();
         assertEquals(path.getParent(), pathOfPDF.getParent());
     }
 
     @Test
     public void getPathOfPDFToPrint() {
         Path pathOfPDF = Paths.get("src/test/resources/PDF_183030005_2976737_A9671.pdf");
-        assertEquals(printPDF.getPathOfPDFToPrint(), pathOfPDF);
+        assertEquals(PDFJobs.getPathOfPDFToPrint(), pathOfPDF);
     }
 }

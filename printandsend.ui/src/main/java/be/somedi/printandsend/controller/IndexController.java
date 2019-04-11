@@ -23,6 +23,6 @@ public class IndexController {
     public ModelAndView index() {
         watchServiceOfDirectory.processEventsBeforeWatching();
         watchServiceOfDirectory.processEvents();
-        return new ModelAndView(VIEW, "begroeting", "Hello World!");
+        return new ModelAndView(VIEW, "printjob", "De printservice is succesvol aan het draaien!");
     }
 }

@@ -1,20 +1,20 @@
 [(${cFrom.nihii})]
-[(${cFrom.lastName})] [(${cFrom.firstName})]
+[(${cFrom.lastName})][(${cFrom.firstName})]
 P.A. Liersesteenweg                267
-2220              Heist-op-den-Berg
+2220          Heist-op-den-Berg
 [(${cFrom.phone})]
 
 [(${date})]
 [(${cTo.nihii})]
-[(${cTo.lastName})] [(${cTo.firstName})]
+[(${cTo.lastName})][(${cTo.firstName})]
 #A[(${person.inss})]
-[(${person.lastName})] [(${person.firstName})]
+[(${person.lastName})][(${person.firstName})]
 [(${person.stringBirthDate})]
 [(${geslacht})]
 [(${researchDate})]
 [(${ref})]
 
-[(${address.street})] [(${address.number})]
+[(${address.street})][(${address.number})]
 [(${address.zip})]
 [(${address.city})]
 #Rb

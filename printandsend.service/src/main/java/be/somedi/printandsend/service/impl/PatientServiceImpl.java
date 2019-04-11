@@ -50,7 +50,6 @@ public class PatientServiceImpl implements PatientService {
         Query query = queryBuilder.keyword().onFields("person.lastName", "person.firstName").matching(name).createQuery();
 
         FullTextQuery fullTextQuery = fullTextEntityManager.createFullTextQuery(query, PatientEntity.class);
-//        fullTextQuery.setProjection("person.lastName", "person.firstName");
         fullTextQuery.setMaxResults(10);
         return fullTextQuery.getResultList();
     }
