@@ -18,10 +18,10 @@ public class ExternalCaregiverEntity {
     @Column(unique = true, nullable = false)
     private String externalID;
     @Column(nullable = false)
-    @Field(index= org.hibernate.search.annotations.Index.YES, analyze=Analyze.YES, store= Store.NO)
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
     private String firstName;
     @Column(nullable = false)
-    @Field(index= Index.YES, analyze= Analyze.YES, store=Store.NO)
+    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
     private String lastName;
     private String nihii;
     private String streetWithNumber;
@@ -185,26 +185,5 @@ public class ExternalCaregiverEntity {
 
     public void setActive(Boolean active) {
         this.active = active;
-    }
-
-    @Override
-    public String toString() {
-        return "ExternalCaregiverEntity{" +
-                "externalID='" + externalID + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", nihii='" + nihii + '\'' +
-                ", streetWithNumber='" + streetWithNumber + '\'' +
-                ", zip='" + zip + '\'' +
-                ", city='" + city + '\'' +
-                ", title='" + title + '\'' +
-                ", phone='" + phone + '\'' +
-                ", active=" + active +
-                ", printProtocols=" + printProtocols +
-                ", format=" + format +
-                ", nihiiAddress='" + nihiiAddress + '\'' +
-                ", eProtocols=" + eProtocols +
-                ", secondCopy=" + secondCopy +
-                '}';
     }
 }

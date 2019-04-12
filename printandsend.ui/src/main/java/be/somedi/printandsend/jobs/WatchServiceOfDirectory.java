@@ -4,9 +4,8 @@ import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 import be.somedi.printandsend.exceptions.CaregiverNotFoundException;
 import be.somedi.printandsend.io.PDFJobs;
 import be.somedi.printandsend.io.TXTJobs;
-import be.somedi.printandsend.model.UMFormat;
 import be.somedi.printandsend.service.ExternalCaregiverService;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.Arrays;
@@ -106,70 +104,56 @@ public class WatchServiceOfDirectory {
 
     private void printForExternalCaregiver(Path txtFile) throws IOException {
         String fileName = txtFile.getFileName().toString();
-        TXTJobs TXTJobs = new TXTJobs(txtFile);
-        PDFJobs PDFJobs = new PDFJobs(TXTJobs);
+        TXTJobs txtJobs = new TXTJobs(txtFile);
+        PDFJobs pdfJobs = new PDFJobs(txtJobs);
 
-        if (TXTJobs.containsVulAan()) {
+        if (txtJobs.containsVulAan()) {
             LOGGER.info(fileName + " bevat vul_aan in de tekst.");
-            PDFJobs.copyAndDeleteTxtAndPDF(pathError);
-            Files.write(Paths.get(pathError + "\\" + fileName + ".err"), "Ergens in de tekst zit nog het woord vul_aan".getBytes());
-        } else if (TXTJobs.containsSentenceToDelete()) {
-            LOGGER.info(fileName + " mag verwijderd worden.");
-            PDFJobs.deleteTxtAndPDF();
+            pdfJobs.copyAndDeleteTxtAndPDF(pathError);
+            Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), "Ergens in de tekst zit nog het woord vul_aan".getBytes());
+        } else if (txtJobs.containsSentenceToDelete()) {
+            LOGGER.info(fileName + " bevat P.N., mag weg ... dus mag verwijderd worden.");
+            pdfJobs.deleteTxtAndPDF();
         } else {
+            createUMFormat.sendToUM(txtJobs);
+
             LOGGER.info(fileName + " wordt verwerkt...");
-            String externalIdOfCaregiver = TXTJobs.getExternalId();
+            String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
             if (externalIdOfCaregiver != null) {
                 ExternalCaregiverEntity externalCaregiverEntity = externalCaregiverService.findByExternalID(externalIdOfCaregiver);
-                LOGGER.info(externalCaregiverEntity);
                 if (externalCaregiverEntity != null) {
                     String aanspreking = "Dr. " + externalCaregiverEntity.getLastName();
-                    Boolean needEPrint = externalCaregiverEntity.geteProtocols();
-                    if (needEPrint != null && needEPrint) {
-                        LOGGER.info(aanspreking + " wil graag een elektronische versie ontvangen in formaat: " + externalCaregiverEntity.getFormat());
-                        sendToUM(TXTJobs, externalCaregiverEntity.getFormat());
-                    }
+//                    Boolean needEPrint = externalCaregiverEntity.geteProtocols();
+//                    if (needEPrint != null && needEPrint) {
+//                        LOGGER.info(aanspreking + " wil graag een elektronische versie ontvangen in formaat: " + externalCaregiverEntity.getFormat());
+//                        sendToUM(txtJobs, externalCaregiverEntity.getFormat());
+//                    }
 
                     Boolean needPrint = externalCaregiverEntity.getPrintProtocols();
                     Boolean needSecondCopy = externalCaregiverEntity.getSecondCopy();
                     if (needPrint == null || needPrint.toString().equals("")) {
-                        PDFJobs.copyAndDeleteTxtAndPDF(pathError);
+                        pdfJobs.copyAndDeleteTxtAndPDF(pathError);
                     } else if (needPrint) {
                         LOGGER.info(aanspreking + " wil graag een papieren versie ontvangen.");
-                        PDFJobs.printPDF();
+                        pdfJobs.printPDF();
                         if (needSecondCopy != null && !needSecondCopy.toString().equals("") && needSecondCopy) {
                             LOGGER.info(aanspreking + " wil graag nog een papieren versie ontvangen.");
-                            PDFJobs.printPDF();
+                            pdfJobs.printPDF();
                         }
-                        PDFJobs.copyAndDeleteTxtAndPDF(pathResult);
+                        pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
                     } else {
-                        PDFJobs.copyAndDeleteTxtAndPDF(pathResult);
+                        pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
                     }
                 }
             } else {
                 String errorMessagge = "ExternalId niet gevonden. Je kan het externalId terugvinden in de txt helemaal bovenaan na het keyword #DR: ";
                 LOGGER.error(errorMessagge);
-                PDFJobs.copyAndDeleteTxtAndPDF(pathError);
-                Files.write(Paths.get(pathError + "\\" + fileName + ".err"), errorMessagge.getBytes());
+                pdfJobs.copyAndDeleteTxtAndPDF(pathError);
+                Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), errorMessagge.getBytes());
                 throw new CaregiverNotFoundException(errorMessagge);
             }
         }
     }
 
-    private void sendToUM(TXTJobs TXTJobs, UMFormat umFormat) {
-        switch (umFormat) {
-            case MEDIDOC:
-                createUMFormat.createMedidocFile(TXTJobs);
-                LOGGER.info("Er is succesvol een MEDIDOC file aangemaakt!");
-                break;
-            case MEDAR:
-                createUMFormat.createMedarFile(TXTJobs);
-                LOGGER.info("Er is succesvol een MEDAR file aangemaakt!");
-                break;
-            case MEDICARD:
-                createUMFormat.createMedicardFile(TXTJobs);
-                LOGGER.info("Er is succesvol een MEDICARD file aangemaakt!");
-                break;
-        }
-    }
+
 }

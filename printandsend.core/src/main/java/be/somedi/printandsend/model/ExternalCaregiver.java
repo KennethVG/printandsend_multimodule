@@ -196,4 +196,25 @@ public class ExternalCaregiver {
         result = 31 * result + (nihii != null ? nihii.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "externalID='" + externalID + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", nihii='" + nihii + '\'' +
+                ", phone='" + phone + '\'' +
+                ", streetWithNumber='" + streetWithNumber + '\'' +
+                ", zip='" + zip + '\'' +
+                ", city='" + city + '\'' +
+                ", title='" + title + '\'' +
+                ", active=" + active +
+                ", printProtocols=" + printProtocols +
+                ", format=" + format +
+                ", nihiiAddress='" + nihiiAddress + '\'' +
+                ", eProtocols=" + eProtocols +
+                ", secondCopy=" + secondCopy +
+                '}';
+    }
 }

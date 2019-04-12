@@ -4,6 +4,7 @@ import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 import be.somedi.printandsend.entity.LinkedExternalCaregiverEntity;
 import be.somedi.printandsend.entity.PatientEntity;
 import be.somedi.printandsend.entity.PersonEntity;
+import be.somedi.printandsend.exceptions.CaregiverNotFoundException;
 import be.somedi.printandsend.io.TXTJobs;
 import be.somedi.printandsend.io.UMWriter;
 import be.somedi.printandsend.mapper.ExternalCaregiverMapper;
@@ -14,11 +15,14 @@ import be.somedi.printandsend.service.ExternalCaregiverService;
 import be.somedi.printandsend.service.LinkedExternalCaregiverService;
 import be.somedi.printandsend.service.PatientService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import sun.nio.ch.IOUtil;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -48,6 +52,8 @@ public class CreateUMFormat {
     @Value("${path-um-medicard}")
     public Path pathMedicard;
 
+    private static final Logger LOGGER = LogManager.getLogger(CreateUMFormat.class);
+
     @Autowired
     public CreateUMFormat(TemplateEngine textTemplateEngine, ExternalCaregiverService externalCaregiverService, ExternalCaregiverMapper externalCaregiverMapper, LinkedExternalCaregiverService linkedExternalCaregiverService, PatientService patientService, PatientMapper patientMapper, UMWriter writer, PersonMapper personMapper) {
         this.textTemplateEngine = textTemplateEngine;
@@ -58,32 +64,6 @@ public class CreateUMFormat {
         this.patientMapper = patientMapper;
         this.writer = writer;
         this.personMapper = personMapper;
-    }
-
-    public ExternalCaregiverEntity getExternalCaregiverFrom(TXTJobs TXTJobs) {
-        String externalIdCaregiverFrom = TXTJobs.getTextAfterKey("UA");
-        // Speciaal geval: Dr VAN OPSTAL (S6904 bestaat al in CC --> Dr. Luc Janssens)
-        if (externalIdCaregiverFrom.equalsIgnoreCase("C6904") || externalIdCaregiverFrom.equalsIgnoreCase("D6904")) {
-            externalIdCaregiverFrom = "S690V";
-        } else {
-            externalIdCaregiverFrom = "S".concat(externalIdCaregiverFrom.substring(1));
-        }
-
-        return externalCaregiverService.findByExternalID(externalIdCaregiverFrom);
-    }
-
-    public ExternalCaregiverEntity getExternalCaregiverTo(TXTJobs TXTJobs) {
-        String externalIdCargiverTo = TXTJobs.getTextAfterKey("DR");
-        return externalCaregiverService.findByExternalID(externalIdCargiverTo);
-    }
-
-    public ExternalCaregiverEntity getLinkedCaregiver(String externalId) {
-        LinkedExternalCaregiverEntity linkedExternalCaregiverEntity = linkedExternalCaregiverService.findLinkedIdByExternalId(externalId);
-        ExternalCaregiverEntity caregiverEntityLinked = null;
-        if (linkedExternalCaregiverEntity != null) {
-            caregiverEntityLinked = externalCaregiverService.findByExternalID(linkedExternalCaregiverEntity.getLinkedId());
-        }
-        return caregiverEntityLinked;
     }
 
     private Patient getPatient(boolean medidoc, TXTJobs TXTJobs) {
@@ -97,8 +77,8 @@ public class CreateUMFormat {
                 patient.setPerson(personMapper.personEntityToPersonMedidoc(personEntity));
         } else {
             Person person = new Person();
-            person.setFirstName(TXTJobs.getTextAfterKey("PN"));
-            person.setLastName(TXTJobs.getTextAfterKey("PV"));
+            person.setFirstName(TXTJobs.getTextAfterKey("PV"));
+            person.setLastName(TXTJobs.getTextAfterKey("PN"));
             String date = TXTJobs.getTextAfterKey("PD");
             person.setBirthDate(LocalDate.parse(date, DateTimeFormatter.ofPattern("ddMMyyyy")));
             patient.setPerson(person);
@@ -143,83 +123,158 @@ public class CreateUMFormat {
         return left(nihii, 1) + "/" + substring(nihii, 1, 6) + "/" + substring(nihii, 6, 8) + "/" + right(nihii, 3);
     }
 
-    private Context getDefaultContext(TXTJobs TXTJobs) {
-        ExternalCaregiverEntity caregiverEntityTo = getExternalCaregiverTo(TXTJobs);
-        caregiverEntityTo.setNihii(getFormattedNihii(caregiverEntityTo.getNihii()));
-        ExternalCaregiverEntity caregiverEntityFrom = getExternalCaregiverFrom(TXTJobs);
-        caregiverEntityFrom.setNihii(getFormattedNihii(caregiverEntityFrom.getNihii()));
-        ExternalCaregiverEntity caregiverEntityLinked = getLinkedCaregiver(caregiverEntityTo.getExternalID());
-        if (caregiverEntityLinked != null)
+    public ExternalCaregiver getExternalCaregiverTo(TXTJobs txtJobs) {
+        ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findByExternalID(txtJobs.getExternalIdOfCaregiverTo());
+        caregiverEntity.setNihii(getFormattedNihii(caregiverEntity.getNihii()));
+        return caregiverEntity.getFormat() == UMFormat.MEDIDOC ? externalCaregiverMapper.entityToExternalCaregiverMedidoc(caregiverEntity) :
+                externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity);
+    }
+
+    public ExternalCaregiver getExternalCaregiverFrom(TXTJobs txtJobs) {
+        String externalIdCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
+
+        if (externalIdCaregiverFrom == null) {
+            throw new CaregiverNotFoundException("ExternalId niet gevonden!");
+        }
+
+        // Speciaal geval: Dr VAN OPSTAL (S6904 bestaat al in CC --> Dr. Luc Janssens)
+        if (externalIdCaregiverFrom.equalsIgnoreCase("C6904") || externalIdCaregiverFrom.equalsIgnoreCase("D6904")) {
+            externalIdCaregiverFrom = "S690V";
+        } else {
+            externalIdCaregiverFrom = "S".concat(externalIdCaregiverFrom.substring(1));
+        }
+
+        ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findByExternalID(externalIdCaregiverFrom);
+        caregiverEntity.setNihii(getFormattedNihii(caregiverEntity.getNihii()));
+        return caregiverEntity.getFormat() == UMFormat.MEDIDOC ? externalCaregiverMapper.entityToExternalCaregiverMedidoc(caregiverEntity) :
+                externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity);
+    }
+
+    public ExternalCaregiver getLinkedCaregiver(String externalId) {
+        LinkedExternalCaregiverEntity linkedExternalCaregiverEntity = linkedExternalCaregiverService.findLinkedIdByExternalId(externalId);
+        ExternalCaregiverEntity caregiverEntityLinked = null;
+        if (linkedExternalCaregiverEntity != null) {
+            caregiverEntityLinked = externalCaregiverService.findByExternalID(linkedExternalCaregiverEntity.getLinkedId());
+        }
+        if (caregiverEntityLinked != null) {
             caregiverEntityLinked.setNihii(getFormattedNihii(caregiverEntityLinked.getNihii()));
-        boolean medidoc = caregiverEntityTo.getFormat() == UMFormat.MEDIDOC;
+            return caregiverEntityLinked.getFormat() == UMFormat.MEDIDOC ? externalCaregiverMapper.entityToExternalCaregiverMedidoc(caregiverEntityLinked) :
+                    externalCaregiverMapper.entityToExternalCaregiver(caregiverEntityLinked);
+        }
+        return null;
+    }
 
-        ExternalCaregiver caregiverTo = medidoc ? externalCaregiverMapper.entityToExternalCaregiverMedidoc(caregiverEntityTo) :
-                externalCaregiverMapper.entityToExternalCaregiver(caregiverEntityTo);
 
-        ExternalCaregiver caregiverFrom = medidoc ? externalCaregiverMapper.entityToExternalCaregiverMedidoc(caregiverEntityFrom) :
-                externalCaregiverMapper.entityToExternalCaregiver(caregiverEntityFrom);
+    private Context getDefaultContext(TXTJobs txtJobs, ExternalCaregiver caregiverFrom, ExternalCaregiver caregiverTo) {
+        boolean medidoc = caregiverTo.getFormat() == UMFormat.MEDIDOC;
 
-        ExternalCaregiver caregiverLinked = medidoc ? externalCaregiverMapper.entityToExternalCaregiverMedidoc(caregiverEntityLinked) :
-                externalCaregiverMapper.entityToExternalCaregiver(caregiverEntityLinked);
-
-        Patient patient = getPatient(medidoc, TXTJobs);
+        Patient patient = getPatient(medidoc, txtJobs);
         Person person = patient.getPerson();
 
         Context context = new Context();
         context.setVariable("cFrom", caregiverFrom);
-        context.setVariable("cTo", caregiverLinked != null ? caregiverLinked : caregiverTo);
+        context.setVariable("cTo", caregiverTo);
         context.setVariable("patient", patient);
         context.setVariable("person", person);
-        context.setVariable("researchDate", getResearchDate(TXTJobs.getTextAfterKey("UD")));
-        Address address = getAddressOfPatient(TXTJobs);
+        context.setVariable("researchDate", getResearchDate(txtJobs.getTextAfterKey("UD")));
+        Address address = getAddressOfPatient(txtJobs);
         if (medidoc) {
             for (int i = address.getStreet().length(); i < 24; i++) {
                 address.setStreet(address.getStreet().concat(" "));
             }
         }
-        context.setVariable("address", getAddressOfPatient(TXTJobs));
+        context.setVariable("address", address);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
         context.setVariable("date", formatter.format(LocalDateTime.now()));
         formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         context.setVariable("datum", formatter.format(LocalDateTime.now()));
-        context.setVariable("body", TXTJobs.getBodyOfTxt(caregiverEntityTo.getFormat()));
+        context.setVariable("geboortedatum", formatter.format(person.getBirthDate()));
+        context.setVariable("body", txtJobs.getBodyOfTxt(caregiverTo.getFormat()));
         return context;
     }
 
-    public void createMedarFile(TXTJobs TXTJobs) {
+    private void createMedarFile(TXTJobs txtJobs, ExternalCaregiver caregiverFrom, ExternalCaregiver caregiverTo) {
 
-        Context context = getDefaultContext(TXTJobs);
+        Context context = getDefaultContext(txtJobs, caregiverFrom, caregiverTo);
 
-        String ref = TXTJobs.getTextAfterKey("PR");
+        String ref = txtJobs.getTextAfterKey("PR");
         context.setVariable("ref", ref);
-        context.setVariable("geslacht", getMedidocGender(getPatient(false, TXTJobs).getExternalId()));
+        context.setVariable("geslacht", getMedidocGender(getPatient(false, txtJobs).getExternalId()));
         String output = textTemplateEngine.process("medar.txt", context);
-        writer.write(pathMedar, output, externalCaregiverMapper.entityToExternalCaregiver(getExternalCaregiverTo(TXTJobs)), ref);
+        writer.write(pathMedar, output, caregiverTo, ref);
     }
 
-    public void createMedicardFile(TXTJobs TXTJobs) {
+    private void createMedicardFile(TXTJobs txtJobs, ExternalCaregiver caregiverFrom, ExternalCaregiver caregiverTo) {
 
-        Context context = getDefaultContext(TXTJobs);
-        String ref = TXTJobs.getTextAfterKey("PR");
+        Context context = getDefaultContext(txtJobs, caregiverFrom, caregiverTo);
+        String ref = txtJobs.getTextAfterKey("PR");
         context.setVariable("ref", ref);
-        context.setVariable("geslacht", left(getPatient(false, TXTJobs).getExternalId(), 1));
+        context.setVariable("geslacht", left(getPatient(false, txtJobs).getExternalId(), 1));
 
         String output = textTemplateEngine.process("medicard.txt", context);
-        writer.write(pathMedicard, output, externalCaregiverMapper.entityToExternalCaregiver(getExternalCaregiverTo(TXTJobs)), ref);
+        writer.write(pathMedicard, output, caregiverTo, ref);
     }
 
-    public void createMedidocFile(TXTJobs TXTJobs) {
-        String body = TXTJobs.getBodyOfTxt(UMFormat.MEDIDOC);
+    private void createMedidocFile(TXTJobs txtJobs, ExternalCaregiver caregiverFrom, ExternalCaregiver caregiverTo) {
+        String body = txtJobs.getBodyOfTxt(UMFormat.MEDIDOC);
 
-        Context context = getDefaultContext(TXTJobs);
-        context.setVariable("geslacht", getMedidocGender(getPatient(false, TXTJobs).getExternalId()));
-        String ref = substring(TXTJobs.getTextAfterKey("PR"), 0, 15);
+        Context context = getDefaultContext(txtJobs, caregiverFrom, caregiverTo);
+        context.setVariable("geslacht", getMedidocGender(getPatient(false, txtJobs).getExternalId()));
+        String ref = substring(txtJobs.getTextAfterKey("PR"), 0, 15);
         context.setVariable("ref", ref);
 
         int length = body.split("\n").length;
         context.setVariable("length", (length + 29));
 
         String output = textTemplateEngine.process("medidoc.txt", context);
-        writer.write(pathMedidoc, output, externalCaregiverMapper.entityToExternalCaregiver(getExternalCaregiverTo(TXTJobs)), ref);
+        writer.write(pathMedidoc, output, caregiverTo, ref);
     }
+
+    public void sendToUM(TXTJobs txtJobs) {
+        ExternalCaregiver caregiverFrom = getExternalCaregiverFrom(txtJobs);
+        ExternalCaregiver caregiverTo = getExternalCaregiverTo(txtJobs);
+        ExternalCaregiver caregiverLinkedFrom = getLinkedCaregiver(caregiverFrom.getExternalID());
+        ExternalCaregiver caregiverLinkedTo;
+
+        if (caregiverFrom.geteProtocols()) {
+            LOGGER.info("Brief proberen verzenden naar arts die de brief geschreven heeft");
+            sendToUm(txtJobs, caregiverFrom, caregiverFrom);
+        }
+
+        if (caregiverLinkedFrom != null && caregiverLinkedFrom.geteProtocols()) {
+            LOGGER.info("Kopie van de brief proberen te verzenden naar de gelinkte arts");
+            sendToUm(txtJobs, caregiverFrom, caregiverLinkedFrom);
+        }
+
+        if (caregiverTo != null) {
+            if (caregiverTo.geteProtocols()) {
+                LOGGER.info("Brief proberen verzenden naar arts in AAN/CC");
+                sendToUm(txtJobs, caregiverFrom, caregiverTo);
+            }
+            caregiverLinkedTo = getLinkedCaregiver(caregiverTo.getExternalID());
+            if (caregiverLinkedTo != null && caregiverLinkedTo.geteProtocols()) {
+                LOGGER.info("Kopie van de brief proberen te verzenden naar de gelinkte arts in AAN/CC");
+                sendToUm(txtJobs, caregiverFrom, caregiverLinkedTo);
+            }
+        }
+    }
+
+    private void sendToUm(TXTJobs txtJobs, ExternalCaregiver caregiverFrom, ExternalCaregiver caregiverTo) {
+        LOGGER.info("CaregiverFrom= " + caregiverFrom);
+        LOGGER.info("CaregiverTo= " + caregiverTo);
+        UMFormat format = caregiverTo.getFormat();
+        switch (format) {
+            case MEDICARD:
+                createMedicardFile(txtJobs, caregiverFrom, caregiverTo);
+                break;
+            case MEDAR:
+                createMedarFile(txtJobs, caregiverFrom, caregiverTo);
+                break;
+            default:
+                createMedidocFile(txtJobs, caregiverFrom, caregiverTo);
+                break;
+        }
+        LOGGER.info("Er is succesvol een brief in " + format.name() + " formaat verzonden naar Dr. " + caregiverTo.getLastName());
+    }
+
 }

@@ -107,8 +107,16 @@ public class TXTJobs {
         return false;
     }
 
-    public String getExternalId() {
+    public String getExternalIdOfCaregiverTo() {
         String externalIdOfCaregiver = getTextAfterKey("DR");
+        if (externalIdOfCaregiver == null || externalIdOfCaregiver.equals("") || externalIdOfCaregiver.length() > 7) {
+            externalIdOfCaregiver = null;
+        }
+        return externalIdOfCaregiver;
+    }
+
+    public String getExternalIdOfCaregiverFrom() {
+        String externalIdOfCaregiver = getTextAfterKey("UA");
         if (externalIdOfCaregiver == null || externalIdOfCaregiver.equals("") || externalIdOfCaregiver.length() > 7) {
             externalIdOfCaregiver = null;
         }
