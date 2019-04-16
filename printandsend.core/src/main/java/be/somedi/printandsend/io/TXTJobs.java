@@ -1,5 +1,6 @@
 package be.somedi.printandsend.io;
 
+import be.somedi.printandsend.model.Address;
 import be.somedi.printandsend.model.UMFormat;
 import org.apache.commons.io.FileUtils;
 
@@ -10,9 +11,13 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.*;
 
@@ -37,7 +42,7 @@ public class TXTJobs {
         this(path, Charset.forName("windows-1252"));
     }
 
-    public TXTJobs(Path path, Charset charset) {
+    private TXTJobs(Path path, Charset charset) {
         this.path = path;
         try {
             allLines = Files.readAllLines(path, charset);
@@ -50,25 +55,56 @@ public class TXTJobs {
         return path;
     }
 
-    public List<String> getAllLines() {
+    private List<String> getAllLines() {
         try {
             return Files.readAllLines(path, Charset.forName("windows-1252"));
-            // TODO: error handling
         } catch (IOException e) {
             e.printStackTrace();
         }
         return Collections.emptyList();
     }
 
-    public String getFileName() {
+    public Address getAddressOfPatient() {
+        Address address = new Address();
+        String streetAndNumber = getTextAfterKey("PS");
+        Pattern pattern = Pattern.compile("([^\\d]+)\\s?(.+)");
+        Matcher matcher = pattern.matcher(streetAndNumber);
+        while (matcher.find()) {
+            address.setStreet(matcher.group(1));
+            address.setNumber(matcher.group(2));
+        }
+        address.setZip(getTextAfterKey("PP"));
+        address.setCity(getTextAfterKey("PA"));
+        return address;
+    }
+
+    public String getResearchDate() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        LocalDate parsedDate = LocalDate.parse(getTextAfterKey("UD"), formatter);
+        formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        return formatter.format(parsedDate);
+    }
+
+    public String getMedidocGender() {
+        String externalIdPatient = getTextAfterKey("PC");
+        if (externalIdPatient == null) return "Z";
+        externalIdPatient = externalIdPatient.toUpperCase();
+        if (externalIdPatient.startsWith("M")) {
+            return "Y";
+        } else if (externalIdPatient.startsWith("V")) {
+            return "X";
+        } else return "Z";
+    }
+
+    String getFileName() {
         return String.valueOf(getPath().getFileName());
     }
 
-    public boolean deleteTxtFile() {
+    boolean deleteTxtFile() {
         return FileUtils.deleteQuietly(getPath().toFile());
     }
 
-    public void moveTxtFile(Path moveToFolder) throws IOException {
+    void moveTxtFile(Path moveToFolder) throws IOException {
         Files.copy(getPath(), moveToFolder, StandardCopyOption.REPLACE_EXISTING);
     }
 

@@ -21,7 +21,7 @@ public class PDFJobs {
 
     private static final Logger LOGGER = LogManager.getLogger(PDFJobs.class);
 
-    private TXTJobs txtJobs;
+    private final TXTJobs txtJobs;
 
     public PDFJobs(TXTJobs txtJobs) {
         this.txtJobs = txtJobs;

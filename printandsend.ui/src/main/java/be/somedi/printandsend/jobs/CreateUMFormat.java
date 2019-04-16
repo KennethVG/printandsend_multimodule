@@ -4,7 +4,6 @@ import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 import be.somedi.printandsend.entity.LinkedExternalCaregiverEntity;
 import be.somedi.printandsend.entity.PatientEntity;
 import be.somedi.printandsend.entity.PersonEntity;
-import be.somedi.printandsend.exceptions.CaregiverNotFoundException;
 import be.somedi.printandsend.io.TXTJobs;
 import be.somedi.printandsend.io.UMWriter;
 import be.somedi.printandsend.mapper.ExternalCaregiverMapper;
@@ -22,14 +21,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import sun.nio.ch.IOUtil;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.*;
 
@@ -66,9 +62,9 @@ public class CreateUMFormat {
         this.personMapper = personMapper;
     }
 
-    private Patient getPatient(boolean medidoc, TXTJobs TXTJobs) {
+    private Patient getPatient(boolean medidoc, TXTJobs txtJobs) {
         Patient patient = new Patient();
-        String externalIdPatient = TXTJobs.getTextAfterKey("PC");
+        String externalIdPatient = txtJobs.getTextAfterKey("PC");
         if (StringUtils.startsWithIgnoreCase(externalIdPatient, "M") || startsWithIgnoreCase(externalIdPatient, "V")) {
             PatientEntity patientEntity = patientService.findByExternalId(externalIdPatient);
             PersonEntity personEntity = patientEntity.getPerson();
@@ -77,45 +73,14 @@ public class CreateUMFormat {
                 patient.setPerson(personMapper.personEntityToPersonMedidoc(personEntity));
         } else {
             Person person = new Person();
-            person.setFirstName(TXTJobs.getTextAfterKey("PV"));
-            person.setLastName(TXTJobs.getTextAfterKey("PN"));
-            String date = TXTJobs.getTextAfterKey("PD");
+            person.setFirstName(txtJobs.getTextAfterKey("PV"));
+            person.setLastName(txtJobs.getTextAfterKey("PN"));
+            String date = txtJobs.getTextAfterKey("PD");
             person.setBirthDate(LocalDate.parse(date, DateTimeFormatter.ofPattern("ddMMyyyy")));
             patient.setPerson(person);
         }
 
         return patient;
-    }
-
-    private Address getAddressOfPatient(TXTJobs txtJobs) {
-        Address address = new Address();
-        String streetAndNumber = txtJobs.getTextAfterKey("PS");
-        Pattern pattern = Pattern.compile("([^\\d]+)\\s?(.+)");
-        Matcher matcher = pattern.matcher(streetAndNumber);
-        while (matcher.find()) {
-            address.setStreet(matcher.group(1));
-            address.setNumber(matcher.group(2));
-        }
-        address.setZip(txtJobs.getTextAfterKey("PP"));
-        address.setCity(txtJobs.getTextAfterKey("PA"));
-        return address;
-    }
-
-    private String getResearchDate(String date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-        LocalDate parsedDate = LocalDate.parse(date, formatter);
-        formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        return formatter.format(parsedDate);
-    }
-
-    private String getMedidocGender(String externalIdPatient) {
-        if (externalIdPatient == null) return "Z";
-        externalIdPatient = externalIdPatient.toUpperCase();
-        if (externalIdPatient.startsWith("M")) {
-            return "Y";
-        } else if (externalIdPatient.startsWith("V")) {
-            return "X";
-        } else return "Z";
     }
 
     private String getFormattedNihii(String nihii) {
@@ -179,8 +144,8 @@ public class CreateUMFormat {
         context.setVariable("cTo", caregiverTo);
         context.setVariable("patient", patient);
         context.setVariable("person", person);
-        context.setVariable("researchDate", getResearchDate(txtJobs.getTextAfterKey("UD")));
-        Address address = getAddressOfPatient(txtJobs);
+        context.setVariable("researchDate", txtJobs.getResearchDate());
+        Address address = txtJobs.getAddressOfPatient();
         if (medidoc) {
             for (int i = address.getStreet().length(); i < 24; i++) {
                 address.setStreet(address.getStreet().concat(" "));
@@ -202,7 +167,7 @@ public class CreateUMFormat {
 
         String ref = txtJobs.getTextAfterKey("PR");
         context.setVariable("ref", ref);
-        context.setVariable("geslacht", getMedidocGender(getPatient(false, txtJobs).getExternalId()));
+        context.setVariable("geslacht", txtJobs.getMedidocGender());
         String output = textTemplateEngine.process("medar.txt", context);
         writer.write(pathMedar, output, caregiverTo, ref);
     }
@@ -222,7 +187,7 @@ public class CreateUMFormat {
         String body = txtJobs.getBodyOfTxt(UMFormat.MEDIDOC);
 
         Context context = getDefaultContext(txtJobs, caregiverFrom, caregiverTo);
-        context.setVariable("geslacht", getMedidocGender(getPatient(false, txtJobs).getExternalId()));
+        context.setVariable("geslacht", txtJobs.getMedidocGender());
         String ref = substring(txtJobs.getTextAfterKey("PR"), 0, 15);
         context.setVariable("ref", ref);
 
@@ -236,14 +201,16 @@ public class CreateUMFormat {
     void sendToUM(TXTJobs txtJobs) {
         ExternalCaregiver caregiverFrom = getExternalCaregiverFrom(txtJobs);
         ExternalCaregiver caregiverTo = getExternalCaregiverTo(txtJobs);
-        ExternalCaregiver caregiverLinkedFrom = getLinkedCaregiver(caregiverFrom.getExternalID());
+        ExternalCaregiver caregiverLinkedFrom = null;
         ExternalCaregiver caregiverLinkedTo;
 
-        if (caregiverFrom != null && caregiverFrom.geteProtocols()) {
-            LOGGER.info("Brief proberen verzenden naar arts die de brief geschreven heeft");
-            sendToUm(txtJobs, caregiverFrom, caregiverFrom);
+        if(caregiverFrom != null) {
+            caregiverLinkedFrom = getLinkedCaregiver(caregiverFrom.getExternalID());
+            if (caregiverFrom.geteProtocols()) {
+                LOGGER.info("Brief proberen verzenden naar arts die de brief geschreven heeft");
+                sendToUm(txtJobs, caregiverFrom, caregiverFrom);
+            }
         }
-
         if (caregiverLinkedFrom != null && caregiverLinkedFrom.geteProtocols()) {
             LOGGER.info("Kopie van de brief proberen te verzenden naar de gelinkte arts");
             sendToUm(txtJobs, caregiverFrom, caregiverLinkedFrom);

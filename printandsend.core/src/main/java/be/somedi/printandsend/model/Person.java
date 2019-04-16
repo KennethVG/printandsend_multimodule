@@ -2,6 +2,7 @@ package be.somedi.printandsend.model;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 public class Person {
 
@@ -69,7 +70,7 @@ public class Person {
 
         Person person = (Person) o;
 
-        return inss != null ? inss.equals(person.inss) : person.inss == null;
+        return Objects.equals(inss, person.inss);
     }
 
     @Override

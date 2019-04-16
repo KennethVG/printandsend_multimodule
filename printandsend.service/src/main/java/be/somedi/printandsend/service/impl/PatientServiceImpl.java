@@ -1,10 +1,8 @@
 package be.somedi.printandsend.service.impl;
 
 import be.somedi.printandsend.entity.PatientEntity;
-import be.somedi.printandsend.entity.PersonEntity;
 import be.somedi.printandsend.repository.PatientRepository;
 import be.somedi.printandsend.service.PatientService;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;

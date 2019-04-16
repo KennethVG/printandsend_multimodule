@@ -2,6 +2,7 @@ package be.somedi.printandsend.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @IdClass(LinkedExternalCaregiverPk.class)
@@ -34,8 +35,8 @@ class LinkedExternalCaregiverPk implements Serializable {
 
         LinkedExternalCaregiverPk that = (LinkedExternalCaregiverPk) o;
 
-        if (externalId != null ? !externalId.equals(that.externalId) : that.externalId != null) return false;
-        return linkedId != null ? linkedId.equals(that.linkedId) : that.linkedId == null;
+        if (!Objects.equals(externalId, that.externalId)) return false;
+        return Objects.equals(linkedId, that.linkedId);
     }
 
     @Override

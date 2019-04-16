@@ -1,7 +1,6 @@
 package be.somedi.printandsend.service.impl;
 
 import be.somedi.printandsend.entity.ExternalCaregiverEntity;
-import be.somedi.printandsend.entity.PatientEntity;
 import be.somedi.printandsend.repository.ExternalCaregiverRepository;
 import be.somedi.printandsend.service.ExternalCaregiverService;
 import org.apache.lucene.search.Query;

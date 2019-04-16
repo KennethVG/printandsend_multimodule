@@ -1,7 +1,6 @@
 package be.somedi.printandsend.jobs;
 
 import be.somedi.printandsend.entity.ExternalCaregiverEntity;
-import be.somedi.printandsend.exceptions.CaregiverNotFoundException;
 import be.somedi.printandsend.io.PDFJobs;
 import be.somedi.printandsend.io.TXTJobs;
 import be.somedi.printandsend.service.ExternalCaregiverService;

@@ -1,5 +1,6 @@
 package be.somedi.printandsend.io;
 
+import be.somedi.printandsend.model.Address;
 import be.somedi.printandsend.model.UMFormat;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,27 +16,27 @@ import static org.junit.Assert.assertTrue;
 
 public class TXTJobsTest {
 
-    private TXTJobs TXTJobs;
+    private TXTJobs txtJobs;
 
     @Before
     public void setup() {
         Path path = Paths.get("src/test/resources/MSE_183030005_2976737_A9671.txt");
-        TXTJobs = new TXTJobs(path);
+        txtJobs = new TXTJobs(path);
     }
 
     @Test
     public void getTextAfterKey() {
-        String result = TXTJobs.getTextAfterKey("DR");
+        String result = txtJobs.getTextAfterKey("DR");
         assertEquals("A9671", result);
 
-        result = TXTJobs.getTextAfterKey("PS");
+        result = txtJobs.getTextAfterKey("PS");
         assertEquals("BOSSESTRAAT 5", result);
     }
 
 
     @Test
     public void getBody() {
-        String result = TXTJobs.getBodyOfTxt(UMFormat.MEDIDOC);
+        String result = txtJobs.getBodyOfTxt(UMFormat.MEDIDOC);
         String expected = "Betreft : uw patiënt(e) Van Acker Sylvie geboren op 14/09/1982   en\r\n" +
                 " wonende \r\n" +
                 "BOSSESTRAAT 5 te 2220 Heist-op-den-Berg. \r\n" +
@@ -66,7 +67,7 @@ public class TXTJobsTest {
 
     @Test
     public void getFileName() {
-        String actual = TXTJobs.getFileName();
+        String actual = txtJobs.getFileName();
         String expected = "MSE_183030005_2976737_A9671.txt";
         assertEquals(expected, actual);
     }
@@ -74,23 +75,44 @@ public class TXTJobsTest {
     @Test
     public void containsVulAan() {
         Path path = Paths.get("src/test/resources/vul_aan.txt");
-        TXTJobs = new TXTJobs(path);
-        assertTrue(TXTJobs.containsVulAan());
+        txtJobs = new TXTJobs(path);
+        assertTrue(txtJobs.containsVulAan());
     }
 
     @Test
-    public void containsSentenceToDelete() throws IOException {
+    public void containsSentenceToDelete() {
         Path path = Paths.get("src/test/resources/geenverslag.txt");
-        TXTJobs = new TXTJobs(path);
-        assertTrue(TXTJobs.containsSentenceToDelete());
+        txtJobs = new TXTJobs(path);
+        assertTrue(txtJobs.containsSentenceToDelete());
     }
 
     @Test
     public void testCopyAndDelete() throws IOException {
         Path newPath = Paths.get("src/test/resources/copy.txt");
-        TXTJobs.moveTxtFile(newPath);
+        txtJobs.moveTxtFile(newPath);
         assertTrue(Files.exists(newPath));
         Files.delete(newPath);
         assertFalse(Files.exists(newPath));
+    }
+
+    @Test
+    public void getAddressOfPatient() {
+        Address addressOfPatient = txtJobs.getAddressOfPatient();
+        assertEquals("Heist-op-den-Berg", addressOfPatient.getCity());
+        assertEquals("2220", addressOfPatient.getZip());
+        assertEquals("5", addressOfPatient.getNumber());
+        assertEquals("BOSSESTRAAT", addressOfPatient.getStreet().trim());
+    }
+
+    @Test
+    public void getResearchDate() {
+        String researchDate = txtJobs.getResearchDate();
+        assertEquals("20180209", researchDate);
+    }
+
+    @Test
+    public void getMedidocGender() {
+        String medidocGender = txtJobs.getMedidocGender();
+        assertEquals("X", medidocGender);
     }
 }
