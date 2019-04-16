@@ -49,6 +49,9 @@ public class PatientController {
     public ResponseEntity<ListOfPatients> getPatienten(@PathVariable String name) {
 
         List<PatientEntity> patientEntityList = patientService.findByName(name);
+        if(patientEntityList.isEmpty()){
+            throw new PatientNotFoundException("Geen patiënten met deze naam gevonden");
+        }
 
         ListOfPatients listOfPatients = new ListOfPatients();
         List<Patient> patients = new ArrayList<>();

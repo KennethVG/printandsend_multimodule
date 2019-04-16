@@ -40,6 +40,9 @@ public class ExternalCaregiverController {
     public ResponseEntity<ListOfCaregivers> getExternalCaregivers(@PathVariable String name) {
 
         List<ExternalCaregiverEntity> externalCaregiverEntityList = externalCaregiverService.findByName(name);
+        if (externalCaregiverEntityList.isEmpty()) {
+            throw new CaregiverNotFoundException("Geen dokter gevonden");
+        }
 
         ListOfCaregivers listOfCaregivers = new ListOfCaregivers();
         List<ExternalCaregiver> list = new ArrayList<>();

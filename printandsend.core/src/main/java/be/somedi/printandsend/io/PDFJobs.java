@@ -1,6 +1,5 @@
 package be.somedi.printandsend.io;
 
-import be.somedi.printandsend.exceptions.PathNotFoundException;
 import be.somedi.printandsend.exceptions.PrinterNotFoundException;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
@@ -22,27 +21,27 @@ public class PDFJobs {
 
     private static final Logger LOGGER = LogManager.getLogger(PDFJobs.class);
 
-    private TXTJobs TXTJobs;
+    private TXTJobs txtJobs;
 
-    public PDFJobs(TXTJobs TXTJobs) {
-        this.TXTJobs = TXTJobs;
+    public PDFJobs(TXTJobs txtJobs) {
+        this.txtJobs = txtJobs;
     }
 
-    public String getFileNameOfPDFToPrint() {
-        String txtToPDF = TXTJobs.getFileName().replace("MSE", "PDF").replace("txt", "pdf");
+    String getFileNameOfPDFToPrint() {
+        String txtToPDF = txtJobs.getFileName().replace("MSE", "PDF").replace("txt", "pdf");
         Path toPrint = Paths.get(txtToPDF);
         return toPrint.getFileName().toString();
     }
 
-    public Path getPathOfPDFToPrint() {
-        Path read = TXTJobs.getPath();
+    Path getPathOfPDFToPrint() {
+        Path read = txtJobs.getPath();
         return Paths.get(read.getParent() + "\\" + getFileNameOfPDFToPrint());
     }
 
     public void copyAndDeleteTxtAndPDF(Path pathToMove) {
         try {
             Files.copy(getPathOfPDFToPrint(), Paths.get(pathToMove + "\\" + getFileNameOfPDFToPrint()), StandardCopyOption.REPLACE_EXISTING);
-            TXTJobs.moveTxtFile(Paths.get(pathToMove + "\\" + TXTJobs.getFileName()));
+            txtJobs.moveTxtFile(Paths.get(pathToMove + "\\" + txtJobs.getFileName()));
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -52,10 +51,10 @@ public class PDFJobs {
 
     public void deleteTxtAndPDF() {
         if (FileUtils.deleteQuietly(getPathOfPDFToPrint().toFile())) {
-            LOGGER.info("PDF verwijderd");
+            LOGGER.info(getPathOfPDFToPrint() + " succesvol verwijderd");
         }
-        if (TXTJobs.deleteTxtFile()) {
-            LOGGER.info("TXT verwijderd");
+        if (txtJobs.deleteTxtFile()) {
+            LOGGER.info(txtJobs.getPath() + " succesvol verwijderd");
         }
     }
 
@@ -66,13 +65,13 @@ public class PDFJobs {
             printerJob.setPageable(new PDFPageable(doc));
             PrintService defaultPrintService = PrintServiceLookup.lookupDefaultPrintService();
             printerJob.setPrintService(defaultPrintService);
-//            printerJob.print();
+            printerJob.print();
             doc.close();
             LOGGER.info("PDF is uitgeprint");
         } catch (PrinterException e) {
             throw new PrinterNotFoundException("Default printer not available");
         } catch (IOException e) {
-            throw new PathNotFoundException("Path niet gevonden");
+            LOGGER.error(e.getMessage());
         }
     }
 }

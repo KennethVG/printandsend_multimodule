@@ -18,18 +18,8 @@ public class RestExceptionHandler {
         return ResponseEntity.status(404).body(pnfe.getMessage());
     }
 
-    @ExceptionHandler(PathNotFoundException.class)
-    public ResponseEntity<String> handlePathNotFound(PathNotFoundException pnfe) {
-        return ResponseEntity.status(404).body(pnfe.getMessage());
-    }
-
     @ExceptionHandler(PrinterNotFoundException.class)
     public ResponseEntity<String> handlePrinterNotFound(PrinterNotFoundException pnfe) {
         return ResponseEntity.status(404).body(pnfe.getMessage());
-    }
-
-    @ExceptionHandler(ReadException.class)
-    public ResponseEntity<String> handleRead(ReadException re) {
-        return ResponseEntity.status(404).body(re.getMessage());
     }
 }

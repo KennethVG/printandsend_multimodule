@@ -1,6 +1,7 @@
 package be.somedi.printandsend.service.impl;
 
 import be.somedi.printandsend.entity.ExternalCaregiverEntity;
+import be.somedi.printandsend.entity.PatientEntity;
 import be.somedi.printandsend.repository.ExternalCaregiverRepository;
 import be.somedi.printandsend.service.ExternalCaregiverService;
 import org.apache.lucene.search.Query;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -31,12 +33,11 @@ public class ExternalCaregiverServiceImpl implements ExternalCaregiverService {
     @Override
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public ExternalCaregiverEntity findByExternalID(String externalId) {
-        if (externalId.length() == 5) {
+        if (externalId != null && externalId.length() == 5) {
             return externalCaregiverRepository.findByExternalID(externalId);
         }
         return null;
     }
-
 
     @Override
     public ExternalCaregiverEntity updateExternalCaregiver(ExternalCaregiverEntity externalCaregiverEntity) {
@@ -50,15 +51,19 @@ public class ExternalCaregiverServiceImpl implements ExternalCaregiverService {
         try {
             fullTextEntityManager.createIndexer().startAndWait();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
 
         QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(ExternalCaregiverEntity.class).get();
         Query query = queryBuilder.keyword().onFields("lastName", "firstName").matching(name).createQuery();
 
         FullTextQuery fullTextQuery = fullTextEntityManager.createFullTextQuery(query, ExternalCaregiverEntity.class);
-        fullTextQuery.setMaxResults(10);
-        return fullTextQuery.getResultList();
-
+        fullTextQuery.setMaxResults(15);
+        List resultList = fullTextQuery.getResultList();
+        if (!resultList.isEmpty() && resultList.get(0) instanceof ExternalCaregiverEntity)
+            return resultList;
+        else {
+            return Collections.emptyList();
+        }
     }
 }

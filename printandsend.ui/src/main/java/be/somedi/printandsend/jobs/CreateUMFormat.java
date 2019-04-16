@@ -87,18 +87,17 @@ public class CreateUMFormat {
         return patient;
     }
 
-
-    private Address getAddressOfPatient(TXTJobs TXTJobs) {
+    private Address getAddressOfPatient(TXTJobs txtJobs) {
         Address address = new Address();
-        String streetAndNumber = TXTJobs.getTextAfterKey("PS");
+        String streetAndNumber = txtJobs.getTextAfterKey("PS");
         Pattern pattern = Pattern.compile("([^\\d]+)\\s?(.+)");
         Matcher matcher = pattern.matcher(streetAndNumber);
         while (matcher.find()) {
             address.setStreet(matcher.group(1));
             address.setNumber(matcher.group(2));
         }
-        address.setZip(TXTJobs.getTextAfterKey("PP"));
-        address.setCity(TXTJobs.getTextAfterKey("PA"));
+        address.setZip(txtJobs.getTextAfterKey("PP"));
+        address.setCity(txtJobs.getTextAfterKey("PA"));
         return address;
     }
 
@@ -123,25 +122,29 @@ public class CreateUMFormat {
         return left(nihii, 1) + "/" + substring(nihii, 1, 6) + "/" + substring(nihii, 6, 8) + "/" + right(nihii, 3);
     }
 
-    public ExternalCaregiver getExternalCaregiverTo(TXTJobs txtJobs) {
+    private ExternalCaregiver getExternalCaregiverTo(TXTJobs txtJobs) {
         ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findByExternalID(txtJobs.getExternalIdOfCaregiverTo());
-        caregiverEntity.setNihii(getFormattedNihii(caregiverEntity.getNihii()));
-        return caregiverEntity.getFormat() == UMFormat.MEDIDOC ? externalCaregiverMapper.entityToExternalCaregiverMedidoc(caregiverEntity) :
-                externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity);
+        if (caregiverEntity != null) {
+            caregiverEntity.setNihii(getFormattedNihii(caregiverEntity.getNihii()));
+            return caregiverEntity.getFormat() == UMFormat.MEDIDOC ? externalCaregiverMapper.entityToExternalCaregiverMedidoc(caregiverEntity) :
+                    externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity);
+        }
+        return null;
     }
 
-    public ExternalCaregiver getExternalCaregiverFrom(TXTJobs txtJobs) {
+    private ExternalCaregiver getExternalCaregiverFrom(TXTJobs txtJobs) {
         String externalIdCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
 
-        if (externalIdCaregiverFrom == null) {
-            throw new CaregiverNotFoundException("ExternalId niet gevonden!");
-        }
-
-        // Speciaal geval: Dr VAN OPSTAL (S6904 bestaat al in CC --> Dr. Luc Janssens)
-        if (externalIdCaregiverFrom.equalsIgnoreCase("C6904") || externalIdCaregiverFrom.equalsIgnoreCase("D6904")) {
-            externalIdCaregiverFrom = "S690V";
+        if (externalIdCaregiverFrom != null) {
+            // Speciaal geval: Dr VAN OPSTAL (S6904 bestaat al in CC --> Dr. Luc Janssens)
+            if (externalIdCaregiverFrom.equalsIgnoreCase("C6904") || externalIdCaregiverFrom.equalsIgnoreCase("D6904")) {
+                externalIdCaregiverFrom = "S690V";
+            } else {
+                externalIdCaregiverFrom = "S".concat(externalIdCaregiverFrom.substring(1));
+            }
         } else {
-            externalIdCaregiverFrom = "S".concat(externalIdCaregiverFrom.substring(1));
+            LOGGER.error("ExternalID van dokter die de brief geschreven heeft niet gevonden!");
+            return null;
         }
 
         ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findByExternalID(externalIdCaregiverFrom);
@@ -150,7 +153,7 @@ public class CreateUMFormat {
                 externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity);
     }
 
-    public ExternalCaregiver getLinkedCaregiver(String externalId) {
+    private ExternalCaregiver getLinkedCaregiver(String externalId) {
         LinkedExternalCaregiverEntity linkedExternalCaregiverEntity = linkedExternalCaregiverService.findLinkedIdByExternalId(externalId);
         ExternalCaregiverEntity caregiverEntityLinked = null;
         if (linkedExternalCaregiverEntity != null) {
@@ -230,13 +233,13 @@ public class CreateUMFormat {
         writer.write(pathMedidoc, output, caregiverTo, ref);
     }
 
-    public void sendToUM(TXTJobs txtJobs) {
+    void sendToUM(TXTJobs txtJobs) {
         ExternalCaregiver caregiverFrom = getExternalCaregiverFrom(txtJobs);
         ExternalCaregiver caregiverTo = getExternalCaregiverTo(txtJobs);
         ExternalCaregiver caregiverLinkedFrom = getLinkedCaregiver(caregiverFrom.getExternalID());
         ExternalCaregiver caregiverLinkedTo;
 
-        if (caregiverFrom.geteProtocols()) {
+        if (caregiverFrom != null && caregiverFrom.geteProtocols()) {
             LOGGER.info("Brief proberen verzenden naar arts die de brief geschreven heeft");
             sendToUm(txtJobs, caregiverFrom, caregiverFrom);
         }
@@ -276,5 +279,4 @@ public class CreateUMFormat {
         }
         LOGGER.info("Er is succesvol een brief in " + format.name() + " formaat verzonden naar Dr. " + caregiverTo.getLastName());
     }
-
 }

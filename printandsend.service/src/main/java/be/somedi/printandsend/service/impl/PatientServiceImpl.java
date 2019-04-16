@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -43,15 +44,21 @@ public class PatientServiceImpl implements PatientService {
         try {
             fullTextEntityManager.createIndexer().startAndWait();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
 
         QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(PatientEntity.class).get();
         Query query = queryBuilder.keyword().onFields("person.lastName", "person.firstName").matching(name).createQuery();
 
         FullTextQuery fullTextQuery = fullTextEntityManager.createFullTextQuery(query, PatientEntity.class);
-        fullTextQuery.setMaxResults(10);
-        return fullTextQuery.getResultList();
+        fullTextQuery.setMaxResults(20);
+        List resultList = fullTextQuery.getResultList();
+
+        if (!resultList.isEmpty() && resultList.get(0) instanceof PatientEntity)
+            return resultList;
+        else {
+            return Collections.emptyList();
+        }
     }
 
     @Override

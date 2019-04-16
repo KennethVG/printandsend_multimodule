@@ -1,6 +1,5 @@
 package be.somedi.printandsend.io;
 
-import be.somedi.printandsend.exceptions.PathNotFoundException;
 import be.somedi.printandsend.model.UMFormat;
 import org.apache.commons.io.FileUtils;
 
@@ -42,16 +41,12 @@ public class TXTJobs {
         this.path = path;
         try {
             allLines = Files.readAllLines(path, charset);
-            // TODO: error handling
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public Path getPath() {
-        if (Files.notExists(path)) {
-            throw new PathNotFoundException("Path bestaat niet!");
-        }
         return path;
     }
 
