@@ -3,7 +3,10 @@ package be.somedi.printandsend.service.impl;
 import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 import be.somedi.printandsend.repository.ExternalCaregiverRepository;
 import be.somedi.printandsend.service.ExternalCaregiverService;
+import be.somedi.printandsend.service.HibernateSearchUtil;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
@@ -46,19 +49,7 @@ public class ExternalCaregiverServiceImpl implements ExternalCaregiverService {
     @Override
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public List<ExternalCaregiverEntity> findByName(String name) {
-        FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
-        try {
-            fullTextEntityManager.createIndexer().startAndWait();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
-        QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(ExternalCaregiverEntity.class).get();
-        Query query = queryBuilder.keyword().onFields("lastName", "firstName").matching(name).createQuery();
-
-        FullTextQuery fullTextQuery = fullTextEntityManager.createFullTextQuery(query, ExternalCaregiverEntity.class);
-        fullTextQuery.setMaxResults(15);
-        List resultList = fullTextQuery.getResultList();
+        List resultList = HibernateSearchUtil.searchByName(entityManager, name, ExternalCaregiverEntity.class, "lastName", "lastName", "firstName");
         if (!resultList.isEmpty() && resultList.get(0) instanceof ExternalCaregiverEntity)
             return resultList;
         else {

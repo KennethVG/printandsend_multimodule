@@ -18,10 +18,11 @@ public class ExternalCaregiverEntity {
     @Column(unique = true, nullable = false)
     private String externalID;
     @Column(nullable = false)
-    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @Field
     private String firstName;
     @Column(nullable = false)
-    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+    @SortableField
     private String lastName;
     private String nihii;
     private String streetWithNumber;

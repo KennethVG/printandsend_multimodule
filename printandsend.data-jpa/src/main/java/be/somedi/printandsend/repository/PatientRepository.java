@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 public interface PatientRepository extends JpaRepository<PatientEntity, Long> {
 
@@ -15,4 +16,6 @@ public interface PatientRepository extends JpaRepository<PatientEntity, Long> {
     @Modifying
     @Query(value = "UPDATE dbo.Global_Patient SET general_practitioner_id = ?2 where externalId = ?1", nativeQuery = true)
     Integer updatePatient(String externalId, String doctorId);
+
+    List<PatientEntity> findAllByPersonLastNameOrPersonFirstName(String lastName, String firstName);
 }

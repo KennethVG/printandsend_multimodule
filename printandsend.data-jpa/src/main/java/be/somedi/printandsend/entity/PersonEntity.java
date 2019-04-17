@@ -14,9 +14,12 @@ public class PersonEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Field(index=Index.YES, analyze=Analyze.YES, store=Store.NO)
+    @Column(nullable = false)
+    @Field
     private String firstName;
-    @Field(index=Index.YES, analyze=Analyze.YES, store=Store.NO)
+    @Column(nullable = false)
+    @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+    @SortableField
     private String lastName;
     private String inss;
     private LocalDate birthDate;
