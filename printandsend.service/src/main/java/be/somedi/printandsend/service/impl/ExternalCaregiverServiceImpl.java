@@ -4,13 +4,6 @@ import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 import be.somedi.printandsend.repository.ExternalCaregiverRepository;
 import be.somedi.printandsend.service.ExternalCaregiverService;
 import be.somedi.printandsend.service.HibernateSearchUtil;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
-import org.hibernate.search.jpa.FullTextEntityManager;
-import org.hibernate.search.jpa.FullTextQuery;
-import org.hibernate.search.jpa.Search;
-import org.hibernate.search.query.dsl.QueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -49,7 +42,7 @@ public class ExternalCaregiverServiceImpl implements ExternalCaregiverService {
     @Override
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public List<ExternalCaregiverEntity> findByName(String name) {
-        List resultList = HibernateSearchUtil.searchByName(entityManager, name, ExternalCaregiverEntity.class, "lastName", "lastName", "firstName");
+        List resultList = HibernateSearchUtil.searchByName(entityManager, name, ExternalCaregiverEntity.class, "lastName", "firstName");
         if (!resultList.isEmpty() && resultList.get(0) instanceof ExternalCaregiverEntity)
             return resultList;
         else {

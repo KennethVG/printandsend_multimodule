@@ -1,6 +1,5 @@
 package be.somedi.printandsend.io;
 
-import be.somedi.printandsend.exceptions.PrinterNotFoundException;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,16 +59,17 @@ public class PDFJobs {
 
     public void printPDF() {
         try {
-            PDDocument doc = PDDocument.load(getPathOfPDFToPrint().toFile());
+            Path pathOfPDFToPrint = getPathOfPDFToPrint();
+            PDDocument doc = PDDocument.load(pathOfPDFToPrint.toFile());
             PrinterJob printerJob = PrinterJob.getPrinterJob();
             printerJob.setPageable(new PDFPageable(doc));
             PrintService defaultPrintService = PrintServiceLookup.lookupDefaultPrintService();
             printerJob.setPrintService(defaultPrintService);
             printerJob.print();
             doc.close();
-            LOGGER.info("PDF is uitgeprint");
+            LOGGER.info(pathOfPDFToPrint +  " is uitgeprint");
         } catch (PrinterException e) {
-            throw new PrinterNotFoundException("Default printer not available");
+            LOGGER.error("Default printer not available");
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         }

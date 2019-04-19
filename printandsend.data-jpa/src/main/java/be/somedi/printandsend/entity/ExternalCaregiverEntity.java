@@ -1,8 +1,8 @@
 package be.somedi.printandsend.entity;
 
 import be.somedi.printandsend.model.UMFormat;
-import org.hibernate.search.annotations.*;
-import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 
 import javax.persistence.*;
 
@@ -21,8 +21,7 @@ public class ExternalCaregiverEntity {
     @Field
     private String firstName;
     @Column(nullable = false)
-    @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-    @SortableField
+    @Field
     private String lastName;
     private String nihii;
     private String streetWithNumber;

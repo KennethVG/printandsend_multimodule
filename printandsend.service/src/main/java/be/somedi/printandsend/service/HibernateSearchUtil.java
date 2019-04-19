@@ -1,8 +1,6 @@
 package be.somedi.printandsend.service;
 
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
@@ -13,7 +11,7 @@ import java.util.List;
 
 public class HibernateSearchUtil {
 
-    public static List searchByName(EntityManager entityManager, String name, Class entity, String sortField, String... fields) {
+    public static List searchByName(EntityManager entityManager, String name, Class entity, String... fields) {
         FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
         try {
             fullTextEntityManager.createIndexer(entity).optimizeAfterPurge(true).optimizeOnFinish(true).startAndWait();
@@ -25,7 +23,6 @@ public class HibernateSearchUtil {
         Query query = queryBuilder.keyword().onFields(fields).matching(name).createQuery();
 
         FullTextQuery fullTextQuery = fullTextEntityManager.createFullTextQuery(query, entity);
-        fullTextQuery.setSort(new Sort(new SortField(sortField, SortField.Type.STRING)));
         fullTextQuery.setMaxResults(20);
         return fullTextQuery.getResultList();
     }

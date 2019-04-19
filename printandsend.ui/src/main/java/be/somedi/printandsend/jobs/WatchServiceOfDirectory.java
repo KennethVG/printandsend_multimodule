@@ -86,10 +86,10 @@ public class WatchServiceOfDirectory {
     public void processEventsBeforeWatching() {
         try {
             LOGGER.info("Path om te lezen: " + pathNew);
-            Files.list(pathNew).forEach(txtFile -> {
-                if (txtFile.getFileName().toString().startsWith("MSE") && txtFile.toString().endsWith(".txt")) {
+            Files.list(pathNew).forEach(file -> {
+                if (file.getFileName().toString().startsWith("MSE") && file.toString().endsWith(".txt")) {
                     try {
-                        printForExternalCaregiver(txtFile);
+                        printForExternalCaregiver(file);
                     } catch (IOException e) {
                         LOGGER.error("Kan de error file niet aanmaken");
                     }
@@ -111,41 +111,50 @@ public class WatchServiceOfDirectory {
             pdfJobs.deleteTxtAndPDF();
         } else if (txtJobs.containsSentenceToDelete()) {
             LOGGER.info(fileName + " bevat P.N., mag weg ... dus mag verwijderd worden.");
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             pdfJobs.deleteTxtAndPDF();
         } else if (txtJobs.containsVulAan()) {
             LOGGER.info(fileName + " bevat vul_aan in de tekst.");
             pdfJobs.copyAndDeleteTxtAndPDF(pathError);
             Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), "Ergens in de tekst zit nog het woord vul_aan".getBytes());
         } else {
-            createUMFormat.sendToUM(txtJobs);
-
-            LOGGER.info(fileName + " wordt verwerkt...");
-            String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
-            if (externalIdOfCaregiver != null) {
-                ExternalCaregiverEntity externalCaregiverEntity = externalCaregiverService.findByExternalID(externalIdOfCaregiver);
-                if (externalCaregiverEntity != null) {
-                    String aanspreking = "Dr. " + externalCaregiverEntity.getLastName();
-                    Boolean needPrint = externalCaregiverEntity.getPrintProtocols();
-                    Boolean needSecondCopy = externalCaregiverEntity.getSecondCopy();
-                    if (needPrint == null || needPrint.toString().equals("")) {
-                        pdfJobs.copyAndDeleteTxtAndPDF(pathError);
-                    } else if (needPrint) {
-                        LOGGER.info(aanspreking + " wil graag een papieren versie ontvangen.");
-                        pdfJobs.printPDF();
-                        if (needSecondCopy != null && !needSecondCopy.toString().equals("") && needSecondCopy) {
-                            LOGGER.info(aanspreking + " wil graag nog een papieren versie ontvangen.");
-                            pdfJobs.printPDF();
-                        }
-                        pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
-                    } else {
-                        pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
-                    }
-                }
+            if (!createUMFormat.sendToUM(txtJobs)) {
+                LOGGER.info("Deze brief moet niet verwerkt worden. Specialist van Somedi is onbekend");
+                pdfJobs.deleteTxtAndPDF();
             } else {
-                String errorMessage = "ExternalId niet gevonden. Je kan het externalId terugvinden in de txt helemaal bovenaan na het keyword #DR: ";
-                LOGGER.error(errorMessage);
-                pdfJobs.copyAndDeleteTxtAndPDF(pathError);
-                Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), errorMessage.getBytes());
+
+                LOGGER.info(fileName + " wordt verwerkt...");
+                String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
+                if (externalIdOfCaregiver != null) {
+                    ExternalCaregiverEntity externalCaregiverEntity = externalCaregiverService.findByExternalID(externalIdOfCaregiver);
+                    if (externalCaregiverEntity != null) {
+                        String aanspreking = "Dr. " + externalCaregiverEntity.getLastName();
+                        Boolean needPrint = externalCaregiverEntity.getPrintProtocols();
+                        Boolean needSecondCopy = externalCaregiverEntity.getSecondCopy();
+                        if (needPrint == null || needPrint.toString().equals("")) {
+                            pdfJobs.copyAndDeleteTxtAndPDF(pathError);
+                        } else if (needPrint) {
+                            LOGGER.info(aanspreking + " wil graag een papieren versie ontvangen.");
+                            pdfJobs.printPDF();
+                            if (needSecondCopy != null && !needSecondCopy.toString().equals("") && needSecondCopy) {
+                                LOGGER.info(aanspreking + " wil graag nog een papieren versie ontvangen.");
+                                pdfJobs.printPDF();
+                            }
+                            pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
+                        } else {
+                            pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
+                        }
+                    }
+                } else {
+                    String errorMessage = "ExternalId niet gevonden. Je kan het externalId terugvinden in de txt helemaal bovenaan na het keyword #DR: ";
+                    LOGGER.error(errorMessage);
+                    pdfJobs.copyAndDeleteTxtAndPDF(pathError);
+                    Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), errorMessage.getBytes());
+                }
             }
         }
     }

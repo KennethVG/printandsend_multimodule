@@ -113,6 +113,7 @@ public class CreateUMFormat {
         }
 
         ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findByExternalID(externalIdCaregiverFrom);
+        if (caregiverEntity == null) return null;
         caregiverEntity.setNihii(getFormattedNihii(caregiverEntity.getNihii()));
         return caregiverEntity.getFormat() == UMFormat.MEDIDOC ? externalCaregiverMapper.entityToExternalCaregiverMedidoc(caregiverEntity) :
                 externalCaregiverMapper.entityToExternalCaregiver(caregiverEntity);
@@ -198,18 +199,20 @@ public class CreateUMFormat {
         writer.write(pathMedidoc, output, caregiverTo, ref);
     }
 
-    void sendToUM(TXTJobs txtJobs) {
+    boolean sendToUM(TXTJobs txtJobs) {
         ExternalCaregiver caregiverFrom = getExternalCaregiverFrom(txtJobs);
         ExternalCaregiver caregiverTo = getExternalCaregiverTo(txtJobs);
         ExternalCaregiver caregiverLinkedFrom = null;
         ExternalCaregiver caregiverLinkedTo;
 
-        if(caregiverFrom != null) {
+        if (caregiverFrom != null) {
             caregiverLinkedFrom = getLinkedCaregiver(caregiverFrom.getExternalID());
             if (caregiverFrom.geteProtocols()) {
                 LOGGER.info("Brief proberen verzenden naar arts die de brief geschreven heeft");
                 sendToUm(txtJobs, caregiverFrom, caregiverFrom);
             }
+        } else{
+            return false;
         }
         if (caregiverLinkedFrom != null && caregiverLinkedFrom.geteProtocols()) {
             LOGGER.info("Kopie van de brief proberen te verzenden naar de gelinkte arts");
@@ -227,6 +230,7 @@ public class CreateUMFormat {
                 sendToUm(txtJobs, caregiverFrom, caregiverLinkedTo);
             }
         }
+        return true;
     }
 
     private void sendToUm(TXTJobs txtJobs, ExternalCaregiver caregiverFrom, ExternalCaregiver caregiverTo) {

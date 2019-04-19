@@ -192,8 +192,12 @@ public class TXTJobs {
                     if (oneLine.length() > LINE_LENGTH) {
                         String summary = left(oneLine, LINE_LENGTH_SUMMARY);
                         int summaryIndex = lastIndexOf(summary, " ");
-                        result.append("]").append(summary, 0, summaryIndex).append("\r\n").append("]").append
-                                (substring(oneLine, summaryIndex)).append("\r\n");
+                        if (summaryIndex != -1) {
+                            result.append("]")
+                                    .append(summary, 0, summaryIndex)
+                                    .append("\r\n").append("]")
+                                    .append(substring(oneLine, summaryIndex)).append("\r\n");
+                        }
                     } else if (oneLine.equals("")) {
                         result.append(oneLine).append("\r\n");
                     } else {
