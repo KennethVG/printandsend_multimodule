@@ -15,7 +15,7 @@ public class ExternalCaregiverEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String externalID;
     @Column(nullable = false)
     @Field

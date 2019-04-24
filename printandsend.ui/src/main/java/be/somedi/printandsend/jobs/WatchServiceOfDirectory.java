@@ -4,6 +4,7 @@ import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 import be.somedi.printandsend.io.PDFJobs;
 import be.somedi.printandsend.io.TXTJobs;
 import be.somedi.printandsend.service.ExternalCaregiverService;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -95,6 +96,12 @@ public class WatchServiceOfDirectory {
                     }
                 }
             });
+            // Verwijder resterende PDF files uit new folder.
+            Files.list(pathNew).filter(path -> FilenameUtils.getExtension(path.getFileName().toString()).equalsIgnoreCase("PDF")).forEach(path -> {
+                LOGGER.info(path + " succesvol verwijderd (pdf blijven staan in folder new)");
+                FileUtils.deleteQuietly(path.toFile());
+            });
+
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
             e.printStackTrace();

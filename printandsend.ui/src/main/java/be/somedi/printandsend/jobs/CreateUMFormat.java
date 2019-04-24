@@ -220,7 +220,7 @@ public class CreateUMFormat {
         }
 
         if (caregiverTo != null) {
-            if (caregiverTo.geteProtocols()) {
+            if (caregiverTo.geteProtocols() != null && caregiverTo.geteProtocols()) {
                 LOGGER.info("Brief proberen verzenden naar arts in AAN/CC");
                 sendToUm(txtJobs, caregiverFrom, caregiverTo);
             }
