@@ -15,6 +15,6 @@ public class PrintAndSendApplication {
 
     private static void openHomePage() throws IOException {
         Runtime rt = Runtime.getRuntime();
-        rt.exec("rundll32 url.dll,FileProtocolHandler " + "http://localhost:8090");
+        rt.exec("rundll32 url.dll,FileProtocolHandler " + "https://localhost:8090");
     }
 }
