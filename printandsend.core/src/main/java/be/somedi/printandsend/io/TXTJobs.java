@@ -35,7 +35,7 @@ public class TXTJobs {
     private static final int LINE_LENGTH_SUMMARY = 74;
     private static final int SUMMARY_MAX_LENGTH = 7;
 
-    private Path path;
+    private final Path path;
     private List<String> allLines = new ArrayList<>();
 
     public TXTJobs(Path path) {
