@@ -202,7 +202,7 @@ public class CreateUMFormat {
     boolean sendToUM(TXTJobs txtJobs) {
         ExternalCaregiver caregiverFrom = getExternalCaregiverFrom(txtJobs);
         ExternalCaregiver caregiverTo = getExternalCaregiverTo(txtJobs);
-        ExternalCaregiver caregiverLinkedFrom = null;
+        ExternalCaregiver caregiverLinkedFrom;
         ExternalCaregiver caregiverLinkedTo;
 
         if (caregiverFrom != null) {
