@@ -149,9 +149,11 @@ public class TXTJobs {
     public String getExternalIdOfCaregiverFrom() {
         String externalIdOfCaregiver = getTextAfterKey("UA");
         if (externalIdOfCaregiver == null || externalIdOfCaregiver.equals("") || externalIdOfCaregiver.length() > 7) {
-            externalIdOfCaregiver = null;
+            return null;
+        } else {
+            boolean vanOpstal = externalIdOfCaregiver.equalsIgnoreCase("C6904") || externalIdOfCaregiver.equalsIgnoreCase("D6904");
+            return vanOpstal ? "S690V" : "S" + externalIdOfCaregiver.substring(1);
         }
-        return externalIdOfCaregiver;
     }
 
     public String getTextAfterKey(String key) {
