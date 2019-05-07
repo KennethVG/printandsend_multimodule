@@ -60,14 +60,15 @@ public class PDFJobs {
     public void printPDF() {
         try {
             Path pathOfPDFToPrint = getPathOfPDFToPrint();
-            PDDocument doc = PDDocument.load(pathOfPDFToPrint.toFile());
-            PrinterJob printerJob = PrinterJob.getPrinterJob();
-            printerJob.setPageable(new PDFPageable(doc));
-            PrintService defaultPrintService = PrintServiceLookup.lookupDefaultPrintService();
-            printerJob.setPrintService(defaultPrintService);
-            printerJob.print();
-            doc.close();
-            LOGGER.info(pathOfPDFToPrint +  " is uitgeprint");
+            try (PDDocument doc = PDDocument.load(pathOfPDFToPrint.toFile())) {
+                LOGGER.info("Aan het printen...");
+                PrinterJob printerJob = PrinterJob.getPrinterJob();
+                printerJob.setPageable(new PDFPageable(doc));
+                PrintService defaultPrintService = PrintServiceLookup.lookupDefaultPrintService();
+                printerJob.setPrintService(defaultPrintService);
+                printerJob.print();
+                LOGGER.info(pathOfPDFToPrint + " is uitgeprint");
+            }
         } catch (PrinterException e) {
             LOGGER.error("Default printer not available");
         } catch (IOException e) {

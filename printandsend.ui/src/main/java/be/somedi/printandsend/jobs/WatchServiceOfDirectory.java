@@ -133,7 +133,6 @@ public class WatchServiceOfDirectory {
                 LOGGER.info("Deze brief moet niet verwerkt worden. Specialist van Somedi is onbekend");
                 pdfJobs.deleteTxtAndPDF();
             } else {
-
                 LOGGER.info(fileName + " wordt verwerkt...");
                 String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
                 if (externalIdOfCaregiver != null) {
