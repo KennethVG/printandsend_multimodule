@@ -100,18 +100,10 @@ public class CreateUMFormat {
     private ExternalCaregiver getExternalCaregiverFrom(TXTJobs txtJobs) {
         String externalIdCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
 
-        if (externalIdCaregiverFrom != null) {
-            // Speciaal geval: Dr VAN OPSTAL (S6904 bestaat al in CC --> Dr. Luc Janssens)
-            if (externalIdCaregiverFrom.equalsIgnoreCase("C6904") || externalIdCaregiverFrom.equalsIgnoreCase("D6904")) {
-                externalIdCaregiverFrom = "S690V";
-            } else {
-                externalIdCaregiverFrom = "S".concat(externalIdCaregiverFrom.substring(1));
-            }
-        } else {
+        if (externalIdCaregiverFrom == null) {
             LOGGER.error("ExternalID van dokter die de brief geschreven heeft niet gevonden!");
             return null;
         }
-
         ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findByExternalID(externalIdCaregiverFrom);
         if (caregiverEntity == null) return null;
         caregiverEntity.setNihii(getFormattedNihii(caregiverEntity.getNihii()));
