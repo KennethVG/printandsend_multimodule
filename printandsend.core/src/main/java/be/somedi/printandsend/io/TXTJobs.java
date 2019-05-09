@@ -25,6 +25,7 @@ public class TXTJobs {
 
     //CONSTANTEN:
     private static final String BETREFT = "Betreft";
+    private static final String GEACHTE = "Geachte";
     private static final String MVG = "Met vriendelijke groeten";
     private static final String MCG = "Met collegiale groeten";
     private static final String MCH = "Met collegiale hoogachting";
@@ -177,6 +178,8 @@ public class TXTJobs {
             oneLine = allLines.get(i).trim();
             if (oneLine.startsWith(BETREFT)) {
                 startIndex = i;
+            } else if (oneLine.startsWith(GEACHTE)) {
+                startIndex = i + 1;
             } else if (oneLine.contains(BESLUIT)) {
                 startSummaryIndex = i;
             } else if (oneLine.startsWith(MVG) || oneLine.startsWith(MCG) || oneLine.startsWith(MCH)) {

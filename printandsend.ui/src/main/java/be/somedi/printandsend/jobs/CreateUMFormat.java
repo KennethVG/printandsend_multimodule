@@ -199,7 +199,7 @@ public class CreateUMFormat {
 
         if (caregiverFrom != null) {
             caregiverLinkedFrom = getLinkedCaregiver(caregiverFrom.getExternalID());
-            if (caregiverFrom.geteProtocols()) {
+            if (caregiverFrom.geteProtocols() != null && caregiverFrom.geteProtocols()) {
                 LOGGER.info("Brief proberen verzenden naar arts die de brief geschreven heeft");
                 sendToUm(txtJobs, caregiverFrom, caregiverFrom);
             }
