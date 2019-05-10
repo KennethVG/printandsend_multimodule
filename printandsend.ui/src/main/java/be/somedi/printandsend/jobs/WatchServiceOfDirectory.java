@@ -130,8 +130,8 @@ public class WatchServiceOfDirectory {
             Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), "Ergens in de tekst zit nog het woord vul_aan".getBytes());
         } else {
             if (!createUMFormat.sendToUM(txtJobs)) {
-                LOGGER.info("Deze brief moet niet verwerkt worden. Specialist van Somedi is onbekend");
-                pdfJobs.deleteTxtAndPDF();
+                pdfJobs.copyAndDeleteTxtAndPDF(pathError);
+                Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), "Body is leeg of specialist Somedi is onbekend: bekijk de logfile voor meer info".getBytes());
             } else {
                 LOGGER.info(fileName + " wordt verwerkt...");
                 String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
