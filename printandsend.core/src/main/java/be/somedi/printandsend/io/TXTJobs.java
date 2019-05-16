@@ -182,7 +182,7 @@ public class TXTJobs {
                 startIndex = i + 1;
             } else if (oneLine.contains(BESLUIT)) {
                 startSummaryIndex = i;
-            } else if (oneLine.startsWith(MVG) || oneLine.startsWith(MCG) || oneLine.startsWith(MCH)) {
+            } else if (oneLine.contains(MVG) || oneLine.contains(MCG) || oneLine.contains(MCH)) {
                 endIndex = i;
             }
         }

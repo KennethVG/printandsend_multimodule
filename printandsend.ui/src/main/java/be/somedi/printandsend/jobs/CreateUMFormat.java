@@ -193,8 +193,10 @@ public class CreateUMFormat {
 
     boolean sendToUM(TXTJobs txtJobs) {
 
-        if(txtJobs.getBodyOfTxt(UMFormat.MEDIDOC) == null || txtJobs.getBodyOfTxt(UMFormat.MEDIDOC).equals("")){
-            LOGGER.error(txtJobs.getPath() + ": Geen betreft of geachte aanwezig in de TXT");
+        String bodyOfTxt = txtJobs.getBodyOfTxt(UMFormat.MEDIDOC);
+
+        if(bodyOfTxt == null || bodyOfTxt.equals("")){
+            LOGGER.error(txtJobs.getPath() + ": De TXT bevat geen begin (BETREFT/ GEACHTE) of geen einde (Met vriendelijke groeten/ Met collegiale groeten)");
             return false;
         }
 
