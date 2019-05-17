@@ -135,21 +135,25 @@ public class WatchServiceOfDirectory {
             } else {
                 LOGGER.info(fileName + " wordt verwerkt...");
                 String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
+                String externalIdOfCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
                 if (externalIdOfCaregiver != null) {
                     ExternalCaregiverEntity externalCaregiverEntity = externalCaregiverService.findByExternalID(externalIdOfCaregiver);
                     if (externalCaregiverEntity != null) {
                         String aanspreking = "Dr. " + externalCaregiverEntity.getLastName();
                         Boolean needPrint = externalCaregiverEntity.getPrintProtocols();
-                        Boolean needSecondCopy = externalCaregiverEntity.getSecondCopy();
+                        if(externalIdOfCaregiverFrom != null){
+                            ExternalCaregiverEntity externalCaregiverEntityFrom = externalCaregiverService.findByExternalID(externalIdOfCaregiverFrom);
+                            Boolean needSecondCopy = externalCaregiverEntityFrom.getSecondCopy();
+                            if (needSecondCopy != null && !needSecondCopy.toString().equals("") && needSecondCopy) {
+                                LOGGER.info(externalCaregiverEntityFrom.getLastName() + " wil graag een kopie van de brief ontvangen.");
+                                pdfJobs.printPDF();
+                            }                        }
+
                         if (needPrint == null || needPrint.toString().equals("")) {
                             pdfJobs.copyAndDeleteTxtAndPDF(pathError);
                         } else if (needPrint) {
                             LOGGER.info(aanspreking + " wil graag een papieren versie ontvangen.");
                             pdfJobs.printPDF();
-                            if (needSecondCopy != null && !needSecondCopy.toString().equals("") && needSecondCopy) {
-                                LOGGER.info(aanspreking + " wil graag nog een papieren versie ontvangen.");
-                                pdfJobs.printPDF();
-                            }
                             pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
                         } else {
                             pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
