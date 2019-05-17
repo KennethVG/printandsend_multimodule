@@ -118,11 +118,6 @@ public class WatchServiceOfDirectory {
             pdfJobs.deleteTxtAndPDF();
         } else if (txtJobs.containsSentenceToDelete()) {
             LOGGER.info(fileName + " bevat P.N., mag weg ... dus mag verwijderd worden.");
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             pdfJobs.deleteTxtAndPDF();
         } else if (txtJobs.containsVulAan()) {
             LOGGER.info(fileName + " bevat vul_aan in de tekst.");
@@ -141,14 +136,14 @@ public class WatchServiceOfDirectory {
                     if (externalCaregiverEntity != null) {
                         String aanspreking = "Dr. " + externalCaregiverEntity.getLastName();
                         Boolean needPrint = externalCaregiverEntity.getPrintProtocols();
-                        if(externalIdOfCaregiverFrom != null){
+                        if (externalIdOfCaregiverFrom != null) {
                             ExternalCaregiverEntity externalCaregiverEntityFrom = externalCaregiverService.findByExternalID(externalIdOfCaregiverFrom);
                             Boolean needSecondCopy = externalCaregiverEntityFrom.getSecondCopy();
                             if (needSecondCopy != null && !needSecondCopy.toString().equals("") && needSecondCopy) {
                                 LOGGER.info(externalCaregiverEntityFrom.getLastName() + " wil graag een kopie van de brief ontvangen.");
                                 pdfJobs.printPDF();
-                            }                        }
-
+                            }
+                        }
                         if (needPrint == null || needPrint.toString().equals("")) {
                             pdfJobs.copyAndDeleteTxtAndPDF(pathError);
                         } else if (needPrint) {
@@ -158,6 +153,11 @@ public class WatchServiceOfDirectory {
                         } else {
                             pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
                         }
+                    } else {
+                        String errorMessage = "Caregiver met externalId " + externalIdOfCaregiver + " niet gevonden.";
+                        LOGGER.error(errorMessage);
+                        pdfJobs.copyAndDeleteTxtAndPDF(pathError);
+                        Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), errorMessage.getBytes());
                     }
                 } else {
                     String errorMessage = "ExternalId niet gevonden. Je kan het externalId terugvinden in de txt helemaal bovenaan na het keyword #DR: ";

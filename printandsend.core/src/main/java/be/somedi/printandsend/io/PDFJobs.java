@@ -39,8 +39,8 @@ public class PDFJobs {
 
     public void copyAndDeleteTxtAndPDF(Path pathToMove) {
         try {
-            Files.copy(getPathOfPDFToPrint(), Paths.get(pathToMove + "\\" + getFileNameOfPDFToPrint()), StandardCopyOption.REPLACE_EXISTING);
             txtJobs.moveTxtFile(Paths.get(pathToMove + "\\" + txtJobs.getFileName()));
+            Files.copy(getPathOfPDFToPrint(), Paths.get(pathToMove + "\\" + getFileNameOfPDFToPrint()), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -49,11 +49,11 @@ public class PDFJobs {
     }
 
     public void deleteTxtAndPDF() {
-        if (FileUtils.deleteQuietly(getPathOfPDFToPrint().toFile())) {
-            LOGGER.info(getPathOfPDFToPrint() + " succesvol verwijderd");
-        }
         if (txtJobs.deleteTxtFile()) {
             LOGGER.info(txtJobs.getPath() + " succesvol verwijderd");
+        }
+        if (FileUtils.deleteQuietly(getPathOfPDFToPrint().toFile())) {
+            LOGGER.info(getPathOfPDFToPrint() + " succesvol verwijderd");
         }
     }
 
