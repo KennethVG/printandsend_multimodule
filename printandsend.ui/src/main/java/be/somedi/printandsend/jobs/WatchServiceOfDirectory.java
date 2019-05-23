@@ -3,6 +3,7 @@ package be.somedi.printandsend.jobs;
 import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 import be.somedi.printandsend.io.PDFJobs;
 import be.somedi.printandsend.io.TXTJobs;
+import be.somedi.printandsend.model.UMFormat;
 import be.somedi.printandsend.service.ExternalCaregiverService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -112,6 +113,9 @@ public class WatchServiceOfDirectory {
         String fileName = txtFile.getFileName().toString();
         TXTJobs txtJobs = new TXTJobs(txtFile);
         PDFJobs pdfJobs = new PDFJobs(txtJobs);
+        String bodyOfTxt = txtJobs.getBodyOfTxt(UMFormat.MEDIDOC);
+        String errorMessage = "";
+
 
         if (fileName.contains("EMD")) {
             LOGGER.info(fileName + " EMD ... dus mag verwijderd worden. Geen geldig externalID");
@@ -120,13 +124,21 @@ public class WatchServiceOfDirectory {
             LOGGER.info(fileName + " bevat P.N., mag weg ... dus mag verwijderd worden.");
             pdfJobs.deleteTxtAndPDF();
         } else if (txtJobs.containsVulAan()) {
-            LOGGER.info(fileName + " bevat vul_aan in de tekst.");
+            errorMessage = "Ergens in de tekst zit nog het woord vul_aan";
+            LOGGER.info(fileName + " " + errorMessage);
             pdfJobs.copyAndDeleteTxtAndPDF(pathError);
-            Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), "Ergens in de tekst zit nog het woord vul_aan".getBytes());
-        } else {
+            Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), errorMessage.getBytes());
+        } else if(bodyOfTxt == null || bodyOfTxt.equals("")){
+            pdfJobs.copyAndDeleteTxtAndPDF(pathError);
+            errorMessage= "De TXT bevat geen begin (BETREFT/ GEACHTE) of geen einde (Met vriendelijke groeten/ Met collegiale groeten)";
+            LOGGER.error(txtJobs.getPath() + ": " + errorMessage);
+            Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), errorMessage.getBytes());
+        }
+        else {
             if (!createUMFormat.sendToUM(txtJobs)) {
-                pdfJobs.copyAndDeleteTxtAndPDF(pathError);
-                Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), "Body is leeg of specialist Somedi is onbekend: bekijk de logfile voor meer info".getBytes());
+                errorMessage = "Specialist Somedi is onbekend!";
+                LOGGER.info("Deze brief moet niet verwerkt worden. " + errorMessage);
+                Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), errorMessage.getBytes());
             } else {
                 LOGGER.info(fileName + " wordt verwerkt...");
                 String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
@@ -145,27 +157,37 @@ public class WatchServiceOfDirectory {
                             }
                         }
                         if (needPrint == null || needPrint.toString().equals("")) {
-                            pdfJobs.copyAndDeleteTxtAndPDF(pathError);
+                            errorMessage = "Printprotocols is NULL of LEEG. Zet deze op true of false voor Dr. met externalID: " + externalIdOfCaregiver;
+                            makeErrorMessage(errorMessage, pdfJobs, fileName);
                         } else if (needPrint) {
                             LOGGER.info(aanspreking + " wil graag een papieren versie ontvangen.");
                             pdfJobs.printPDF();
                             pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
                         } else {
+                            LOGGER.info(aanspreking + " wenst geen papieren versie");
                             pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
                         }
                     } else {
-                        String errorMessage = "Caregiver met externalId " + externalIdOfCaregiver + " niet gevonden.";
-                        LOGGER.error(errorMessage);
-                        pdfJobs.copyAndDeleteTxtAndPDF(pathError);
-                        Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), errorMessage.getBytes());
+                        errorMessage = "Caregiver met externalId " + externalIdOfCaregiver + " niet gevonden.";
+                        makeErrorMessage(errorMessage, pdfJobs, fileName);
                     }
                 } else {
-                    String errorMessage = "ExternalId niet gevonden. Je kan het externalId terugvinden in de txt helemaal bovenaan na het keyword #DR: ";
-                    LOGGER.error(errorMessage);
-                    pdfJobs.copyAndDeleteTxtAndPDF(pathError);
-                    Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), errorMessage.getBytes());
+                    errorMessage = "ExternalId niet gevonden. Je kan het externalId terugvinden in de txt helemaal bovenaan na het keyword #DR: ";
+                    makeErrorMessage(errorMessage, pdfJobs, fileName);
                 }
             }
         }
     }
+
+
+    private void makeErrorMessage(String errorMessage, PDFJobs pdfJobs, String fileName){
+        LOGGER.error(errorMessage);
+        pdfJobs.copyAndDeleteTxtAndPDF(pathError);
+        try {
+            Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), errorMessage.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

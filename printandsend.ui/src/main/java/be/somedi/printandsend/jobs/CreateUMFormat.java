@@ -192,14 +192,6 @@ public class CreateUMFormat {
     }
 
     boolean sendToUM(TXTJobs txtJobs) {
-
-        String bodyOfTxt = txtJobs.getBodyOfTxt(UMFormat.MEDIDOC);
-
-        if(bodyOfTxt == null || bodyOfTxt.equals("")){
-            LOGGER.error(txtJobs.getPath() + ": De TXT bevat geen begin (BETREFT/ GEACHTE) of geen einde (Met vriendelijke groeten/ Met collegiale groeten)");
-            return false;
-        }
-
         ExternalCaregiver caregiverFrom = getExternalCaregiverFrom(txtJobs);
         ExternalCaregiver caregiverTo = getExternalCaregiverTo(txtJobs);
         ExternalCaregiver caregiverLinkedFrom;
@@ -212,7 +204,6 @@ public class CreateUMFormat {
                 sendToUm(txtJobs, caregiverFrom, caregiverFrom);
             }
         } else{
-            LOGGER.info("Deze brief moet niet verwerkt worden. Specialist van Somedi is onbekend");
             return false;
         }
         if (caregiverLinkedFrom != null && caregiverLinkedFrom.geteProtocols()) {
