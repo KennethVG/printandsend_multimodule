@@ -90,11 +90,7 @@ public class WatchServiceOfDirectory {
             LOGGER.info("Path om te lezen: " + pathNew);
             Files.list(pathNew).forEach(file -> {
                 if (file.getFileName().toString().startsWith("MSE") && file.toString().endsWith(".txt")) {
-                    try {
-                        printForExternalCaregiver(file);
-                    } catch (IOException e) {
-                        LOGGER.error("Kan de error file niet aanmaken");
-                    }
+                    printForExternalCaregiver(file);
                 }
             });
             // Verwijder resterende PDF files uit new folder.
@@ -109,7 +105,7 @@ public class WatchServiceOfDirectory {
         }
     }
 
-    private void printForExternalCaregiver(Path txtFile) throws IOException {
+    private void printForExternalCaregiver(Path txtFile) {
         String fileName = txtFile.getFileName().toString();
         TXTJobs txtJobs = new TXTJobs(txtFile);
         PDFJobs pdfJobs = new PDFJobs(txtJobs);
@@ -125,20 +121,17 @@ public class WatchServiceOfDirectory {
             pdfJobs.deleteTxtAndPDF();
         } else if (txtJobs.containsVulAan()) {
             errorMessage = "Ergens in de tekst zit nog het woord vul_aan";
-            LOGGER.info(fileName + " " + errorMessage);
-            pdfJobs.copyAndDeleteTxtAndPDF(pathError);
-            Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), errorMessage.getBytes());
-        } else if(bodyOfTxt == null || bodyOfTxt.equals("")){
-            pdfJobs.copyAndDeleteTxtAndPDF(pathError);
-            errorMessage= "De TXT bevat geen begin (BETREFT/ GEACHTE) of geen einde (Met vriendelijke groeten/ Met collegiale groeten)";
-            LOGGER.error(txtJobs.getPath() + ": " + errorMessage);
-            Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), errorMessage.getBytes());
-        }
-        else {
+            makeErrorMessage(errorMessage, pdfJobs, fileName);
+        } else if (!txtJobs.containsHeader()) {
+            errorMessage = "De TXT bevat geen begin (BETREFT/ GEACHTE)";
+            makeErrorMessage(errorMessage, pdfJobs, fileName);
+        } else if (!txtJobs.containsFooter()) {
+            errorMessage = "De TXT bevat geen einde (Met vriendelijke groeten/ Met collegiale groeten)";
+            makeErrorMessage(errorMessage, pdfJobs, fileName);
+        } else {
             if (!createUMFormat.sendToUM(txtJobs)) {
                 errorMessage = "Specialist Somedi is onbekend!";
-                LOGGER.info("Deze brief moet niet verwerkt worden. " + errorMessage);
-                Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), errorMessage.getBytes());
+                makeErrorMessage(errorMessage, pdfJobs, fileName);
             } else {
                 LOGGER.info(fileName + " wordt verwerkt...");
                 String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
@@ -180,7 +173,7 @@ public class WatchServiceOfDirectory {
     }
 
 
-    private void makeErrorMessage(String errorMessage, PDFJobs pdfJobs, String fileName){
+    private void makeErrorMessage(String errorMessage, PDFJobs pdfJobs, String fileName) {
         LOGGER.error(errorMessage);
         pdfJobs.copyAndDeleteTxtAndPDF(pathError);
         try {

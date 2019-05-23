@@ -165,12 +165,23 @@ public class TXTJobs {
         return "";
     }
 
+    public boolean containsHeader() {
+        return  allLines.stream().anyMatch(s -> s.startsWith(GEACHTE) || s.startsWith(BETREFT));
+    }
+    public boolean containsFooter(){
+        return  allLines.stream().anyMatch(s -> s.contains(MV) || s.startsWith(MC));
+    }
+
     public String getBodyOfTxt(UMFormat format) {
 
         StringBuilder result = new StringBuilder();
         int startIndex = 0;
         int startSummaryIndex = 0;
         int endIndex = 0;
+
+        if (!(containsFooter() && containsHeader())) {
+            return "";
+        }
 
         String oneLine;
         for (int i = 0; i < allLines.size(); i++) {
