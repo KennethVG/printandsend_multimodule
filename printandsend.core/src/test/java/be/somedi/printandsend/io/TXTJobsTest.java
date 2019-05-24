@@ -117,6 +117,10 @@ public class TXTJobsTest {
         path = Paths.get("src/test/resources/MSE_4190022145_3525292_B8060.txt");
         txtJobs = new TXTJobs(path);
         assertTrue(txtJobs.getIndex(TXTJobs.MC) == 0 && txtJobs.getIndex(TXTJobs.MV) == 0);
+
+        path = Paths.get("src/test/resources/MSE_4190022015_3524709_A7938.txt");
+        txtJobs = new TXTJobs(path);
+        assertTrue(txtJobs.getIndex(TXTJobs.MV) != 0);
     }
 
     @Test

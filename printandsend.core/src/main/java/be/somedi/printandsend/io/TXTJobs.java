@@ -169,7 +169,7 @@ public class TXTJobs {
         String oneLine;
         for (int i = 0; i < allLines.size(); i++) {
             oneLine = allLines.get(i).trim().toLowerCase();
-            if (oneLine.startsWith(word) || oneLine.contains(word)) {
+            if (oneLine.startsWith(word) || oneLine.replace(" ", "").contains(word.replace(" ", ""))) {
                 return i;
             }
         }
