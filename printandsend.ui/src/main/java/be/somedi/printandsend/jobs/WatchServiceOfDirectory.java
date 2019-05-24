@@ -110,7 +110,7 @@ public class WatchServiceOfDirectory {
         TXTJobs txtJobs = new TXTJobs(txtFile);
         PDFJobs pdfJobs = new PDFJobs(txtJobs);
         String bodyOfTxt = txtJobs.getBodyOfTxt(UMFormat.MEDIDOC);
-        String errorMessage = "";
+        String errorMessage;
 
 
         if (fileName.contains("EMD")) {
@@ -122,11 +122,12 @@ public class WatchServiceOfDirectory {
         } else if (txtJobs.containsVulAan()) {
             errorMessage = "Ergens in de tekst zit nog het woord vul_aan";
             makeErrorMessage(errorMessage, pdfJobs, fileName);
-        } else if (!txtJobs.containsHeader()) {
-            errorMessage = "De TXT bevat geen begin (BETREFT/ GEACHTE)";
-            makeErrorMessage(errorMessage, pdfJobs, fileName);
-        } else if (!txtJobs.containsFooter()) {
-            errorMessage = "De TXT bevat geen einde (Met vriendelijke groeten/ Met collegiale groeten)";
+        } else if (bodyOfTxt == null || bodyOfTxt.equals("")) {
+            if (txtJobs.getIndex("betreft") == 0 || txtJobs.getIndex("geachte") == 0) {
+                errorMessage = "De TXT bevat geen begin (BETREFT/ GEACHTE)";
+            } else {
+                errorMessage = "De TXT bevat geen einde (Met vriendelijke groeten/ Met collegiale groeten)";
+            }
             makeErrorMessage(errorMessage, pdfJobs, fileName);
         } else {
             if (!createUMFormat.sendToUM(txtJobs)) {

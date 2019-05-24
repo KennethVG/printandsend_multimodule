@@ -24,11 +24,11 @@ import static org.apache.commons.lang3.StringUtils.*;
 public class TXTJobs {
 
     //CONSTANTEN:
-    private static final String BETREFT = "Betreft";
-    private static final String GEACHTE = "Geachte";
-    private static final String MV = "Met vriendelijke";
-    private static final String MC = "Met collegiale";
-    private static final String BESLUIT = "BESLUIT";
+    static final String BETREFT = "betreft";
+    static final String GEACHTE = "geachte";
+    static final String MV = "met vriendelijke";
+    static final String MC = "met collegiale";
+    static final String BESLUIT = "besluit";
     private static final String VUL_AAN = "vul_aan";
 
     private static final int LINE_LENGTH = 75;
@@ -165,38 +165,25 @@ public class TXTJobs {
         return "";
     }
 
-    public boolean containsHeader() {
-        return  allLines.stream().anyMatch(s -> s.startsWith(GEACHTE) || s.startsWith(BETREFT));
-    }
-    public boolean containsFooter(){
-        return  allLines.stream().anyMatch(s -> s.contains(MV) || s.startsWith(MC));
+    public int getIndex(String word) {
+        String oneLine;
+        for (int i = 0; i < allLines.size(); i++) {
+            oneLine = allLines.get(i).trim().toLowerCase();
+            if (oneLine.startsWith(word) || oneLine.contains(word)) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     public String getBodyOfTxt(UMFormat format) {
 
         StringBuilder result = new StringBuilder();
-        int startIndex = 0;
-        int startSummaryIndex = 0;
-        int endIndex = 0;
-
-        if (!(containsFooter() && containsHeader())) {
-            return "";
-        }
+        int startIndex = getIndex(BETREFT) != 0 ? getIndex(BETREFT) : getIndex(GEACHTE);
+        int startSummaryIndex = getIndex(BESLUIT);
+        int endIndex = getIndex(MV) != 0 ? getIndex(MV) : getIndex(MC);
 
         String oneLine;
-        for (int i = 0; i < allLines.size(); i++) {
-            oneLine = allLines.get(i).trim();
-            if (oneLine.startsWith(BETREFT)) {
-                startIndex = i;
-            } else if (oneLine.startsWith(GEACHTE)) {
-                startIndex = i + 1;
-            } else if (oneLine.contains(BESLUIT)) {
-                startSummaryIndex = i;
-            } else if (oneLine.contains(MV) || oneLine.contains(MC)) {
-                endIndex = i;
-            }
-        }
-
         if (startIndex != 0 && endIndex != 0) {
             // Er is een besluit. Max. 7 lijnen starten met ]
             if (startSummaryIndex != 0 && format == UMFormat.MEDIDOC) {

@@ -33,7 +33,6 @@ public class TXTJobsTest {
         assertEquals("BOSSESTRAAT 5", result);
     }
 
-
     @Test
     public void getBody() {
         String result = txtJobs.getBodyOfTxt(UMFormat.MEDIDOC);
@@ -84,6 +83,49 @@ public class TXTJobsTest {
         Path path = Paths.get("src/test/resources/geenverslag.txt");
         txtJobs = new TXTJobs(path);
         assertTrue(txtJobs.containsSentenceToDelete());
+    }
+
+    @Test
+    public void bevatHeader() {
+        Path path = Paths.get("src/test/resources/MSE_179430104_2818577_Z8025.txt");
+        txtJobs = new TXTJobs(path);
+        assertTrue(txtJobs.getIndex(TXTJobs.GEACHTE) != 0);
+
+        path = Paths.get("src/test/resources/MSE_181210127_2976738_S6686.txt");
+        txtJobs = new TXTJobs(path);
+        assertTrue(txtJobs.getIndex(TXTJobs.BETREFT) != 0);
+
+        path = Paths.get("src/test/resources/MSE_183030005_2976737_S5754.txt");
+        txtJobs = new TXTJobs(path);
+        assertTrue(txtJobs.getIndex(TXTJobs.BETREFT) == 0 && txtJobs.getIndex(TXTJobs.GEACHTE) == 0);
+    }
+
+    @Test
+    public void bevatFooter() {
+        Path path = Paths.get("src/test/resources/MSE_181210127_2976738_S8533.txt");
+        txtJobs = new TXTJobs(path);
+        assertTrue(txtJobs.getIndex(TXTJobs.MC) != 0);
+
+        path = Paths.get("src/test/resources/MSE_183030005_2976737_A9671.txt");
+        txtJobs = new TXTJobs(path);
+        assertTrue(txtJobs.getIndex(TXTJobs.MV) != 0);
+
+        path = Paths.get("src/test/resources/MSE_181210127_2976738_Z6686.txt");
+        txtJobs = new TXTJobs(path);
+        assertTrue(txtJobs.getIndex(TXTJobs.MC) != 0);
+
+        path = Paths.get("src/test/resources/MSE_4190022145_3525292_B8060.txt");
+        txtJobs = new TXTJobs(path);
+        assertTrue(txtJobs.getIndex(TXTJobs.MC) == 0 && txtJobs.getIndex(TXTJobs.MV) == 0);
+    }
+
+    @Test
+    public void bevatBesluit(){
+        Path path = Paths.get("src/test/resources/MSE_183030005_2976737_A9671.txt");
+        txtJobs = new TXTJobs(path);
+        int index = txtJobs.getIndex(TXTJobs.BESLUIT);
+        assertTrue(index != 0);
+        assertEquals(35, index);
     }
 
     @Test
