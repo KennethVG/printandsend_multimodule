@@ -215,6 +215,8 @@ public class TXTJobs {
             } else {
                 result.append(buildBody(startIndex, endIndex));
             }
+        }else {
+            return "leeg";
         }
         return result.toString().trim();
     }

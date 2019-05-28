@@ -122,7 +122,7 @@ public class WatchServiceOfDirectory {
         } else if (txtJobs.containsVulAan()) {
             errorMessage = "Ergens in de tekst zit nog het woord vul_aan";
             makeErrorMessage(errorMessage, pdfJobs, fileName);
-        } else if (bodyOfTxt == null || bodyOfTxt.equals("")) {
+        } else if (bodyOfTxt.equals("leeg")) {
             if (txtJobs.getIndex("betreft") == 0 || txtJobs.getIndex("geachte") == 0) {
                 errorMessage = "De TXT bevat geen begin (BETREFT/ GEACHTE)";
             } else {

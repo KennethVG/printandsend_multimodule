@@ -98,6 +98,7 @@ public class TXTJobsTest {
         path = Paths.get("src/test/resources/MSE_183030005_2976737_S5754.txt");
         txtJobs = new TXTJobs(path);
         assertTrue(txtJobs.getIndex(TXTJobs.BETREFT) == 0 && txtJobs.getIndex(TXTJobs.GEACHTE) == 0);
+        assertEquals("leeg", txtJobs.getBodyOfTxt(UMFormat.MEDIDOC));
     }
 
     @Test
@@ -117,6 +118,7 @@ public class TXTJobsTest {
         path = Paths.get("src/test/resources/MSE_4190022145_3525292_B8060.txt");
         txtJobs = new TXTJobs(path);
         assertTrue(txtJobs.getIndex(TXTJobs.MC) == 0 && txtJobs.getIndex(TXTJobs.MV) == 0);
+        assertEquals("leeg", txtJobs.getBodyOfTxt(UMFormat.MEDIDOC));
 
         path = Paths.get("src/test/resources/MSE_4190022015_3524709_A7938.txt");
         txtJobs = new TXTJobs(path);
