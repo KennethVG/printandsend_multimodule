@@ -19,6 +19,8 @@ import java.nio.file.*;
 import java.util.Arrays;
 import java.util.concurrent.Future;
 
+import static org.apache.commons.io.FileUtils.deleteQuietly;
+
 @Component
 public class WatchServiceOfDirectory {
 
@@ -96,17 +98,19 @@ public class WatchServiceOfDirectory {
             // Verwijder resterende PDF files uit new folder.
             Files.list(pathNew).filter(path -> FilenameUtils.getExtension(path.getFileName().toString()).equalsIgnoreCase("PDF")).forEach(path -> {
                 LOGGER.info(path + " succesvol verwijderd (pdf blijven staan in folder new)");
-                FileUtils.deleteQuietly(path.toFile());
+                deleteQuietly(path.toFile());
             });
 
             // Opnieuw versturen van de files in error folder.
-            Files.list(pathError).filter(path -> FilenameUtils.getExtension(path.getFileName().toString()).equalsIgnoreCase("err")).forEach(path -> FileUtils.deleteQuietly(path.toFile()));
+            LOGGER.info(".err bestanden verwijderen uit deze folder");
+            Files.list(pathError).filter(path -> FilenameUtils.getExtension(path.getFileName().toString()).equalsIgnoreCase("err")).forEach(path -> deleteQuietly(path.toFile()));
 
             LOGGER.info("Proberen om errors nogmaals te verwerken");
             FileSystemUtils.copyRecursively(pathError, pathNew);
             LOGGER.info("Alle files uit error folder verwijderen");
-            FileUtils.cleanDirectory(pathError.toFile());
+            Files.list(pathError).filter(path -> !Files.isDirectory(path)).forEach(path -> deleteQuietly(path.toFile()));
 
+            LOGGER.info("Start met het printen en verzenden van alle nieuwe verslagen");
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
             e.printStackTrace();
