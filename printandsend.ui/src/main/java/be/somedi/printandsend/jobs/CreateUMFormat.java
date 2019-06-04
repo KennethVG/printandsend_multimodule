@@ -191,20 +191,23 @@ public class CreateUMFormat {
         writer.write(pathMedidoc, output, caregiverTo, ref);
     }
 
-    boolean sendToUM(TXTJobs txtJobs) {
+    String sendToUM(TXTJobs txtJobs) {
         ExternalCaregiver caregiverFrom = getExternalCaregiverFrom(txtJobs);
         ExternalCaregiver caregiverTo = getExternalCaregiverTo(txtJobs);
         ExternalCaregiver caregiverLinkedFrom;
         ExternalCaregiver caregiverLinkedTo;
 
         if (caregiverFrom != null) {
+            if(txtJobs.getBodyOfTxt(caregiverFrom.getFormat()).equals("leeg")){
+                return "lege body";
+            }
             caregiverLinkedFrom = getLinkedCaregiver(caregiverFrom.getExternalID());
             if (caregiverFrom.geteProtocols() != null && caregiverFrom.geteProtocols()) {
                 LOGGER.info("Brief proberen verzenden naar arts die de brief geschreven heeft");
                 sendToUm(txtJobs, caregiverFrom, caregiverFrom);
             }
         } else{
-            return false;
+            return "specialist onbekend";
         }
         if (caregiverLinkedFrom != null && caregiverLinkedFrom.geteProtocols()) {
             LOGGER.info("Kopie van de brief proberen te verzenden naar de gelinkte arts");
@@ -222,7 +225,7 @@ public class CreateUMFormat {
                 sendToUm(txtJobs, caregiverFrom, caregiverLinkedTo);
             }
         }
-        return true;
+        return "ok";
     }
 
     private void sendToUm(TXTJobs txtJobs, ExternalCaregiver caregiverFrom, ExternalCaregiver caregiverTo) {

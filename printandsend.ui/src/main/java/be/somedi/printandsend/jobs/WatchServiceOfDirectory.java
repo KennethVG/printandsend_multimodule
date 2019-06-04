@@ -109,7 +109,6 @@ public class WatchServiceOfDirectory {
         String fileName = txtFile.getFileName().toString();
         TXTJobs txtJobs = new TXTJobs(txtFile);
         PDFJobs pdfJobs = new PDFJobs(txtJobs);
-        String bodyOfTxt = txtJobs.getBodyOfTxt(UMFormat.MEDIDOC);
         String errorMessage;
 
 
@@ -122,19 +121,20 @@ public class WatchServiceOfDirectory {
         } else if (txtJobs.containsVulAan()) {
             errorMessage = "Ergens in de tekst zit nog het woord vul_aan";
             makeErrorMessage(errorMessage, pdfJobs, fileName);
-        } else if (bodyOfTxt.equals("leeg")) {
-            if (txtJobs.getIndex("betreft") == 0 || txtJobs.getIndex("geachte") == 0) {
-                errorMessage = "De TXT bevat geen begin (BETREFT/ GEACHTE)";
-            } else {
-                errorMessage = "De TXT bevat geen einde (Met vriendelijke groeten/ Met collegiale groeten)";
-            }
-            makeErrorMessage(errorMessage, pdfJobs, fileName);
         } else {
-            if (!createUMFormat.sendToUM(txtJobs)) {
+            LOGGER.info(fileName + " wordt verwerkt...");
+            String result = createUMFormat.sendToUM(txtJobs);
+            if (result.equals("lege body")) {
+                if (txtJobs.getIndex("betreft") == 0 || txtJobs.getIndex("geachte") == 0) {
+                    errorMessage = "De TXT bevat geen begin (BETREFT/ GEACHTE)";
+                } else {
+                    errorMessage = "De TXT bevat geen einde (Met vriendelijke groeten/ Met collegiale groeten)";
+                }
+                makeErrorMessage(errorMessage, pdfJobs, fileName);
+            } else if (result.equals("specialist onbekend")) {
                 errorMessage = "Specialist Somedi is onbekend!";
                 makeErrorMessage(errorMessage, pdfJobs, fileName);
             } else {
-                LOGGER.info(fileName + " wordt verwerkt...");
                 String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
                 String externalIdOfCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
                 if (externalIdOfCaregiver != null) {
