@@ -48,6 +48,10 @@ public class CreateUMFormat {
     @Value("${path-um-medicard}")
     public Path pathMedicard;
 
+    static final String SPECIALIST_ONBEKEND = "Specialist somedi onbekend";
+    static final String LEGE_BODY = "Lege body";
+    private static final String OK = "Succesvol verzonden naar UM";
+
     private static final Logger LOGGER = LogManager.getLogger(CreateUMFormat.class);
 
     @Autowired
@@ -199,7 +203,7 @@ public class CreateUMFormat {
 
         if (caregiverFrom != null) {
             if(txtJobs.getBodyOfTxt(caregiverFrom.getFormat()).equals("leeg")){
-                return "lege body";
+                return LEGE_BODY;
             }
             caregiverLinkedFrom = getLinkedCaregiver(caregiverFrom.getExternalID());
             if (caregiverFrom.geteProtocols() != null && caregiverFrom.geteProtocols()) {
@@ -207,7 +211,7 @@ public class CreateUMFormat {
                 sendToUm(txtJobs, caregiverFrom, caregiverFrom);
             }
         } else{
-            return "specialist onbekend";
+            return SPECIALIST_ONBEKEND;
         }
         if (caregiverLinkedFrom != null && caregiverLinkedFrom.geteProtocols()) {
             LOGGER.info("Kopie van de brief proberen te verzenden naar de gelinkte arts");
@@ -225,7 +229,7 @@ public class CreateUMFormat {
                 sendToUm(txtJobs, caregiverFrom, caregiverLinkedTo);
             }
         }
-        return "ok";
+        return OK;
     }
 
     private void sendToUm(TXTJobs txtJobs, ExternalCaregiver caregiverFrom, ExternalCaregiver caregiverTo) {

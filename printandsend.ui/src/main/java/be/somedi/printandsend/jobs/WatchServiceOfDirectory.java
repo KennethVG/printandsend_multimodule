@@ -3,7 +3,6 @@ package be.somedi.printandsend.jobs;
 import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 import be.somedi.printandsend.io.PDFJobs;
 import be.somedi.printandsend.io.TXTJobs;
-import be.somedi.printandsend.model.UMFormat;
 import be.somedi.printandsend.service.ExternalCaregiverService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -99,6 +99,14 @@ public class WatchServiceOfDirectory {
                 FileUtils.deleteQuietly(path.toFile());
             });
 
+            // Opnieuw versturen van de files in error folder.
+            Files.list(pathError).filter(path -> FilenameUtils.getExtension(path.getFileName().toString()).equalsIgnoreCase("err")).forEach(path -> FileUtils.deleteQuietly(path.toFile()));
+
+            LOGGER.info("Proberen om errors nogmaals te verwerken");
+            FileSystemUtils.copyRecursively(pathError, pathNew);
+            LOGGER.info("Alle files uit error folder verwijderen");
+            FileUtils.cleanDirectory(pathError.toFile());
+
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
             e.printStackTrace();
@@ -124,51 +132,55 @@ public class WatchServiceOfDirectory {
         } else {
             LOGGER.info(fileName + " wordt verwerkt...");
             String result = createUMFormat.sendToUM(txtJobs);
-            if (result.equals("lege body")) {
-                if (txtJobs.getIndex("betreft") == 0 || txtJobs.getIndex("geachte") == 0) {
-                    errorMessage = "De TXT bevat geen begin (BETREFT/ GEACHTE)";
-                } else {
-                    errorMessage = "De TXT bevat geen einde (Met vriendelijke groeten/ Met collegiale groeten)";
-                }
-                makeErrorMessage(errorMessage, pdfJobs, fileName);
-            } else if (result.equals("specialist onbekend")) {
-                errorMessage = "Specialist Somedi is onbekend!";
-                makeErrorMessage(errorMessage, pdfJobs, fileName);
-            } else {
-                String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
-                String externalIdOfCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
-                if (externalIdOfCaregiver != null) {
-                    ExternalCaregiverEntity externalCaregiverEntity = externalCaregiverService.findByExternalID(externalIdOfCaregiver);
-                    if (externalCaregiverEntity != null) {
-                        String aanspreking = "Dr. " + externalCaregiverEntity.getLastName();
-                        Boolean needPrint = externalCaregiverEntity.getPrintProtocols();
-                        if (externalIdOfCaregiverFrom != null) {
-                            ExternalCaregiverEntity externalCaregiverEntityFrom = externalCaregiverService.findByExternalID(externalIdOfCaregiverFrom);
-                            Boolean needSecondCopy = externalCaregiverEntityFrom.getSecondCopy();
-                            if (needSecondCopy != null && !needSecondCopy.toString().equals("") && needSecondCopy) {
-                                LOGGER.info(externalCaregiverEntityFrom.getLastName() + " wil graag een kopie van de brief ontvangen.");
-                                pdfJobs.printPDF();
+            switch (result) {
+                case CreateUMFormat.SPECIALIST_ONBEKEND:
+                    errorMessage = "Specialist Somedi is onbekend!";
+                    makeErrorMessage(errorMessage, pdfJobs, fileName);
+                    break;
+                case CreateUMFormat.LEGE_BODY:
+                    if (txtJobs.getIndex("betreft") == 0 || txtJobs.getIndex("geachte") == 0) {
+                        errorMessage = "De TXT bevat geen begin (BETREFT/ GEACHTE)";
+                    } else {
+                        errorMessage = "De TXT bevat geen einde (Met vriendelijke groeten/ Met collegiale groeten)";
+                    }
+                    makeErrorMessage(errorMessage, pdfJobs, fileName);
+                    break;
+                default:
+                    String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
+                    String externalIdOfCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
+                    if (externalIdOfCaregiver != null) {
+                        ExternalCaregiverEntity externalCaregiverEntity = externalCaregiverService.findByExternalID(externalIdOfCaregiver);
+                        if (externalCaregiverEntity != null) {
+                            String aanspreking = "Dr. " + externalCaregiverEntity.getLastName();
+                            Boolean needPrint = externalCaregiverEntity.getPrintProtocols();
+                            if (externalIdOfCaregiverFrom != null) {
+                                ExternalCaregiverEntity externalCaregiverEntityFrom = externalCaregiverService.findByExternalID(externalIdOfCaregiverFrom);
+                                Boolean needSecondCopy = externalCaregiverEntityFrom.getSecondCopy();
+                                if (needSecondCopy != null && !needSecondCopy.toString().equals("") && needSecondCopy) {
+                                    LOGGER.info(externalCaregiverEntityFrom.getLastName() + " wil graag een kopie van de brief ontvangen.");
+                                    pdfJobs.printPDF();
+                                }
                             }
-                        }
-                        if (needPrint == null || needPrint.toString().equals("")) {
-                            errorMessage = "Printprotocols is NULL of LEEG. Zet deze op true of false voor Dr. met externalID: " + externalIdOfCaregiver;
-                            makeErrorMessage(errorMessage, pdfJobs, fileName);
-                        } else if (needPrint) {
-                            LOGGER.info(aanspreking + " wil graag een papieren versie ontvangen.");
-                            pdfJobs.printPDF();
-                            pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
+                            if (needPrint == null || needPrint.toString().equals("")) {
+                                errorMessage = "Printprotocols is NULL of LEEG. Zet deze op true of false voor Dr. met externalID: " + externalIdOfCaregiver;
+                                makeErrorMessage(errorMessage, pdfJobs, fileName);
+                            } else if (needPrint) {
+                                LOGGER.info(aanspreking + " wil graag een papieren versie ontvangen.");
+                                pdfJobs.printPDF();
+                                pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
+                            } else {
+                                LOGGER.info(aanspreking + " wenst geen papieren versie");
+                                pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
+                            }
                         } else {
-                            LOGGER.info(aanspreking + " wenst geen papieren versie");
-                            pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
+                            errorMessage = "Caregiver met externalId " + externalIdOfCaregiver + " niet gevonden.";
+                            makeErrorMessage(errorMessage, pdfJobs, fileName);
                         }
                     } else {
-                        errorMessage = "Caregiver met externalId " + externalIdOfCaregiver + " niet gevonden.";
+                        errorMessage = "ExternalId niet gevonden. Je kan het externalId terugvinden in de txt helemaal bovenaan na het keyword #DR: ";
                         makeErrorMessage(errorMessage, pdfJobs, fileName);
                     }
-                } else {
-                    errorMessage = "ExternalId niet gevonden. Je kan het externalId terugvinden in de txt helemaal bovenaan na het keyword #DR: ";
-                    makeErrorMessage(errorMessage, pdfJobs, fileName);
-                }
+                    break;
             }
         }
     }

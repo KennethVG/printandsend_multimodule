@@ -86,23 +86,37 @@ public class TXTJobsTest {
     }
 
     @Test
-    public void bevatHeader() {
-        Path path = Paths.get("src/test/resources/MSE_179430104_2818577_Z8025.txt");
+    public void bevatStandaardHeader() {
+        Path path = Paths.get("src/test/resources/MSE_183030005_2976737_A9671.txt");
         txtJobs = new TXTJobs(path);
         assertTrue(txtJobs.getIndex(TXTJobs.GEACHTE) != 0);
-
-        path = Paths.get("src/test/resources/MSE_181210127_2976738_S6686.txt");
-        txtJobs = new TXTJobs(path);
         assertTrue(txtJobs.getIndex(TXTJobs.BETREFT) != 0);
-
-        path = Paths.get("src/test/resources/MSE_183030005_2976737_S5754.txt");
-        txtJobs = new TXTJobs(path);
-        assertTrue(txtJobs.getIndex(TXTJobs.BETREFT) == 0 && txtJobs.getIndex(TXTJobs.GEACHTE) == 0);
-        assertEquals("leeg", txtJobs.getBodyOfTxt(UMFormat.MEDIDOC));
     }
 
     @Test
-    public void bevatFooter() {
+    public void geenHeader(){
+        Path path = Paths.get("src/test/resources/MSE_183030005_2976737_S5754.txt");
+        txtJobs = new TXTJobs(path);
+        assertTrue(txtJobs.getIndex(TXTJobs.BETREFT) == 0 && txtJobs.getIndex(TXTJobs.GEACHTE) == 0);
+        assertEquals(TXTJobs.LEEG, txtJobs.getBodyOfTxt(UMFormat.MEDIDOC));
+    }
+
+    @Test
+    public void headerZonderGeachte(){
+        Path path = Paths.get("src/test/resources/MSE_181210127_2976738_S6686.txt");
+        txtJobs = new TXTJobs(path);
+        assertTrue(txtJobs.getIndex(TXTJobs.BETREFT) != 0);
+    }
+
+    @Test
+    public void headerZonderBetreft(){
+        Path path = Paths.get("src/test/resources/MSE_179430104_2818577_Z8025.txt");
+        txtJobs = new TXTJobs(path);
+        assertTrue(txtJobs.getIndex(TXTJobs.GEACHTE) != 0);
+    }
+
+    @Test
+    public void bevatStandaardFooter() {
         Path path = Paths.get("src/test/resources/MSE_181210127_2976738_S8533.txt");
         txtJobs = new TXTJobs(path);
         assertTrue(txtJobs.getIndex(TXTJobs.MC) != 0);
@@ -110,23 +124,32 @@ public class TXTJobsTest {
         path = Paths.get("src/test/resources/MSE_183030005_2976737_A9671.txt");
         txtJobs = new TXTJobs(path);
         assertTrue(txtJobs.getIndex(TXTJobs.MV) != 0);
+    }
 
-        path = Paths.get("src/test/resources/MSE_181210127_2976738_Z6686.txt");
+    @Test
+    public void footerMetDubbeleBegroeting() {
+        Path path = Paths.get("src/test/resources/MSE_181210127_2976738_Z6686.txt");
         txtJobs = new TXTJobs(path);
         assertTrue(txtJobs.getIndex(TXTJobs.MC) != 0);
+    }
 
-        path = Paths.get("src/test/resources/MSE_4190022145_3525292_B8060.txt");
+    @Test
+    public void footerZonderMet() {
+        Path path = Paths.get("src/test/resources/MSE_4190022145_3525292_B8060.txt");
         txtJobs = new TXTJobs(path);
         assertTrue(txtJobs.getIndex(TXTJobs.MC) == 0 && txtJobs.getIndex(TXTJobs.MV) == 0);
-        assertEquals("leeg", txtJobs.getBodyOfTxt(UMFormat.MEDIDOC));
+        assertEquals(TXTJobs.LEEG, txtJobs.getBodyOfTxt(UMFormat.MEDIDOC));
+    }
 
-        path = Paths.get("src/test/resources/MSE_4190022015_3524709_A7938.txt");
+    @Test
+    public void footerMetMeerdereWhitespaces() {
+        Path path = Paths.get("src/test/resources/MSE_4190022015_3524709_A7938.txt");
         txtJobs = new TXTJobs(path);
         assertTrue(txtJobs.getIndex(TXTJobs.MV) != 0);
     }
 
     @Test
-    public void bevatBesluit(){
+    public void bevatBesluit() {
         Path path = Paths.get("src/test/resources/MSE_183030005_2976737_A9671.txt");
         txtJobs = new TXTJobs(path);
         int index = txtJobs.getIndex(TXTJobs.BESLUIT);

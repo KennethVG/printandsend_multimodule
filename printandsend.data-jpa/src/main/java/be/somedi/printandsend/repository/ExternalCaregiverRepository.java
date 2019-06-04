@@ -4,7 +4,5 @@ import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ExternalCaregiverRepository extends JpaRepository<ExternalCaregiverEntity, Long> {
-
-    ExternalCaregiverEntity findByExternalID(String externalId);
-
+    ExternalCaregiverEntity findFirstByExternalID(String externalId);
 }

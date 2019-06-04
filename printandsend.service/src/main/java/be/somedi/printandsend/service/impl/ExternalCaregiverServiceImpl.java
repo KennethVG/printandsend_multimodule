@@ -29,7 +29,7 @@ public class ExternalCaregiverServiceImpl implements ExternalCaregiverService {
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public ExternalCaregiverEntity findByExternalID(String externalId) {
         if (externalId != null && externalId.length() == 5) {
-            return externalCaregiverRepository.findByExternalID(externalId);
+            return externalCaregiverRepository.findFirstByExternalID(externalId);
         }
         return null;
     }

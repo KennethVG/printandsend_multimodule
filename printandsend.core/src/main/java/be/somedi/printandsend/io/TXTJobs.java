@@ -14,7 +14,6 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,6 +28,7 @@ public class TXTJobs {
     static final String MV = "met vriendelijke";
     static final String MC = "met collegiale";
     static final String BESLUIT = "besluit";
+    static final String LEEG = "leeg";
     private static final String VUL_AAN = "vul_aan";
 
     private static final int LINE_LENGTH = 75;
@@ -45,7 +45,7 @@ public class TXTJobs {
     private TXTJobs(Path path, Charset charset) {
         this.path = path;
         try {
-            allLines = Files.readAllLines(path, charset);
+            allLines = FileUtils.readLines(path.toFile(), charset);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -56,12 +56,7 @@ public class TXTJobs {
     }
 
     private List<String> getAllLines() {
-        try {
-            return Files.readAllLines(path, Charset.forName("windows-1252"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return Collections.emptyList();
+        return allLines;
     }
 
     public Address getAddressOfPatient() {
@@ -166,10 +161,11 @@ public class TXTJobs {
     }
 
     public int getIndex(String word) {
-        String oneLine;
         for (int i = 0; i < allLines.size(); i++) {
-            oneLine = allLines.get(i).trim().toLowerCase();
-            if (oneLine.startsWith(word) || oneLine.replace(" ", "").contains(word.replace(" ", ""))) {
+            String oneLine = allLines.get(i).trim();
+            boolean startWith = startsWithIgnoreCase(oneLine, word);
+            boolean contains = containsIgnoreCase(deleteWhitespace(oneLine), deleteWhitespace(word));
+            if(startWith || contains){
                 return i;
             }
         }
@@ -216,7 +212,7 @@ public class TXTJobs {
                 result.append(buildBody(startIndex, endIndex));
             }
         }else {
-            return "leeg";
+            return LEEG;
         }
         return result.toString().trim();
     }
