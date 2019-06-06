@@ -4,7 +4,6 @@ import be.somedi.printandsend.entity.ExternalCaregiverEntity;
 import be.somedi.printandsend.io.PDFJobs;
 import be.somedi.printandsend.io.TXTJobs;
 import be.somedi.printandsend.service.ExternalCaregiverService;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -89,6 +88,15 @@ public class WatchServiceOfDirectory {
 
     public void processEventsBeforeWatching() {
         try {
+            // Opnieuw versturen van de files in error folder.
+            LOGGER.info(".err bestanden verwijderen uit deze folder");
+            Files.list(pathError).filter(path -> FilenameUtils.getExtension(path.getFileName().toString()).equalsIgnoreCase("err")).forEach(path -> deleteQuietly(path.toFile()));
+
+            LOGGER.info("Proberen om errors nogmaals te verwerken");
+            FileSystemUtils.copyRecursively(pathError, pathNew);
+            LOGGER.info("Alle files uit error folder verwijderen");
+            Files.list(pathError).filter(path -> !Files.isDirectory(path)).forEach(path -> deleteQuietly(path.toFile()));
+
             LOGGER.info("Path om te lezen: " + pathNew);
             Files.list(pathNew).forEach(file -> {
                 if (file.getFileName().toString().startsWith("MSE") && file.toString().endsWith(".txt")) {
@@ -101,19 +109,9 @@ public class WatchServiceOfDirectory {
                 deleteQuietly(path.toFile());
             });
 
-            // Opnieuw versturen van de files in error folder.
-            LOGGER.info(".err bestanden verwijderen uit deze folder");
-            Files.list(pathError).filter(path -> FilenameUtils.getExtension(path.getFileName().toString()).equalsIgnoreCase("err")).forEach(path -> deleteQuietly(path.toFile()));
-
-            LOGGER.info("Proberen om errors nogmaals te verwerken");
-            FileSystemUtils.copyRecursively(pathError, pathNew);
-            LOGGER.info("Alle files uit error folder verwijderen");
-            Files.list(pathError).filter(path -> !Files.isDirectory(path)).forEach(path -> deleteQuietly(path.toFile()));
-
             LOGGER.info("Start met het printen en verzenden van alle nieuwe verslagen");
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -122,7 +120,6 @@ public class WatchServiceOfDirectory {
         TXTJobs txtJobs = new TXTJobs(txtFile);
         PDFJobs pdfJobs = new PDFJobs(txtJobs);
         String errorMessage;
-
 
         if (fileName.contains("EMD")) {
             LOGGER.info(fileName + " EMD ... dus mag verwijderd worden. Geen geldig externalID");
@@ -152,43 +149,54 @@ public class WatchServiceOfDirectory {
                 default:
                     String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
                     String externalIdOfCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
-                    if (externalIdOfCaregiver != null) {
-                        ExternalCaregiverEntity externalCaregiverEntity = externalCaregiverService.findByExternalID(externalIdOfCaregiver);
-                        if (externalCaregiverEntity != null) {
-                            String aanspreking = "Dr. " + externalCaregiverEntity.getLastName();
-                            Boolean needPrint = externalCaregiverEntity.getPrintProtocols();
-                            if (externalIdOfCaregiverFrom != null) {
-                                ExternalCaregiverEntity externalCaregiverEntityFrom = externalCaregiverService.findByExternalID(externalIdOfCaregiverFrom);
-                                Boolean needSecondCopy = externalCaregiverEntityFrom.getSecondCopy();
-                                if (needSecondCopy != null && !needSecondCopy.toString().equals("") && needSecondCopy) {
-                                    LOGGER.info(externalCaregiverEntityFrom.getLastName() + " wil graag een kopie van de brief ontvangen.");
-                                    pdfJobs.printPDF();
-                                }
-                            }
-                            if (needPrint == null || needPrint.toString().equals("")) {
-                                errorMessage = "Printprotocols is NULL of LEEG. Zet deze op true of false voor Dr. met externalID: " + externalIdOfCaregiver;
-                                makeErrorMessage(errorMessage, pdfJobs, fileName);
-                            } else if (needPrint) {
-                                LOGGER.info(aanspreking + " wil graag een papieren versie ontvangen.");
-                                pdfJobs.printPDF();
-                                pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
-                            } else {
-                                LOGGER.info(aanspreking + " wenst geen papieren versie");
-                                pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
-                            }
-                        } else {
-                            errorMessage = "Caregiver met externalId " + externalIdOfCaregiver + " niet gevonden.";
-                            makeErrorMessage(errorMessage, pdfJobs, fileName);
+
+                    if (printForCaregiver(externalIdOfCaregiverFrom, pdfJobs, fileName, true)) {
+                        if (printForCaregiver(externalIdOfCaregiver, pdfJobs, fileName, false)) {
+                            pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
                         }
-                    } else {
-                        errorMessage = "ExternalId niet gevonden. Je kan het externalId terugvinden in de txt helemaal bovenaan na het keyword #DR: ";
-                        makeErrorMessage(errorMessage, pdfJobs, fileName);
                     }
                     break;
             }
         }
     }
 
+    private boolean printForCaregiver(String externalIdOfCaregiver, PDFJobs pdfJobs, String fileName, boolean secondCopy) {
+        String errorMessage = "";
+        if (externalIdOfCaregiver != null) {
+            ExternalCaregiverEntity externalCaregiverEntity = externalCaregiverService.findByExternalID(externalIdOfCaregiver);
+            if (externalCaregiverEntity != null) {
+                String aanspreking = "Dr. " + externalCaregiverEntity.getLastName();
+                Boolean needPrint = externalCaregiverEntity.getPrintProtocols();
+                if (secondCopy) {
+                    Boolean needSecondCopy = externalCaregiverEntity.getSecondCopy();
+                    if (needSecondCopy != null && !needSecondCopy.toString().equals("") && needSecondCopy) {
+                        LOGGER.info(externalCaregiverEntity.getLastName() + " wil graag een kopie van de brief ontvangen.");
+                        pdfJobs.printPDF();
+                    }
+                } else {
+                    if (needPrint == null || needPrint.toString().equals("")) {
+                        errorMessage = "Printprotocols is NULL of LEEG. Zet deze op true of false voor Dr. met externalID: " + externalIdOfCaregiver;
+                        makeErrorMessage(errorMessage, pdfJobs, fileName);
+                        return false;
+                    } else if (needPrint) {
+                        LOGGER.info(aanspreking + " wil graag een papieren versie ontvangen.");
+                        pdfJobs.printPDF();
+                    } else {
+                        LOGGER.info(aanspreking + " wenst geen papieren versie");
+                    }
+                }
+            } else {
+                errorMessage = "Caregiver met externalId " + externalIdOfCaregiver + " niet gevonden.";
+                makeErrorMessage(errorMessage, pdfJobs, fileName);
+                return false;
+            }
+        } else {
+            errorMessage = "ExternalId niet gevonden. Je kan het externalId terugvinden in de txt helemaal bovenaan na het keyword #DR: ";
+            makeErrorMessage(errorMessage, pdfJobs, fileName);
+            return false;
+        }
+        return true;
+    }
 
     private void makeErrorMessage(String errorMessage, PDFJobs pdfJobs, String fileName) {
         LOGGER.error(errorMessage);
@@ -196,8 +204,7 @@ public class WatchServiceOfDirectory {
         try {
             Files.write(Paths.get(pathError + "\\" + FilenameUtils.getBaseName(fileName) + ".err"), errorMessage.getBytes());
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
     }
-
 }

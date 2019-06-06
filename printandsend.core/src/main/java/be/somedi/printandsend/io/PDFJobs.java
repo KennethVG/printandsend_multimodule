@@ -42,7 +42,7 @@ public class PDFJobs {
             txtJobs.moveTxtFile(Paths.get(pathToMove + "\\" + txtJobs.getFileName()));
             Files.copy(getPathOfPDFToPrint(), Paths.get(pathToMove + "\\" + getFileNameOfPDFToPrint()), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         } finally {
             deleteTxtAndPDF();
         }
