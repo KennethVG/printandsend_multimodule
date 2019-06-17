@@ -26,7 +26,7 @@ public class TXTJobs {
     static final String BETREFT = "betreft";
     static final String GEACHTE = "geachte";
     static final String MV = "met vriendelijke";
-    static final String MC = "met collegiale";
+    static final String MC = "collegiale";
     static final String BESLUIT = "besluit";
     static final String LEEG = "leeg";
     private static final String VUL_AAN = "vul_aan";
@@ -81,14 +81,21 @@ public class TXTJobs {
     }
 
     public String getMedidocGender() {
-        String externalIdPatient = getTextAfterKey("PC");
-        if (externalIdPatient == null) return "Z";
-        externalIdPatient = externalIdPatient.toUpperCase();
-        if (externalIdPatient.startsWith("M")) {
+        String gender = getTextAfterKey("PG").trim();
+        if (gender.equalsIgnoreCase("M")) {
             return "Y";
-        } else if (externalIdPatient.startsWith("V")) {
+        } else if (gender.equalsIgnoreCase("F")) {
             return "X";
-        } else return "Z";
+        } else {
+            String externalIdPatient = getTextAfterKey("PC");
+            if (externalIdPatient == null) return "Z";
+            externalIdPatient = externalIdPatient.toUpperCase();
+            if (externalIdPatient.startsWith("M")) {
+                return "Y";
+            } else if (externalIdPatient.startsWith("V")) {
+                return "X";
+            } else return "Z";
+        }
     }
 
     String getFileName() {
@@ -165,7 +172,7 @@ public class TXTJobs {
             String oneLine = allLines.get(i).trim();
             boolean startWith = startsWithIgnoreCase(oneLine, word);
             boolean contains = containsIgnoreCase(deleteWhitespace(oneLine), deleteWhitespace(word));
-            if(startWith || contains){
+            if (startWith || contains) {
                 return i;
             }
         }
@@ -211,7 +218,7 @@ public class TXTJobs {
             } else {
                 result.append(buildBody(startIndex, endIndex));
             }
-        }else {
+        } else {
             return LEEG;
         }
         return result.toString().trim();
