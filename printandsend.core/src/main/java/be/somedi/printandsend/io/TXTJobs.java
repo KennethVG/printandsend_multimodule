@@ -10,6 +10,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -120,9 +121,8 @@ public class TXTJobs {
     }
 
     public boolean containsSentenceToDelete() {
-        URL url = getClass().getClassLoader().getResource("deleteFileList.txt");
-        if (url != null) {
-            Path path = new File(url.getFile()).toPath();
+        Path path = Paths.get("C:\\PrintApp\\deleteFileList.txt");
+        if(Files.exists(path)){
             List<String> allItems;
             try {
                 allItems = Files.readAllLines(path);
