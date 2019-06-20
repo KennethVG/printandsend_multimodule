@@ -13,12 +13,6 @@ public class HibernateSearchUtil {
 
     public static List searchByName(EntityManager entityManager, String name, Class entity, String... fields) {
         FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
-        try {
-            fullTextEntityManager.createIndexer(entity).optimizeAfterPurge(true).optimizeOnFinish(true).startAndWait();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
         QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(entity).get();
         Query query = queryBuilder.keyword().onFields(fields).matching(name).createQuery();
 
