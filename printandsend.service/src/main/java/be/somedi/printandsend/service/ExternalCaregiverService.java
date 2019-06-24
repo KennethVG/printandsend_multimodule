@@ -13,4 +13,5 @@ public interface ExternalCaregiverService {
 
     List<ExternalCaregiverEntity> findByName(String name);
 
+    void bestaandeDataOpnemenInLuceneIndex();
 }

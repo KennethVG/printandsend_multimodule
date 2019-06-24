@@ -27,13 +27,17 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public List<PatientEntity> findByName(String name) {
-        return patientRepository.findAllByPersonLastNameOrPersonFirstName(name, name);
+        return patientRepository.findAllByLastNameOrFirstName(name);
     }
 
     @Override
     public Integer updatePatientEntity(String externalId, String doctorId) {
         return patientRepository.updatePatient(externalId, doctorId);
+    }
+
+    @Override
+    public void bestaandeDataOpnemenInLuceneIndex() {
+        patientRepository.bestaandeDataOpnemenInLuceneIndex();
     }
 }

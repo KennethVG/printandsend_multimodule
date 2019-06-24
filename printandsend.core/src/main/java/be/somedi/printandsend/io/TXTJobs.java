@@ -4,9 +4,7 @@ import be.somedi.printandsend.model.Address;
 import be.somedi.printandsend.model.UMFormat;
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;

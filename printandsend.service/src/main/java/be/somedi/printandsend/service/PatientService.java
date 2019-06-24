@@ -11,4 +11,6 @@ public interface PatientService {
     List<PatientEntity> findByName(String name);
 
     Integer updatePatientEntity(String externalId, String doctorId);
+
+    void bestaandeDataOpnemenInLuceneIndex();
 }
