@@ -1,5 +1,6 @@
 package be.somedi.printandsend.entity;
 
+import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.*;
 
 import javax.persistence.*;
@@ -17,7 +18,7 @@ public class PersonEntity {
     @Field
     private String firstName;
     @Column(nullable = false)
-    @Field
+    @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
     @SortableField
     private String lastName;
     private String inss;
