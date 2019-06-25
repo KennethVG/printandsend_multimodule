@@ -1,6 +1,7 @@
 package be.somedi.printandsend.repository;
 
 import be.somedi.printandsend.entity.ExternalCaregiverEntity;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.Query;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
@@ -36,10 +37,23 @@ public class ExternalCaregiverRepositoryCustomImpl implements ExternalCaregiverR
     public List<ExternalCaregiverEntity> findAllByLastNameOrFirstName(String name) {
         FullTextEntityManager manager= Search.getFullTextEntityManager(entityManager);
         QueryBuilder builder = manager.getSearchFactory().buildQueryBuilder().forEntity(ExternalCaregiverEntity.class).get();
-        Query query = builder.keyword().fuzzy().withEditDistanceUpTo(1).onField("lastName").boostedTo(1).andField("firstName").boostedTo(2).matching(name).createQuery();
+        Query query;
+        if (StringUtils.containsWhitespace(name)) {
+            String[] strings = StringUtils.split(name, ",");
+            if (strings.length > 1) {
+                query = builder.bool()
+                        .should(builder.keyword().fuzzy().withEditDistanceUpTo(1).onField("lastName").matching(strings[0]).createQuery())
+                        .should(builder.keyword().fuzzy().withEditDistanceUpTo(1).onField("firstName").matching(strings[1]).createQuery())
+                        .createQuery();
+            } else {
+                query = builder.keyword().fuzzy().withEditDistanceUpTo(1).onField("lastName").boostedTo(1).andField("firstName").boostedTo(2).matching(name).createQuery();
+            }
+        } else {
+            query = builder.keyword().fuzzy().withEditDistanceUpTo(1).onField("lastName").boostedTo(1).andField("firstName").boostedTo(2).matching(name).createQuery();
+        }
 
         @SuppressWarnings("unchecked")
-        List<ExternalCaregiverEntity> caregiverEntities = manager.createFullTextQuery(query, ExternalCaregiverEntity.class).setMaxResults(50).getResultList();
+        List<ExternalCaregiverEntity> caregiverEntities = manager.createFullTextQuery(query, ExternalCaregiverEntity.class).setMaxResults(20).getResultList();
         return caregiverEntities;
     }
 }

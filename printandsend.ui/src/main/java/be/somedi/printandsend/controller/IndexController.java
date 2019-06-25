@@ -27,11 +27,15 @@ public class IndexController {
         this.patientService = patientService;
     }
 
-    @GetMapping
-    public ModelAndView index() {
+    @GetMapping("/lucene")
+    public String luceneIndex(){
         externalCaregiverService.bestaandeDataOpnemenInLuceneIndex();
         patientService.bestaandeDataOpnemenInLuceneIndex();
+        return "redirect:/";
+    }
 
+    @GetMapping
+    public ModelAndView index() {
         watchServiceOfDirectory.processEventsBeforeWatching();
         watchServiceOfDirectory.processEvents();
         return new ModelAndView(VIEW, "printjob", "De printservice is succesvol aan het draaien!");
