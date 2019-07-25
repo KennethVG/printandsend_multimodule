@@ -88,15 +88,6 @@ public class WatchServiceOfDirectory {
 
     public void processEventsBeforeWatching() {
         try {
-            // Opnieuw versturen van de files in error folder.
-            LOGGER.info(".err bestanden verwijderen uit deze folder");
-            Files.list(pathError).filter(path -> FilenameUtils.getExtension(path.getFileName().toString()).equalsIgnoreCase("err")).forEach(path -> deleteQuietly(path.toFile()));
-
-            LOGGER.info("Proberen om errors nogmaals te verwerken");
-            FileSystemUtils.copyRecursively(pathError, pathNew);
-            LOGGER.info("Alle files uit error folder verwijderen");
-            Files.list(pathError).filter(path -> !Files.isDirectory(path)).forEach(path -> deleteQuietly(path.toFile()));
-
             LOGGER.info("Path om te lezen: " + pathNew);
             Files.list(pathNew).forEach(file -> {
                 if (file.getFileName().toString().startsWith("MSE") && file.toString().endsWith(".txt")) {
