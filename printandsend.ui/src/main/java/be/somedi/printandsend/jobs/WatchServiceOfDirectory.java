@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -152,7 +151,7 @@ public class WatchServiceOfDirectory {
     }
 
     private boolean printForCaregiver(String externalIdOfCaregiver, PDFJobs pdfJobs, String fileName, boolean secondCopy) {
-        String errorMessage = "";
+        String errorMessage;
         if (externalIdOfCaregiver != null) {
             ExternalCaregiverEntity externalCaregiverEntity = externalCaregiverService.findByExternalID(externalIdOfCaregiver);
             if (externalCaregiverEntity != null) {
