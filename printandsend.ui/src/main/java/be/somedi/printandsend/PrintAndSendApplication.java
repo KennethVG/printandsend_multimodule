@@ -8,12 +8,14 @@ import java.io.IOException;
 @SpringBootApplication
 public class PrintAndSendApplication {
 
-    public static void main(String[] args) throws IOException {
-        SpringApplication.run(PrintAndSendApplication.class, args);
-        openHomePage();
+    private static RestartService restartService;
+
+    public PrintAndSendApplication(RestartService restartService) {
+        PrintAndSendApplication.restartService = restartService;
     }
 
-    public static void openHomePage() throws IOException {
-        Runtime rt = Runtime.getRuntime();
-        rt.exec("rundll32 url.dll,FileProtocolHandler " + "http://localhost:8090");
-    }}
+    public static void main(String[] args) {
+        SpringApplication.run(PrintAndSendApplication.class, args);
+        restartService.openHomePage();
+    }
+}

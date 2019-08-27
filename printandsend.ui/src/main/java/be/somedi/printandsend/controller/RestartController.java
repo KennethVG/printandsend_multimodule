@@ -27,8 +27,8 @@ public class RestartController {
         if (object != null) {
             try {
                 Thread.sleep(2500);
-                PrintAndSendApplication.openHomePage();
-            } catch (IOException | InterruptedException e) {
+                restartService.openHomePage();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             return ResponseEntity.ok(object);

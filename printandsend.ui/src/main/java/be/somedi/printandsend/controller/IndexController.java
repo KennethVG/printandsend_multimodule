@@ -17,7 +17,6 @@ public class IndexController {
     private final WatchServiceOfDirectory watchServiceOfDirectory;
 
     private final ExternalCaregiverService externalCaregiverService;
-
     private final PatientService patientService;
 
     @Autowired
