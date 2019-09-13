@@ -1,14 +1,11 @@
 package be.somedi.printandsend.controller;
 
-import be.somedi.printandsend.PrintAndSendApplication;
 import be.somedi.printandsend.RestartService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/")
@@ -26,7 +23,7 @@ public class RestartController {
         Object object = restartService.restartApp();
         if (object != null) {
             try {
-                Thread.sleep(2500);
+                Thread.sleep(3000);
                 restartService.openHomePage();
             } catch (InterruptedException e) {
                 e.printStackTrace();

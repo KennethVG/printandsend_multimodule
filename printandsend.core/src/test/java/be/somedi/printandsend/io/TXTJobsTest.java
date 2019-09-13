@@ -119,25 +119,32 @@ public class TXTJobsTest {
     public void bevatStandaardFooter() {
         Path path = Paths.get("src/test/resources/MSE_181210127_2976738_S8533.txt");
         txtJobs = new TXTJobs(path);
-        assertTrue(txtJobs.getIndex(TXTJobs.MC) != 0);
+        assertTrue(txtJobs.getIndex(TXTJobs.closure) != 0);
 
         path = Paths.get("src/test/resources/MSE_183030005_2976737_A9671.txt");
         txtJobs = new TXTJobs(path);
-        assertTrue(txtJobs.getIndex(TXTJobs.MV) != 0);
+        assertTrue(txtJobs.getIndex(TXTJobs.closure) != 0);
     }
 
     @Test
     public void footerMetDubbeleBegroeting() {
         Path path = Paths.get("src/test/resources/MSE_181210127_2976738_Z6686.txt");
         txtJobs = new TXTJobs(path);
-        assertTrue(txtJobs.getIndex(TXTJobs.MC) != 0);
+        assertTrue(txtJobs.getIndex(TXTJobs.closure) != 0);
     }
 
     @Test
     public void footerZonderMet() {
         Path path = Paths.get("src/test/resources/MSE_4190022145_3525292_B8060.txt");
         txtJobs = new TXTJobs(path);
-        assertTrue(txtJobs.getIndex(TXTJobs.MC) == 0 && txtJobs.getIndex(TXTJobs.MV) == 0);
+        assertTrue(txtJobs.getIndex(TXTJobs.closure) != 0);
+    }
+
+    @Test
+    public void footerFout(){
+        Path path = Paths.get("src/test/resources/slechte_footer.txt");
+        txtJobs = new TXTJobs(path);
+        assertEquals(0, txtJobs.getIndex(TXTJobs.closure));
         assertEquals(TXTJobs.LEEG, txtJobs.getBodyOfTxt(UMFormat.MEDIDOC));
     }
 
@@ -145,7 +152,7 @@ public class TXTJobsTest {
     public void footerMetMeerdereWhitespaces() {
         Path path = Paths.get("src/test/resources/MSE_4190022015_3524709_A7938.txt");
         txtJobs = new TXTJobs(path);
-        assertTrue(txtJobs.getIndex(TXTJobs.MV) != 0);
+        assertTrue(txtJobs.getIndex(TXTJobs.closure) != 0);
     }
 
     @Test

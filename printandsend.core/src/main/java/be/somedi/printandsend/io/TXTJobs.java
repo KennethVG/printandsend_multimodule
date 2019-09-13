@@ -13,6 +13,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,9 +25,8 @@ public class TXTJobs {
     //CONSTANTEN:
     static final String BETREFT = "betreft";
     static final String GEACHTE = "geachte";
-    static final String MV = "met vriendelijke";
-    static final String MC = "collegiale";
     static final String BESLUIT = "besluit";
+    static final String[] closure = {"vriendelijke groeten", "met vriendelijke", "vriendelijke hoogachting", "collegiale"};
     static final String LEEG = "leeg";
     private static final String VUL_AAN = "vul_aan";
 
@@ -120,7 +120,7 @@ public class TXTJobs {
 
     public boolean containsSentenceToDelete() {
         Path path = Paths.get("C:\\PrintApp\\deleteFileList.txt");
-        if(Files.exists(path)){
+        if (Files.exists(path)) {
             List<String> allItems;
             try {
                 allItems = Files.readAllLines(path);
@@ -165,11 +165,11 @@ public class TXTJobs {
         return "";
     }
 
-    public int getIndex(String word) {
+    public int getIndex(String... word) {
         for (int i = 0; i < allLines.size(); i++) {
             String oneLine = allLines.get(i).trim();
-            boolean startWith = startsWithIgnoreCase(oneLine, word);
-            boolean contains = containsIgnoreCase(deleteWhitespace(oneLine), deleteWhitespace(word));
+            boolean startWith = Arrays.stream(word).anyMatch(w -> startsWithIgnoreCase(oneLine, w));
+            boolean contains = Arrays.stream(word).anyMatch(w -> containsIgnoreCase(deleteWhitespace(oneLine), deleteWhitespace(w)));
             if (startWith || contains) {
                 return i;
             }
@@ -182,7 +182,7 @@ public class TXTJobs {
         StringBuilder result = new StringBuilder();
         int startIndex = getIndex(BETREFT) != 0 ? getIndex(BETREFT) : getIndex(GEACHTE);
         int startSummaryIndex = getIndex(BESLUIT);
-        int endIndex = getIndex(MV) != 0 ? getIndex(MV) : getIndex(MC);
+        int endIndex = getIndex(closure);
 
         String oneLine;
         if (startIndex != 0 && endIndex != 0) {
