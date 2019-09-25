@@ -7,7 +7,6 @@ Tel.: 015/25.89.11
 
 [(${datum})]                    R[(${ref})]
           [(${cFrom.fullName})]
-
           [(${person.lastName})], [(${person.firstName})]
           [(${address.street})] [(${address.number})]
           [(${address.zip})] [(${address.city})]
