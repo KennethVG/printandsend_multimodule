@@ -10,10 +10,10 @@ import be.somedi.printandsend.mapper.ExternalCaregiverMapper;
 import be.somedi.printandsend.mapper.PatientMapper;
 import be.somedi.printandsend.mapper.PersonMapper;
 import be.somedi.printandsend.model.*;
+import be.somedi.printandsend.model.medidoc.PersonMedidoc;
 import be.somedi.printandsend.service.ExternalCaregiverService;
 import be.somedi.printandsend.service.LinkedExternalCaregiverService;
 import be.somedi.printandsend.service.PatientService;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,22 +69,33 @@ public class CreateUMFormat {
     private Patient getPatient(boolean medidoc, TXTJobs txtJobs) {
         Patient patient = new Patient();
         String externalIdPatient = txtJobs.getTextAfterKey("PC");
-        if (StringUtils.startsWithIgnoreCase(externalIdPatient, "M") || startsWithIgnoreCase(externalIdPatient, "V")) {
+        if (externalIdPatient != null && !externalIdPatient.equalsIgnoreCase("")) {
             PatientEntity patientEntity = patientService.findByExternalId(externalIdPatient);
-            PersonEntity personEntity = patientEntity.getPerson();
-            patient = patientMapper.patientEntityToPatient(patientEntity);
-            if (medidoc)
-                patient.setPerson(personMapper.personEntityToPersonMedidoc(personEntity));
+            if (patientEntity != null) {
+                PersonEntity personEntity = patientEntity.getPerson();
+                patient = patientMapper.patientEntityToPatient(patientEntity);
+                if (medidoc)
+                    patient.setPerson(personMapper.personEntityToPersonMedidoc(personEntity));
+            } else {
+                patient.setPerson(createPersonFromLetter(medidoc, txtJobs));
+            }
         } else {
-            Person person = new Person();
-            person.setFirstName(txtJobs.getTextAfterKey("PV"));
-            person.setLastName(txtJobs.getTextAfterKey("PN"));
-            String date = txtJobs.getTextAfterKey("PD");
-            person.setBirthDate(LocalDate.parse(date, DateTimeFormatter.ofPattern("ddMMyyyy")));
-            patient.setPerson(person);
+            patient.setPerson(createPersonFromLetter(medidoc, txtJobs));
         }
 
         return patient;
+    }
+
+    private Person createPersonFromLetter(boolean medidoc, TXTJobs txtJobs) {
+        Person person;
+        if (medidoc)
+            person = new PersonMedidoc();
+        else person = new Person();
+        person.setFirstName(txtJobs.getTextAfterKey("PV"));
+        person.setLastName(txtJobs.getTextAfterKey("PN"));
+        String date = txtJobs.getTextAfterKey("PD");
+        person.setBirthDate(LocalDate.parse(date, DateTimeFormatter.ofPattern("ddMMyyyy")));
+        return person;
     }
 
     private String getFormattedNihii(String nihii) {
@@ -202,7 +213,7 @@ public class CreateUMFormat {
         ExternalCaregiver caregiverLinkedTo;
 
         if (caregiverFrom != null) {
-            if(txtJobs.getBodyOfTxt(caregiverFrom.getFormat()).equals("leeg")){
+            if (txtJobs.getBodyOfTxt(caregiverFrom.getFormat()).equals("leeg")) {
                 return LEGE_BODY;
             }
             caregiverLinkedFrom = getLinkedCaregiver(caregiverFrom.getExternalID());
@@ -210,7 +221,7 @@ public class CreateUMFormat {
                 LOGGER.info("Brief proberen verzenden naar arts die de brief geschreven heeft");
                 sendToUm(txtJobs, caregiverFrom, caregiverFrom);
             }
-        } else{
+        } else {
             return SPECIALIST_ONBEKEND;
         }
         if (caregiverLinkedFrom != null && caregiverLinkedFrom.geteProtocols()) {
