@@ -14,10 +14,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-search-orm</artifactId>
-        </dependency>
-        <dependency>
             <groupId>be.somedi.printandsend</groupId>
             <artifactId>printandsend.data-jpa</artifactId>
         </dependency>

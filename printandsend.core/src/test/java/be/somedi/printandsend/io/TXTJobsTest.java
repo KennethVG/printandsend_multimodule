@@ -10,9 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TXTJobsTest {
 
@@ -157,8 +155,6 @@ public class TXTJobsTest {
 
     @Test
     public void bevatBesluit() {
-        Path path = Paths.get("src/test/resources/MSE_183030005_2976737_A9671.txt");
-        txtJobs = new TXTJobs(path);
         int index = txtJobs.getIndex(TXTJobs.BESLUIT);
         assertTrue(index != 0);
         assertEquals(35, index);
@@ -192,5 +188,17 @@ public class TXTJobsTest {
     public void getMedidocGender() {
         String medidocGender = txtJobs.getMedidocGender();
         assertEquals("X", medidocGender);
+    }
+
+    @Test
+    public void externalIdZonderVofM(){
+        Path path = Paths.get("src/test/resources/nieuwExternalId.txt");
+        txtJobs = new TXTJobs(path);
+
+        String medidocGender =txtJobs.getMedidocGender();
+        assertEquals("X", medidocGender);
+
+        String externalId = txtJobs.getTextAfterKey("PC");
+        assertEquals("00555202", externalId);
     }
 }
