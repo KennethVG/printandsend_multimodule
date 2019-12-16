@@ -23,7 +23,7 @@ public class PatientServiceImpl implements PatientService {
     @Override
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public PatientEntity findByExternalId(String externalId) {
-        PatientEntity entity = patientRepository.findByExternalIdAndPersonNotNull(externalId);
+        PatientEntity entity = patientRepository.findFirstByExternalIdAndPersonNotNull(externalId);
         if (entity == null) {
             entity = patientRepository.findFirstByExternalId(externalId);
         }

@@ -9,7 +9,7 @@ import javax.transaction.Transactional;
 
 public interface PatientRepository extends JpaRepository<PatientEntity, Long>, PatientCustomRepository {
 
-    PatientEntity findByExternalIdAndPersonNotNull(String externalId);
+    PatientEntity findFirstByExternalIdAndPersonNotNull(String externalId);
 
     PatientEntity findFirstByExternalId(String externalId);
 
