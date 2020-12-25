@@ -247,17 +247,22 @@ public class CreateUMFormat {
         LOGGER.info("CaregiverFrom= " + caregiverFrom);
         LOGGER.info("CaregiverTo= " + caregiverTo);
         UMFormat format = caregiverTo.getFormat();
-        switch (format) {
-            case MEDICARD:
-                createMedicardFile(txtJobs, caregiverFrom, caregiverTo);
-                break;
-            case MEDAR:
-                createMedarFile(txtJobs, caregiverFrom, caregiverTo);
-                break;
-            default:
-                createMedidocFile(txtJobs, caregiverFrom, caregiverTo);
-                break;
+        if (format == null) {
+            LOGGER.error(caregiverTo.getExternalID() + " heeft geen (geldig) formaat ingevuld.");
+        } else {
+            switch (format) {
+                case MEDICARD:
+                    createMedicardFile(txtJobs, caregiverFrom, caregiverTo);
+                    break;
+                case MEDAR:
+                    createMedarFile(txtJobs, caregiverFrom, caregiverTo);
+                    break;
+                default:
+                    createMedidocFile(txtJobs, caregiverFrom, caregiverTo);
+                    break;
+            }
+            LOGGER.info("Er is succesvol een brief in " + format.name() + " formaat verzonden naar Dr. " + caregiverTo.getLastName());
         }
-        LOGGER.info("Er is succesvol een brief in " + format.name() + " formaat verzonden naar Dr. " + caregiverTo.getLastName());
+
     }
 }
