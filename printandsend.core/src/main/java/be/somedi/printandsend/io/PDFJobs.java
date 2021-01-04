@@ -41,6 +41,8 @@ public class PDFJobs {
         try {
             txtJobs.moveTxtFile(Paths.get(pathToMove + "\\" + txtJobs.getFileName()));
             Files.copy(getPathOfPDFToPrint(), Paths.get(pathToMove + "\\" + getFileNameOfPDFToPrint()), StandardCopyOption.REPLACE_EXISTING);
+            LOGGER.info("PDF succesvol gekopieerd van: " + getPathOfPDFToPrint() + " naar: " +Paths.get(pathToMove + "\\" + getFileNameOfPDFToPrint()));
+
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } finally {

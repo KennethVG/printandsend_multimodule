@@ -3,6 +3,8 @@ package be.somedi.printandsend.io;
 import be.somedi.printandsend.model.Address;
 import be.somedi.printandsend.model.UMFormat;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -21,6 +23,8 @@ import java.util.regex.Pattern;
 import static org.apache.commons.lang3.StringUtils.*;
 
 public class TXTJobs {
+
+    private static final Logger LOGGER = LogManager.getLogger(TXTJobs.class);
 
     //CONSTANTEN:
     static final String BETREFT = "betreft";
@@ -107,6 +111,7 @@ public class TXTJobs {
 
     void moveTxtFile(Path moveToFolder) throws IOException {
         Files.copy(getPath(), moveToFolder, StandardCopyOption.REPLACE_EXISTING);
+        LOGGER.info("TXT succesvol gekopieerd van: " + getPath() + " naar: " + moveToFolder);
     }
 
     public boolean containsVulAan() {

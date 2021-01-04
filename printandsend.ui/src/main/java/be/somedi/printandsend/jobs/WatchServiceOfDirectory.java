@@ -120,32 +120,40 @@ public class WatchServiceOfDirectory {
         } else if (txtJobs.containsVulAan()) {
             errorMessage = "Ergens in de tekst zit nog het woord vul_aan";
             makeErrorMessage(errorMessage, pdfJobs, fileName);
-        } else {
-            LOGGER.info(fileName + " wordt verwerkt...");
-            String result = createUMFormat.sendToUM(txtJobs);
-            switch (result) {
-                case CreateUMFormat.SPECIALIST_ONBEKEND:
-                    errorMessage = "Specialist Somedi is onbekend!";
-                    makeErrorMessage(errorMessage, pdfJobs, fileName);
-                    break;
-                case CreateUMFormat.LEGE_BODY:
-                    if (txtJobs.getIndex("betreft") == 0 || txtJobs.getIndex("geachte") == 0) {
-                        errorMessage = "De TXT bevat geen begin (BETREFT/ GEACHTE)";
-                    } else {
-                        errorMessage = "De TXT bevat geen einde (Met vriendelijke groeten/ Met collegiale groeten)";
-                    }
-                    makeErrorMessage(errorMessage, pdfJobs, fileName);
-                    break;
-                default:
-                    String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
-                    String externalIdOfCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
-
-                    if (printForCaregiver(externalIdOfCaregiverFrom, pdfJobs, fileName, true)) {
-                        if (printForCaregiver(externalIdOfCaregiver, pdfJobs, fileName, false)) {
-                            pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
+        }
+        else {
+            String externalIdCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
+            if (externalIdCaregiverFrom == null) {
+                LOGGER.error("ExternalID van dokter die de brief geschreven heeft niet gevonden!");
+            }
+            ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findByExternalID(externalIdCaregiverFrom);
+            if (caregiverEntity == null){
+                errorMessage = "Specialist Somedi is onbekend (" + externalIdCaregiverFrom + ")";
+                makeErrorMessage(errorMessage, pdfJobs, fileName);
+            }
+            else {
+                LOGGER.info(fileName + " wordt verwerkt...");
+                String result = createUMFormat.sendToUM(txtJobs);
+                switch (result) {
+                    case CreateUMFormat.LEGE_BODY:
+                        if (txtJobs.getIndex("betreft") == 0 || txtJobs.getIndex("geachte") == 0) {
+                            errorMessage = "De TXT bevat geen begin (BETREFT/ GEACHTE)";
+                        } else {
+                            errorMessage = "De TXT bevat geen einde (Met vriendelijke groeten/ Met collegiale groeten)";
                         }
-                    }
-                    break;
+                        makeErrorMessage(errorMessage, pdfJobs, fileName);
+                        break;
+                    default:
+                        String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
+                        String externalIdOfCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
+
+                        if (printForCaregiver(externalIdOfCaregiverFrom, pdfJobs, fileName, true)) {
+                            if (printForCaregiver(externalIdOfCaregiver, pdfJobs, fileName, false)) {
+                                pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
+                            }
+                        }
+                        break;
+                }
             }
         }
     }
