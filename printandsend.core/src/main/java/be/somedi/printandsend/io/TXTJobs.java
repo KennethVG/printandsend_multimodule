@@ -154,7 +154,7 @@ public class TXTJobs {
     public String getExternalIdOfCaregiverFrom() {
         String externalIdOfCaregiver = getTextAfterKey("UA");
         if (externalIdOfCaregiver == null || externalIdOfCaregiver.equals("") || externalIdOfCaregiver.length() > 7) {
-            return null;
+            return externalIdOfCaregiver;
         } else {
             boolean vanOpstal = externalIdOfCaregiver.equalsIgnoreCase("C6904") || externalIdOfCaregiver.equalsIgnoreCase("D6904");
             return vanOpstal ? "S690V" : "S" + externalIdOfCaregiver.substring(1);

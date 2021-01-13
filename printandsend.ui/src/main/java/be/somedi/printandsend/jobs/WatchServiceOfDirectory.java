@@ -123,9 +123,6 @@ public class WatchServiceOfDirectory {
         }
         else {
             String externalIdCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
-            if (externalIdCaregiverFrom == null) {
-                LOGGER.error("ExternalID van dokter die de brief geschreven heeft niet gevonden!");
-            }
             ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findByExternalID(externalIdCaregiverFrom);
             if (caregiverEntity == null){
                 errorMessage = "Specialist Somedi is onbekend (" + externalIdCaregiverFrom + ")";
