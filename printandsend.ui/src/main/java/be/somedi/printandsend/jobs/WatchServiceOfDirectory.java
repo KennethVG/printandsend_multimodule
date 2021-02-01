@@ -127,7 +127,7 @@ public class WatchServiceOfDirectory {
                 errorMessage = "Specialist Somedi is onbekend (" + externalIdCaregiverFrom + ")";
                 makeErrorMessage(errorMessage, pdfJobs, fileName);
             } else {
-                if (caregiverEntity.getNihiiAddress().equals("NULL")) {
+                if (caregiverEntity.getNihiiAddress() == null || caregiverEntity.getNihiiAddress().equals("NULL")) {
                     errorMessage = "Riziv adres is niet ingevuld";
                     makeErrorMessage(errorMessage, pdfJobs, fileName);
                 } else {
