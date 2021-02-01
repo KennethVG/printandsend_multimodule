@@ -120,27 +120,27 @@ public class WatchServiceOfDirectory {
         } else if (txtJobs.containsVulAan()) {
             errorMessage = "Ergens in de tekst zit nog het woord vul_aan";
             makeErrorMessage(errorMessage, pdfJobs, fileName);
-        }
-        else {
+        } else {
             String externalIdCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
             ExternalCaregiverEntity caregiverEntity = externalCaregiverService.findByExternalID(externalIdCaregiverFrom);
-            if (caregiverEntity == null){
+            if (caregiverEntity == null) {
                 errorMessage = "Specialist Somedi is onbekend (" + externalIdCaregiverFrom + ")";
                 makeErrorMessage(errorMessage, pdfJobs, fileName);
-            }
-            else {
-                LOGGER.info(fileName + " wordt verwerkt...");
-                String result = createUMFormat.sendToUM(txtJobs);
-                switch (result) {
-                    case CreateUMFormat.LEGE_BODY:
+            } else {
+                if (caregiverEntity.getNihiiAddress().equals("NULL")) {
+                    errorMessage = "Riziv adres is niet ingevuld";
+                    makeErrorMessage(errorMessage, pdfJobs, fileName);
+                } else {
+                    LOGGER.info(fileName + " wordt verwerkt...");
+                    String result = createUMFormat.sendToUM(txtJobs);
+                    if (CreateUMFormat.LEGE_BODY.equals(result)) {
                         if (txtJobs.getIndex("betreft") == 0 || txtJobs.getIndex("geachte") == 0) {
                             errorMessage = "De TXT bevat geen begin (BETREFT/ GEACHTE)";
                         } else {
                             errorMessage = "De TXT bevat geen einde (Met vriendelijke groeten/ Met collegiale groeten)";
                         }
                         makeErrorMessage(errorMessage, pdfJobs, fileName);
-                        break;
-                    default:
+                    } else {
                         String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
                         String externalIdOfCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
 
@@ -149,7 +149,7 @@ public class WatchServiceOfDirectory {
                                 pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
                             }
                         }
-                        break;
+                    }
                 }
             }
         }
