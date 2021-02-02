@@ -48,8 +48,8 @@ public class CreateUMFormat {
     @Value("${path-um-medicard}")
     public Path pathMedicard;
 
-    static final String SPECIALIST_ONBEKEND = "Specialist somedi onbekend";
     static final String LEGE_BODY = "Lege body";
+    static final String RIZIV_ADRES_NULL = "Riziv adres is null";
     private static final String OK = "Succesvol verzonden naar UM";
 
     private static final Logger LOGGER = LogManager.getLogger(CreateUMFormat.class);
@@ -221,18 +221,20 @@ public class CreateUMFormat {
                 LOGGER.info("Brief proberen verzenden naar arts die de brief geschreven heeft");
                 sendToUm(txtJobs, caregiverFrom, caregiverFrom);
             }
-        } else {
-            return SPECIALIST_ONBEKEND;
-        }
-        if (caregiverLinkedFrom != null && caregiverLinkedFrom.geteProtocols()) {
-            LOGGER.info("Kopie van de brief proberen te verzenden naar de gelinkte arts");
-            sendToUm(txtJobs, caregiverFrom, caregiverLinkedFrom);
+            if (caregiverLinkedFrom != null && caregiverLinkedFrom.geteProtocols()) {
+                LOGGER.info("Kopie van de brief proberen te verzenden naar de gelinkte arts");
+                sendToUm(txtJobs, caregiverFrom, caregiverLinkedFrom);
+            }
         }
 
         if (caregiverTo != null) {
             if (caregiverTo.geteProtocols() != null && caregiverTo.geteProtocols()) {
-                LOGGER.info("Brief proberen verzenden naar arts in AAN/CC");
-                sendToUm(txtJobs, caregiverFrom, caregiverTo);
+                if (caregiverTo.getNihiiAddress() == null || caregiverTo.getNihiiAddress().equals("NULL")) {
+                    return RIZIV_ADRES_NULL;
+                } else {
+                    LOGGER.info("Brief proberen verzenden naar arts in AAN/CC");
+                    sendToUm(txtJobs, caregiverFrom, caregiverTo);
+                }
             }
             caregiverLinkedTo = getLinkedCaregiver(caregiverTo.getExternalID());
             if (caregiverLinkedTo != null && caregiverLinkedTo.geteProtocols()) {

@@ -127,27 +127,25 @@ public class WatchServiceOfDirectory {
                 errorMessage = "Specialist Somedi is onbekend (" + externalIdCaregiverFrom + ")";
                 makeErrorMessage(errorMessage, pdfJobs, fileName);
             } else {
-                if (caregiverEntity.getNihiiAddress() == null || caregiverEntity.getNihiiAddress().equals("NULL")) {
-                    errorMessage = "Riziv adres is niet ingevuld";
+                LOGGER.info(fileName + " wordt verwerkt...");
+                String result = createUMFormat.sendToUM(txtJobs);
+                if (CreateUMFormat.RIZIV_ADRES_NULL.equals(result)) {
+                    errorMessage = txtJobs.getExternalIdOfCaregiverTo() + " zijn riziv adres is niet ingevuld.";
+                    makeErrorMessage(errorMessage, pdfJobs, fileName);
+                } else if (CreateUMFormat.LEGE_BODY.equals(result)) {
+                    if (txtJobs.getIndex("betreft") == 0 || txtJobs.getIndex("geachte") == 0) {
+                        errorMessage = "De TXT bevat geen begin (BETREFT/ GEACHTE)";
+                    } else {
+                        errorMessage = "De TXT bevat geen einde (Met vriendelijke groeten/ Met collegiale groeten)";
+                    }
                     makeErrorMessage(errorMessage, pdfJobs, fileName);
                 } else {
-                    LOGGER.info(fileName + " wordt verwerkt...");
-                    String result = createUMFormat.sendToUM(txtJobs);
-                    if (CreateUMFormat.LEGE_BODY.equals(result)) {
-                        if (txtJobs.getIndex("betreft") == 0 || txtJobs.getIndex("geachte") == 0) {
-                            errorMessage = "De TXT bevat geen begin (BETREFT/ GEACHTE)";
-                        } else {
-                            errorMessage = "De TXT bevat geen einde (Met vriendelijke groeten/ Met collegiale groeten)";
-                        }
-                        makeErrorMessage(errorMessage, pdfJobs, fileName);
-                    } else {
-                        String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
-                        String externalIdOfCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
+                    String externalIdOfCaregiver = txtJobs.getExternalIdOfCaregiverTo();
+                    String externalIdOfCaregiverFrom = txtJobs.getExternalIdOfCaregiverFrom();
 
-                        if (printForCaregiver(externalIdOfCaregiverFrom, pdfJobs, fileName, true)) {
-                            if (printForCaregiver(externalIdOfCaregiver, pdfJobs, fileName, false)) {
-                                pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
-                            }
+                    if (printForCaregiver(externalIdOfCaregiverFrom, pdfJobs, fileName, true)) {
+                        if (printForCaregiver(externalIdOfCaregiver, pdfJobs, fileName, false)) {
+                            pdfJobs.copyAndDeleteTxtAndPDF(pathResult);
                         }
                     }
                 }
