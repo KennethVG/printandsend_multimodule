@@ -5,6 +5,8 @@ import be.somedi.printandsend.repository.LinkedExternalCaregiverRepository;
 import be.somedi.printandsend.service.LinkedExternalCaregiverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class LinkedExternalCaregiverServiceImpl implements LinkedExternalCaregiverService {
@@ -17,21 +19,22 @@ public class LinkedExternalCaregiverServiceImpl implements LinkedExternalCaregiv
     }
 
     @Override
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public LinkedExternalCaregiverEntity findLinkedIdByExternalId(String externalId) {
         return linkedExternalCaregiverRepository.findByExternalId(externalId);
     }
 
     @Override
+    @Transactional
     public int updateLinkedExternalCaregiver(LinkedExternalCaregiverEntity linkedExternalCaregiverEntity) {
-
         LinkedExternalCaregiverEntity searchById = findLinkedIdByExternalId(linkedExternalCaregiverEntity.getExternalId());
         if (searchById != null) {
             linkedExternalCaregiverRepository.updateLinkedExternalCaregiver(searchById.getExternalId(), linkedExternalCaregiverEntity.getLinkedId());
             return 1;
         }
-        LinkedExternalCaregiverEntity caregiverEntity = linkedExternalCaregiverRepository.save(linkedExternalCaregiverEntity);
+        linkedExternalCaregiverRepository.save(linkedExternalCaregiverEntity);
 
-        return caregiverEntity != null ? 1 : 0;
+        return 1;
     }
 
     @Override

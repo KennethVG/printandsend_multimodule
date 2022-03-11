@@ -1,28 +1,17 @@
-package be.somedi.printandsend.entity;
+package be.somedi.printandsend.model;
 
-import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Objects;
 
-@Entity
-@IdClass(LinkedExternalCaregiverPk.class)
-@Table(name = "Communication_LinkedExternalCaregiver")
-public class LinkedExternalCaregiverEntity {
+public class LinkedCaregiver {
 
-    @Id
-    @Column(unique = true)
     private String externalId;
-    @Id
     private String linkedId;
 
-    public LinkedExternalCaregiverEntity() {
+    public LinkedCaregiver() {
     }
 
-    public void setExternalId(String externalId) {
+    public LinkedCaregiver(String externalId, String linkedId) {
         this.externalId = externalId;
-    }
-
-    public void setLinkedId(String linkedId) {
         this.linkedId = linkedId;
     }
 
@@ -30,21 +19,24 @@ public class LinkedExternalCaregiverEntity {
         return externalId;
     }
 
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
+    }
+
     public String getLinkedId() {
         return linkedId;
     }
-}
 
-class LinkedExternalCaregiverPk implements Serializable {
-    private String externalId;
-    private String linkedId;
+    public void setLinkedId(String linkedId) {
+        this.linkedId = linkedId;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof LinkedExternalCaregiverPk)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        LinkedExternalCaregiverPk that = (LinkedExternalCaregiverPk) o;
+        LinkedCaregiver that = (LinkedCaregiver) o;
 
         if (!Objects.equals(externalId, that.externalId)) return false;
         return Objects.equals(linkedId, that.linkedId);
