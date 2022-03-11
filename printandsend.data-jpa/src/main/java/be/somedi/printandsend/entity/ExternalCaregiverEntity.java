@@ -8,7 +8,7 @@ import javax.persistence.*;
 
 @Entity
 @Indexed
-@Table(name = "dbo.Communication_ExternalCaregiver")
+@Table(name = "Communication_ExternalCaregiver")
 public class ExternalCaregiverEntity {
 
     @Id

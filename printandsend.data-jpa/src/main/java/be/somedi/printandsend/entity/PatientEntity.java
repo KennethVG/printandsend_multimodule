@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Entity
 @Indexed
-@Table(name = "dbo.Global_Patient")
+@Table(name = "Global_Patient")
 public class PatientEntity {
 
     @Id
