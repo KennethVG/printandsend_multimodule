@@ -3,6 +3,7 @@ package be.somedi.printandsend.io;
 import be.somedi.printandsend.model.Address;
 import be.somedi.printandsend.model.UMFormat;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,7 +51,7 @@ public class TXTJobs {
         try {
             allLines = FileUtils.readLines(path.toFile(), charset);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.ERROR, "Failed to read lines from file.");
         }
     }
 
@@ -137,7 +138,7 @@ public class TXTJobs {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.ERROR, "Failed to read files from deleteFileList.txt");
             }
         }
         return false;
@@ -145,7 +146,7 @@ public class TXTJobs {
 
     public String getExternalIdOfCaregiverTo() {
         String externalIdOfCaregiver = getTextAfterKey("DR");
-        if (externalIdOfCaregiver == null || externalIdOfCaregiver.equals("") || externalIdOfCaregiver.length() > 7) {
+        if (externalIdOfCaregiver == null || externalIdOfCaregiver.isEmpty() || externalIdOfCaregiver.length() > 7) {
             externalIdOfCaregiver = null;
         }
         return externalIdOfCaregiver;
@@ -153,11 +154,10 @@ public class TXTJobs {
 
     public String getExternalIdOfCaregiverFrom() {
         String externalIdOfCaregiver = getTextAfterKey("UA");
-        if (externalIdOfCaregiver == null || externalIdOfCaregiver.equals("") || externalIdOfCaregiver.length() > 7) {
+        if (externalIdOfCaregiver == null || externalIdOfCaregiver.isEmpty() || externalIdOfCaregiver.length() > 7) {
             return externalIdOfCaregiver;
         } else {
-            boolean vanOpstal = externalIdOfCaregiver.equalsIgnoreCase("C6904") || externalIdOfCaregiver.equalsIgnoreCase("D6904");
-            return vanOpstal ? "S690V" : "S" + externalIdOfCaregiver.substring(1);
+            return "S" + externalIdOfCaregiver.substring(1);
         }
     }
 
@@ -206,7 +206,7 @@ public class TXTJobs {
                                     .append("\r\n").append("]")
                                     .append(substring(oneLine, summaryIndex)).append("\r\n");
                         }
-                    } else if (oneLine.equals("")) {
+                    } else if (oneLine.isEmpty()) {
                         result.append(oneLine).append("\r\n");
                     } else {
                         result.append("]").append(oneLine).append("\r\n");

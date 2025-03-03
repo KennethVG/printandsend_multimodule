@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.Arrays;
 import java.util.concurrent.Future;
+import java.util.stream.Stream;
 
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
@@ -86,21 +87,17 @@ public class WatchServiceOfDirectory {
     }
 
     public void processEventsBeforeWatching() {
-        try {
-            LOGGER.info("Path om te lezen: " + pathNew);
-            Files.list(pathNew).forEach(file -> {
+        try(Stream<Path> lijst = Files.list(pathNew); Stream<Path> lijstPDF = Files.list(pathNew)) {
+            lijst.forEach(file -> {
                 if (file.getFileName().toString().startsWith("MSE") && file.toString().endsWith(".txt")) {
                     printForExternalCaregiver(file);
-                }
-            });
-            // Verwijder resterende PDF files uit new folder.
-            Files.list(pathNew).filter(path -> FilenameUtils.getExtension(path.getFileName().toString()).equalsIgnoreCase("PDF")).forEach(path -> {
+                }});
+            lijstPDF.filter(path -> FilenameUtils.getExtension(path.getFileName().toString()).equalsIgnoreCase("PDF")).forEach(path -> {
                 LOGGER.info(path + " succesvol verwijderd (pdf blijven staan in folder new)");
                 deleteQuietly(path.toFile());
             });
-
             LOGGER.info("Start met het printen en verzenden van alle nieuwe verslagen");
-        } catch (IOException e) {
+        }catch (IOException e) {
             LOGGER.error(e.getMessage());
         }
     }
@@ -162,12 +159,12 @@ public class WatchServiceOfDirectory {
                 Boolean needPrint = externalCaregiverEntity.getPrintProtocols();
                 if (secondCopy) {
                     Boolean needSecondCopy = externalCaregiverEntity.getSecondCopy();
-                    if (needSecondCopy != null && !needSecondCopy.toString().equals("") && needSecondCopy) {
+                    if (needSecondCopy != null && !needSecondCopy.toString().isEmpty() && needSecondCopy) {
                         LOGGER.info(externalCaregiverEntity.getLastName() + " wil graag een kopie van de brief ontvangen.");
                         pdfJobs.printPDF();
                     }
                 } else {
-                    if (needPrint == null || needPrint.toString().equals("")) {
+                    if (needPrint == null || needPrint.toString().isEmpty()) {
                         errorMessage = "Printprotocols is NULL of LEEG. Zet deze op true of false voor Dr. met externalID: " + externalIdOfCaregiver;
                         makeErrorMessage(errorMessage, pdfJobs, fileName);
                         return false;
