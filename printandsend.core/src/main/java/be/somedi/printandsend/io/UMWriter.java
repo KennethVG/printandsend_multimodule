@@ -20,7 +20,7 @@ public class UMWriter {
             Files.write(Paths.get(pathToUM + "\\HEC_" + caregiverTo.getExternalID() + "R_" + refNr + "R.REP"), output.getBytes(Charset.forName("windows-1252")));
 
             // Make ADR file
-            String first8NumbersOfRizivFromCaregiverTo = left(caregiverTo.getNihiiAddress() == null || caregiverTo.getNihiiAddress().equalsIgnoreCase("NULL") ? caregiverTo.getNihii() : caregiverTo.getNihiiAddress(), 8);
+            String first8NumbersOfRizivFromCaregiverTo = left(caregiverTo.getInstitutionNumber() == null || caregiverTo.getInstitutionNumber().equalsIgnoreCase("NULL") ? caregiverTo.getNihii() : caregiverTo.getInstitutionNumber(), 8);
             Files.write(Paths.get(pathToUM + "\\HEC_" + caregiverTo.getExternalID() + "R_" + refNr + "R.ADR"), first8NumbersOfRizivFromCaregiverTo.getBytes(Charset.forName("windows-1252")));
 
             //TODO: error handling

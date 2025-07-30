@@ -33,7 +33,7 @@ public class ExternalCaregiverEntity {
     private Boolean printProtocols;
     @Enumerated(EnumType.STRING)
     private UMFormat format;
-    private String nihiiAddress;
+    private String institutionNumber;
     private Boolean eProtocols;
     private Boolean secondCopy;
 
@@ -41,7 +41,7 @@ public class ExternalCaregiverEntity {
     public ExternalCaregiverEntity() {
     }
 
-    public ExternalCaregiverEntity(String externalID, String firstName, String lastName, String nihii, String streetWithNumber, String zip, String city, String title, String phone, Boolean active, Boolean printProtocols, UMFormat format, String nihiiAddress, Boolean eProtocols, Boolean secondCopy) {
+    public ExternalCaregiverEntity(String externalID, String firstName, String lastName, String nihii, String streetWithNumber, String zip, String city, String title, String phone, Boolean active, Boolean printProtocols, UMFormat format, String institutionNumber, Boolean eProtocols, Boolean secondCopy) {
         this.externalID = externalID;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -54,7 +54,7 @@ public class ExternalCaregiverEntity {
         this.active = active;
         this.printProtocols = printProtocols;
         this.format = format;
-        this.nihiiAddress = nihiiAddress;
+        this.institutionNumber = institutionNumber;
         this.eProtocols = eProtocols;
         this.secondCopy = secondCopy;
     }
@@ -147,12 +147,12 @@ public class ExternalCaregiverEntity {
         this.format = format;
     }
 
-    public String getNihiiAddress() {
-        return nihiiAddress;
+    public String getInstitutionNumber() {
+        return institutionNumber;
     }
 
-    public void setNihiiAddress(String nihiiAddress) {
-        this.nihiiAddress = nihiiAddress;
+    public void setInstitutionNumber(String institutionNumber) {
+        this.institutionNumber = institutionNumber;
     }
 
     public Boolean geteProtocols() {

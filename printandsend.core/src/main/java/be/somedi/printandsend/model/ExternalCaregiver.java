@@ -17,7 +17,7 @@ public class ExternalCaregiver {
     private Boolean active = Boolean.TRUE;
     private Boolean printProtocols;
     private UMFormat format;
-    private String nihiiAddress;
+    private String institutionNumber;
     private Boolean eProtocols;
     private Boolean secondCopy;
     private String fullName;
@@ -25,7 +25,7 @@ public class ExternalCaregiver {
     public ExternalCaregiver() {
     }
 
-    public ExternalCaregiver(String externalID, String firstName, String lastName, String nihii, String streetWithNumber, String zip, String city, String title, Boolean active, String phone, Boolean printProtocols, UMFormat format, String nihiiAddress, Boolean eProtocols, Boolean secondCopy) {
+    public ExternalCaregiver(String externalID, String firstName, String lastName, String nihii, String streetWithNumber, String zip, String city, String title, Boolean active, String phone, Boolean printProtocols, UMFormat format, String institutionNumber, Boolean eProtocols, Boolean secondCopy) {
         this.externalID = externalID;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -38,7 +38,7 @@ public class ExternalCaregiver {
         this.phone = phone;
         this.printProtocols = printProtocols;
         this.format = format;
-        this.nihiiAddress = nihiiAddress;
+        this.institutionNumber = institutionNumber;
         this.eProtocols = eProtocols;
         this.secondCopy = secondCopy;
     }
@@ -155,12 +155,12 @@ public class ExternalCaregiver {
         this.format = format;
     }
 
-    public String getNihiiAddress() {
-        return nihiiAddress;
+    public String getInstitutionNumber() {
+        return institutionNumber;
     }
 
-    public void setNihiiAddress(String nihiiAddress) {
-        this.nihiiAddress = nihiiAddress;
+    public void setInstitutionNumber(String institutionNumber) {
+        this.institutionNumber = institutionNumber;
     }
 
     public Boolean geteProtocols() {
@@ -212,7 +212,7 @@ public class ExternalCaregiver {
                 ", active=" + active +
                 ", printProtocols=" + printProtocols +
                 ", format=" + format +
-                ", nihiiAddress='" + nihiiAddress + '\'' +
+                ", institutionNumber='" + institutionNumber + '\'' +
                 ", eProtocols=" + eProtocols +
                 ", secondCopy=" + secondCopy +
                 '}';

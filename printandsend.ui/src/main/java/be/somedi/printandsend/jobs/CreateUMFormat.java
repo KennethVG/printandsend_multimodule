@@ -229,7 +229,7 @@ public class CreateUMFormat {
 
         if (caregiverTo != null) {
             if (caregiverTo.geteProtocols() != null && caregiverTo.geteProtocols()) {
-                if (caregiverTo.getNihiiAddress() == null || caregiverTo.getNihiiAddress().equals("NULL")) {
+                if (caregiverTo.getInstitutionNumber() == null || caregiverTo.getInstitutionNumber().equals("NULL")) {
                     return RIZIV_ADRES_NULL;
                 } else {
                     LOGGER.info("Brief proberen verzenden naar arts in AAN/CC");
